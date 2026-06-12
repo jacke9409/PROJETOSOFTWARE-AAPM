@@ -1,51 +1,66 @@
-const wrapper = document.getElementById('panoramaWrapper');
-const background = document.querySelector('.panorama-background');
+const universoScroll = document.getElementById('universoScroll');
 
-let isDragging = false;
-let startX = 0;
-let currentTranslate = -100; // Começa em -100vw (Centro)
-let targetTranslate = -100;
+// Guardamos os índices dos painéis: 0 = Login, 1 = Centro, 2 = Público
+let painelAtual = 1; 
+const totalPaineis = 3;
+let emTransicao = false;
 
-// Mapeamento de posições das telas
-const posicoes = {
-    'login': 0,        // Tela da Esquerda (0vw)
-    'centro': -100,    // Tela do Meio (-100vw)
-    'visualizacao': -200 // Tela da Direita (-200vw)
-};
-
-// Função acionada pelos links da Navbar
-function moverPara(local) {
-    if (posicoes[local] !== undefined) {
-        currentTranslate = posicoes[local];
-        background.style.transform = `translateX(${currentTranslate}vw)`;
-    }
+// Função direta para mover via cliques nas setas indicadores
+function moverParaPainel(indice) {
+    if (indice < 0 || indice >= totalPaineis) return;
+    painelAtual = indice;
+    
+    // Multiplica o índice por -100vh para deslocar a visualização verticalmente
+    universoScroll.style.transform = `translateY(-${indice * 100}vh)`;
 }
 
-// Eventos de Arrastar com o Mouse (Drag)
-wrapper.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startX = e.clientX;
-});
+// Intercepta o scroll da roda do mouse (Wheel) para dar o efeito magnético 360°
+window.addEventListener('wheel', (e) => {
+    if (emTransicao) return;
 
-window.addEventListener('mouseup', () => {
-    isDragging = false;
-});
-
-window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    
-    const diffX = e.clientX - startX;
-    
-    // Se arrastar bastante para a direita, vai para a esquerda (Login)
-    if (diffX > 150 && currentTranslate < 0) {
-        currentTranslate += 100;
-        background.style.transform = `translateX(${currentTranslate}vw)`;
-        isDragging = false;
-    } 
-    // Se arrastar bastante para a esquerda, vai para a direita (Visualização)
-    else if (diffX < -150 && currentTranslate > -200) {
-        currentTranslate -= 100;
-        background.style.transform = `translateX(${currentTranslate}vw)`;
-        isDragging = false;
+    if (e.deltaY > 0) {
+        // Scroll para Baixo
+        if (painelAtual < totalPaineis - 1) {
+            painelAtual++;
+            executarMudanca();
+        }
+    } else if (e.deltaY < 0) {
+        // Scroll para Cima
+        if (painelAtual > 0) {
+            painelAtual--;
+            executarMudanca();
+        }
     }
-});
+}, { passive: true });
+
+function executarMudanca() {
+    emTransicao = true;
+    universoScroll.style.transform = `translateY(-${painelAtual * 100}vh)`;
+    
+    // Trava temporariamente para evitar saltos múltiplos bruscos de tela
+    setTimeout(() => {
+        emTransicao = false;
+    }, 800); // Tempo batendo com o '0.8s' definido no CSS transition
+}
+
+// Suporte opcional para arrastar em telas de toque (Touch)
+let touchStartY = 0;
+window.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+window.addEventListener('touchend', (e) => {
+    if (emTransicao) return;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffY = touchStartY - touchEndY;
+
+    if (Math.abs(diffY) > 50) { // Sensibilidade mínima de movimento
+        if (diffY > 0 && painelAtual < totalPaineis - 1) {
+            painelAtual++;
+            executarMudanca();
+        } else if (diffY < 0 && painelAtual > 0) {
+            painelAtual--;
+            executarMudanca();
+        }
+    }
+}, { passive: true });

@@ -1,31 +1,4 @@
-{% extends "base.html" %}
+{% extends "public/base.html" %}
 
-{% block login_content %}
-<div class="login-wrapper-secao animate-fade-in">
-    <h2 class="titulo-restrito-topo">ACESSO RESTRITO ADMINISTRATIVO</h2>
-
-    <div class="card-glass-login">
-        <h3 class="titulo-card-login">Login</h3>
-        
-        <form class="formulario-login">
-            <div class="campo-oval-grupo">
-                <input type="email" id="email" placeholder="E-mail" required>
-                <span class="icone-input">&#9993;</span> </div>
-
-            <div class="campo-oval-grupo">
-                <input type="password" id="password" placeholder="Senha" required>
-                <span class="icone-input">&#128274;</span> </div>
-
-            <div class="opcoes-lembrete">
-                <label class="container-checkbox">
-                    <input type="checkbox" id="lembrar">
-                    <span class="checkmark"></span>
-                    Lembrar de mim
-                </label>
-            </div>
-
-            <button type="submit" class="btn-entrar-oval">Entrar</button>
-        </form>
-    </div>
-</div>
+{% block content %}
 {% endblock %}

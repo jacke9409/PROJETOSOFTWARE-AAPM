@@ -1,303 +1,216 @@
 /* ==========================================================================
-   1. RESET BÁSICO E CONFIGURAÇÕES GERAIS
+   1. RESET TOTAL E VARIAVÈIS DE AMBIENTE
    ========================================================================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 body, html {
-    overflow: hidden; /* Trava a barra de rolagem padrão do navegador */
+    overflow: hidden;
     width: 100%;
     height: 100%;
-    background-color: #0b1d33;
+    background-color: #050f1a;
 }
 
 /* ==========================================================================
-   2. NAVBAR SUPERIOR (FIXA NO TOPO)
+   2. CONTAINER VERTICAL CONTÍNUO
    ========================================================================== */
-.navbar-superior {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 50px;
-    z-index: 10;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0));
-    color: white;
-}
-
-.navbar-superior .logo {
-    font-weight: bold;
-    letter-spacing: 2px;
-    font-size: 1.2rem;
-}
-
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 30px;
-}
-
-.nav-links a {
-    color: #e0e0e0;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-    cursor: pointer;
-}
-
-.nav-links a:hover {
-    color: #5ca0f2;
-}
-
-/* ==========================================================================
-   3. ESTRUTURA DO PANORAMA 360° (MECANISMO DE DESLIZAR)
-   ========================================================================== */
-.panorama-wrapper {
+.universo-vertical {
     width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    cursor: grab;
-}
-
-.panorama-wrapper:active {
-    cursor: grabbing;
-}
-
-/* O fundo do cenário que junta as 3 telas lado a lado (300vw de largura total) */
-.panorama-background {
+    height: 300vh; /* 3 telas empilhadas verticalmente */
     display: flex;
-    width: 300vw; 
-    height: 100vh;
-    /* Busca a imagem dentro da pasta static/images/ */
-    background: url('static/assets/Site - AAPM (7).svg') repeat-x; 
-    background-size: cover;
-    background-position: center;
-    /* Transição suave de 0.6 segundos controlada pelo JavaScript */
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-    transform: translateX(-100vw); /* Inicia centralizado na tela do meio (Início) */
+    flex-direction: column;
+    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: translateY(-100vh); /* Começa fixado no painel central */
 }
 
-/* Cada seção ocupa exatamente a largura de 1 monitor inteiro */
-.painel-secao {
+.painel-vertical {
     width: 100vw;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
-    padding-top: 80px; /* Desconto para não sumir atrás da navbar */
+    padding: 40px;
 }
 
 /* ==========================================================================
-   4. TELA CENTRAL: HOME INSTITUCIONAL (BASEADO NO SEU PROTOCOLO)
+   3. TRANSIÇÃO DE CORES DO CÉU E MONTANHAS (CSS ILUSTRATIVO)
    ========================================================================== */
-.conteudo-institucional {
+/* Topo: Noite profunda com estrelas */
+#painel-login {
+    background: linear-gradient(to bottom, #02060c, #0b1a30);
+    box-shadow: inset 0 -100px 100px rgba(0,0,0,0.5);
+}
+
+/* Centro: O degradê azul clássico das suas montanhas originais */
+#painel-centro {
+    background: linear-gradient(to bottom, #0b1a30, #1e3d59, #17b978);
+    background: linear-gradient(to bottom, #0b1a30 0%, #173e65 50%, #2a628f 100%);
+}
+
+/* Base: Transição suave para o portal do aluno/público */
+#painel-publico {
+    background: linear-gradient(to bottom, #2a628f, #132e4f);
+}
+
+/* ==========================================================================
+   4. COMPONENTES DO DESIGN (LOGO, CARD GLASS, BOTÕES)
+   ========================================================================== */
+.conteudo-marca {
     text-align: center;
     color: white;
-    max-width: 800px;
-    padding: 20px;
 }
 
-.titulo-aapm {
-    font-size: 6rem;
+.logo-aapm-vetorial {
+    font-size: 5rem;
     font-weight: 900;
     letter-spacing: 5px;
-    color: #a3c7f7;
-    text-shadow: 3px 3px 20px rgba(0,0,0,0.6);
-    line-height: 1;
+    color: #ffffff;
+    text-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255,255,255,0.2);
 }
 
-.subtitulo-senai {
-    font-size: 0.85rem;
-    letter-spacing: 5px;
-    margin-top: 5px;
-    margin-bottom: 45px;
+.subtexto-marca {
+    font-size: 1rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: -10px;
+}
+
+/* Card de Login em Glassmorphism */
+.card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.titulo-admin {
+    color: white;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
     opacity: 0.9;
 }
 
-.texto-principal {
-    font-size: 1.9rem;
-    font-weight: 600;
-    line-height: 1.6;
-    text-shadow: 2px 2px 12px rgba(0,0,0,0.9);
-}
-
-.rodape-logo {
-    display: block;
-    font-size: 0.75rem;
-    margin-top: 50px;
-    opacity: 0.6;
-    letter-spacing: 2px;
-}
-
-/* ==========================================================================
-   5. TELA DA ESQUERDA: LOGIN ADMINISTRATIVO (GLASSMORPHISM)
-   ========================================================================== */
-.login-wrapper-secao {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-}
-
-/* Título solicitado fixado acima do card de login */
-.titulo-restrito-topo {
-    color: #ffffff;
-    font-size: 1.4rem;
-    font-weight: bold;
-    letter-spacing: 2px;
+.card-glass h3 {
+    color: white;
+    font-size: 1.8rem;
     margin-bottom: 25px;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
-    text-align: center;
+    font-weight: 400;
 }
 
-/* O Card de Vidro Fosco */
-.card-glass-login {
-    background: rgba(255, 255, 255, 0.08); /* Fundo branco bem transparente */
-    backdrop-filter: blur(15px); /* Cria o efeito embaçado do vidro */
-    -webkit-backdrop-filter: blur(15px);
-    border: 1.5px solid rgba(255, 255, 255, 0.4); /* Borda fina simulando reflexo no vidro */
-    padding: 45px 40px;
-    border-radius: 25px; /* Cantos arredondados identicos ao seu print */
-    width: 420px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+.input-grupo {
+    margin-bottom: 20px;
 }
 
-.titulo-card-login {
-    color: white;
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: 500;
-    margin-bottom: 35px;
-    letter-spacing: 1px;
-}
-
-/* Inputs Ovais com Ícone interno */
-.campo-oval-grupo {
-    position: relative;
-    margin-bottom: 22px;
-}
-
-.campo-oval-grupo input {
+.input-grupo input {
     width: 100%;
-    padding: 14px 25px;
-    padding-right: 50px; /* Evita que o texto encoste no ícone da direita */
-    background: transparent;
-    border: 2px solid rgba(255, 255, 255, 0.85); /* Borda branca bem definida */
-    border-radius: 30px; /* Torna o input totalmente oval */
+    padding: 14px 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
     color: white;
-    font-size: 1.05rem;
     outline: none;
-    transition: all 0.3s;
+    font-size: 1rem;
 }
 
-.campo-oval-grupo input::placeholder {
-    color: rgba(255, 255, 255, 0.75);
+.input-grupo input:focus {
+    border-color: #ffffff;
 }
 
-.campo-oval-grupo input:focus {
-    border-color: #5ca0f2;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Alinhamento dos ícones de envelope e cadeado dentro dos inputs */
-.icone-input {
-    position: absolute;
-    right: 22px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: white;
-    font-size: 1.2rem;
-    pointer-events: none;
-}
-
-/* Alinhamento do "Lembrar de mim" */
-.opcoes-lembrete {
-    margin-top: -5px;
-    margin-bottom: 30px;
-    padding-left: 5px;
-}
-
-.container-checkbox {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.95rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    user-select: none;
-}
-
-/* Botão Entrar Oval Azul Escuro */
-.btn-entrar-oval {
+.btn-entrar {
     width: 100%;
     padding: 14px;
-    background: #4a77be; /* Cor exata do botão azul do seu print */
+    background: #ffffff;
     border: none;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 30px; /* Acompanha o formato oval dos inputs */
+    border-radius: 30px;
+    color: #0b1a30;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s, transform 0.1s;
+    transition: transform 0.2s, background 0.2s;
 }
 
-.btn-entrar-oval:hover {
-    background: #3b639e;
+.btn-entrar:hover {
+    background: #e5e5e5;
+    transform: translateY(-2px);
 }
 
-.btn-entrar-oval:active {
-    transform: scale(0.98);
-}
-
-/* ==========================================================================
-   6. TELA DA DIREITA: VISUALIZAÇÃO PÚBLICA (ESTRUTURA BASE VAZIA)
-   ========================================================================== */
-.catalogo-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    width: 85%;
-    max-width: 1000px;
+/* Estilo do Site do Público */
+.conteudo-publico {
     color: white;
+    text-align: center;
+    max-width: 600px;
 }
 
-.modulo-publico {
-    background: rgba(11, 29, 51, 0.75);
-    border-left: 5px solid #5ca0f2;
-    padding: 25px;
-    border-radius: 5px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-
-.modulo-publico h3 {
-    color: #a3c7f7;
+.titulo-publico {
+    font-size: 2.5rem;
     margin-bottom: 15px;
 }
 
-/* ==========================================================================
-   7. ANIMAÇÕES DE ENTRADA (EFEITOS VISUAIS FADE-IN)
-   ========================================================================== */
-.animate-fade-in {
-    animation: fadeIn 0.8s ease-out forwards;
+.desc-publico {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    line-height: 1.6;
+    margin-bottom: 30px;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.vitrine-fake-placeholder {
+    border: 2px dashed rgba(255,255,255,0.3);
+    padding: 60px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.02);
+}
+
+/* ==========================================================================
+   5. SETAS E ELEMENTOS INDICADORES DE NAVEGAÇÃO
+   ========================================================================== */
+.seta-indicadora {
+    position: absolute;
+    color: white;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.6;
+    transition: opacity 0.3s, transform 0.3s;
+    user-select: none;
+    z-index: 10;
+}
+
+.seta-indicadora:hover {
+    opacity: 1;
+}
+
+.seta-indicadora span {
+    font-size: 1.5rem;
+}
+
+.seta-topo { top: 40px; animation: bounceVert 2s infinite; }
+.seta-rodape { bottom: 40px; animation: bounceVertOs 2s infinite; }
+.seta-baixo { bottom: 40px; }
+.seta-cima { top: 40px; }
+
+@keyframes bounceVert {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+@keyframes bounceVertOs {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
 }
