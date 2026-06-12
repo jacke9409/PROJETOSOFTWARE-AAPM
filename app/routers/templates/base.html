@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAPM - SENAI Brás</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    {% block ext_css %}{% endblock %}
+</head>
+<body>
+
+    <header class="navbar-superior">
+        <div class="logo">SENAI BRÁS-SP</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#" onclick="moverPara('login')">Acesso Restrito</a></li>
+                <li><a href="#" onclick="moverPara('centro')">Início</a></li>
+                <li><a href="#" onclick="moverPara('visualizacao')">Produtos</a></li>
+                <li><a href="#" onclick="moverPara('visualizacao')">Horários</a></li>
+                <li><a href="#" onclick="moverPara('visualizacao')">Dúvidas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="panorama-wrapper" id="panoramaWrapper">
+        <div class="panorama-background">
+            
+            <section class="painel-secao" id="secao-login">
+                {% block login_content %}
+                {% endblock %}
+            </section>
+
+            <section class="painel-secao" id="secao-centro">
+                <div class="conteudo-institucional">
+                    <h1 class="titulo-aapm">AAPM</h1>
+                    <p class="subtitulo-senai">SENAI</p>
+                    <p class="texto-principal">
+                        Acesse o site da AAPM e descubra sobre nossos produtos com praticidade e rapidez.<br>
+                        Compre e agende com a AAPM.
+                    </p>
+                    <span class="rodape-logo">AAPM</span>
+                </div>
+            </section>
+
+            <section class="painel-secao" id="secao-visualizacao">
+                {% block public_content %}
+                {% endblock %}
+            </section>
+
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='js/script.js') }}"></script>
+    {% block ext_js %}{% endblock %}
+</body>
+</html>

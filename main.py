@@ -1,20 +1,27 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from app.database import engine, Base
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 
-# IMPORTANTE: Para o SQLAlchemy saber quais tabelas criar, 
-# precisamos importar os modelos aqui antes de dar o "create_all"
-from app.models.categoria import Categoria
-# (Depois vamos importando os outros modelos aqui: usuario, produto, etc.)
+app = FastAPI()
 
-# Cria as tabelas no banco de dados se elas não existirem
-Base.metadata.create_all(bind=engine)
+# Aponta para onde a pasta templates REALMENTE está
+templates = Jinja2Templates(directory="app/routers/templates")
 
-app = FastAPI(title="Sistema de Gerenciamento de Estoque - AAPM")
-
-# Configuração para arquivos estáticos (CSS, JS, Imagens de Assets)
+# AQUI ESTÁ A CORREÇÃO: Montando a pasta static da raiz corretamente no FastAPI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-def read_root():
-    return {"status": "Sucesso", "mensagem": "O backend está conectado ao banco de dados!"}
+from fastapi import Request
+from fastapi.responses import HTMLResponse
+
+@app.get("/", response_class=HTMLResponse)
+async def pagina_inicial(request: Request):
+    # Colocamos o "context=" explicitamente antes do dicionário
+   return templates.TemplateResponse(request=request, name="base.html")
+@app.get("/login", response_class=HTMLResponse)
+async def pagina_login(request: Request):
+    return templates.TemplateResponse(request=request, name="auth/login.html")
+
+@app.get("/visualizacao", response_class=HTMLResponse)
+async def pagina_visualizacao(request: Request):
+    return templates.TemplateResponse(request=request, name="public/visualizacao.html")
