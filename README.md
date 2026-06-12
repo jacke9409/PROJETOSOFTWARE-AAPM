@@ -1,7 +1,7 @@
 Iniciar o servidor com recarregamento automático (Uvicorn):
 
 Bash
-uvicorn main:app --reload
+ uvicorn main:app --reload
 Parar o servidor que está rodando:
 
 Pressione Ctrl + C dentro do terminal.
