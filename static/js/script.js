@@ -67,3 +67,23 @@ function destacarProduto(elemento) {
         elemento.classList.add('expandido');
     }
 }
+// Inclua este bloco junto às suas funções do script.js existente
+
+function trocarAbasDashboard(itemClicado, idAbaDestino) {
+    // 1. Remover a classe "ativo" de todos os botões da barra lateral
+    const itensMenu = document.querySelectorAll('.item-menu');
+    itensMenu.forEach(item => item.classList.remove('ativo'));
+
+    // 2. Adicionar a classe "ativo" no botão que recebeu o clique
+    itemClicado.classList.add('ativo');
+
+    // 3. Ocultar todos os painéis de conteúdo das abas
+    const paineis = document.querySelectorAll('.aba-painel');
+    paineis.forEach(painel => painel.classList.add('oculta-aba'));
+
+    // 4. Mostrar apenas o painel correspondente à aba selecionada
+    const abaAlvo = document.getElementById(idAbaDestino);
+    if (abaAlvo) {
+        abaAlvo.classList.remove('oculta-aba');
+    }
+}

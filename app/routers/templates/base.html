@@ -9,62 +9,43 @@
 </head>
 <body>
 
-    <!-- =============================================
-         FUNDO: MONTANHAS (SVG em camadas)
-         ============================================= -->
     <div class="fundo-fixo">
-        <!-- Céu degradê -->
         <div class="sky"></div>
-
-        <!-- Nuvens -->
         <div class="camada-nuvens">
             <svg width="100%" height="100%" viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <!-- Grupo de nuvens à esquerda -->
                 <ellipse cx="160"  cy="100" rx="130" ry="55"  fill="white" opacity=".92"/>
                 <ellipse cx="240"  cy="80"  rx="90"  ry="48"  fill="white" opacity=".97"/>
                 <ellipse cx="80"   cy="110" rx="80"  ry="38"  fill="white" opacity=".85"/>
-                <!-- Centro-esquerda -->
                 <ellipse cx="480"  cy="70"  rx="110" ry="45"  fill="white" opacity=".88"/>
                 <ellipse cx="570"  cy="52"  rx="80"  ry="38"  fill="white" opacity=".93"/>
                 <ellipse cx="390"  cy="80"  rx="75"  ry="33"  fill="white" opacity=".80"/>
-                <!-- Centro -->
                 <ellipse cx="750"  cy="90"  rx="120" ry="48"  fill="white" opacity=".78"/>
                 <ellipse cx="850"  cy="70"  rx="85"  ry="38"  fill="white" opacity=".70"/>
-                <!-- Centro-direita -->
                 <ellipse cx="1050" cy="75"  rx="105" ry="44"  fill="white" opacity=".87"/>
                 <ellipse cx="1140" cy="55"  rx="78"  ry="36"  fill="white" opacity=".91"/>
                 <ellipse cx="960"  cy="85"  rx="68"  ry="30"  fill="white" opacity=".75"/>
-                <!-- Direita -->
                 <ellipse cx="1290" cy="95"  rx="95"  ry="42"  fill="white" opacity=".84"/>
                 <ellipse cx="1360" cy="78"  rx="65"  ry="32"  fill="white" opacity=".88"/>
-                <!-- Nuvens menores, mais baixas -->
                 <ellipse cx="300"  cy="170" rx="90"  ry="32"  fill="white" opacity=".50"/>
                 <ellipse cx="900"  cy="180" rx="100" ry="36"  fill="white" opacity=".45"/>
                 <ellipse cx="1200" cy="165" rx="80"  ry="28"  fill="white" opacity=".48"/>
             </svg>
         </div>
-
-        <!-- Montanhas ao fundo (mais claras) -->
         <div class="camada-montanhas-fundo">
             <svg width="100%" height="100%" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0,340 0,180 100,100 200,160 340,70 480,140 620,50 760,130 900,60 1050,120 1200,55 1350,100 1400,80 1400,340" fill="#2a5080"/>
                 <polygon points="0,340 0,210 80,160 200,190 340,120 470,165 620,100 780,160 920,105 1060,155 1210,95 1360,140 1400,120 1400,340" fill="#1e3e6e"/>
             </svg>
         </div>
-
-        <!-- Montanhas na frente (mais escuras) -->
         <div class="camada-montanhas-frente">
             <svg width="100%" height="100%" viewBox="0 0 1400 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0,260 0,140 130,50 280,120 430,30 600,100 760,20 930,90 1080,25 1250,80 1400,40 1400,260" fill="#163060"/>
                 <polygon points="0,260 0,175 110,110 260,150 410,80 580,130 740,65 900,120 1060,70 1220,110 1400,75 1400,260" fill="#0f2247"/>
             </svg>
         </div>
-
-        <!-- Faixa de árvores + chão -->
         <div class="camada-arvores">
             <svg width="100%" height="100%" viewBox="0 0 1400 100" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
                 <rect x="0" y="0" width="1400" height="100" fill="#0a1830"/>
-                <!-- Árvores lado esquerdo -->
                 <polygon points="20,100  35,58  50,100"  fill="#0d2240"/>
                 <polygon points="12,100  35,38  58,100"  fill="#0d2240"/>
                 <polygon points="70,100  86,55  102,100" fill="#0d2240"/>
@@ -77,7 +58,6 @@
                 <polygon points="233,100 253,38 273,100" fill="#0d2240"/>
                 <polygon points="295,100 308,65 321,100" fill="#0d2240"/>
                 <polygon points="288,100 308,45 328,100" fill="#0d2240"/>
-                <!-- Árvores lado direito -->
                 <polygon points="1080,100 1095,58 1110,100" fill="#0d2240"/>
                 <polygon points="1073,100 1095,38 1117,100" fill="#0d2240"/>
                 <polygon points="1135,100 1150,55 1165,100" fill="#0d2240"/>
@@ -94,33 +74,23 @@
         </div>
     </div>
 
-    <!-- =============================================
-         PALCO DOS UNIVERSOS (zoom GSAP)
-         ============================================= -->
     <div class="palco-zoom">
         <div class="universo-3d" id="universo3D">
 
-            <!-- =========  UNIVERSO HOME  ========= -->
             <div class="camada-universo" id="universo-home">
-
-                <!-- Zona de clique esquerda → Admin -->
                 <div class="zona-clique zona-esquerda" onclick="viajarPara('admin')" title="Área administrativa">
                     <span class="seta-suave">&#9664; Admin</span>
                 </div>
-
-                <!-- Zona de clique direita → Catálogo -->
                 <div class="zona-clique zona-direita" onclick="viajarPara('publico')" title="Ver catálogo">
                     <span class="seta-suave">Catálogo &#9654;</span>
                 </div>
 
-                <!-- Badge SENAI canto superior direito -->
                 <div class="badge-senai">
                     <div class="badge-titulo">SENAI<br>BRÁS-SP</div>
                     <div class="badge-sub">FRANCISCO MATARAZZO · RUA CORREIA DE ANDRADE 232</div>
                     <div class="badge-rua">TÊXTIL E MODA</div>
                 </div>
 
-                <!-- Conteúdo central -->
                 <div class="conteudo-centro">
                     <span class="label-senai">SENAI</span>
                     <div class="logo-aapm-3d">AAPM</div>
@@ -129,15 +99,12 @@
                         <strong>Compre e agende com a AAPM</strong>
                     </p>
                 </div>
-
                 <span class="rodape-aapm">AAPM</span>
             </div>
 
-            <!-- =========  UNIVERSO ADMIN  ========= -->
             <div class="camada-universo" id="universo-admin">
                 <span class="btn-voltar" onclick="voltarAoInicio()">&#8592; Voltar</span>
                 <p class="frase-topo-admin">&#9888; Acesso restrito — apenas administradores</p>
-
                 <div class="card-glass-login">
                     <h3>Login</h3>
                     <form onsubmit="fazerLogin(event)">
@@ -155,97 +122,105 @@
                 </div>
             </div>
 
-            <!-- =========  UNIVERSO PÚBLICO  ========= -->
             <div class="camada-universo" id="universo-publico">
-                <span class="btn-voltar" onclick="voltarAoInicio()">&#8592; Voltar para a Home</span>
+                <div class="dashboard-container">
+                    
+                    <header class="dashboard-header">
+                        <div class="header-titulos">
+                            <h2>BEM VINDO</h2>
+                            <p>Conheça nossos serviços e catálogos</p>
+                        </div>
+                    </header>
 
-                <nav class="nav-dashboard">
-                    <span class="item-nav ativo" onclick="trocarNav(this, 'secao-inicio')">Início</span>
-                    <span class="item-nav"        onclick="trocarNav(this, 'secao-catalogo')">Catálogo de Produtos</span>
-                    <span class="item-nav"        onclick="trocarNav(this, 'secao-duvidas')">Dúvidas</span>
-                </nav>
-
-                <!-- Seção: Início -->
-                <div class="secao-conteudo" id="secao-inicio">
-                    <h2 class="titulo-secao">Bem-vindo à AAPM</h2>
-                    <p class="desc-secao">Selecione "Catálogo de Produtos" para ver o que está disponível.</p>
-                </div>
-
-                <!-- Seção: Catálogo -->
-                <div class="secao-conteudo oculta" id="secao-catalogo">
-                    <div class="grade-produtos" id="grade-produtos">
-                        <!-- Cards gerados via JS / Jinja -->
-                        {% for produto in produtos %}
-                        <div class="card-produto-flutuante" onclick="destacarProduto(this)"
-                             style="animation-delay: {{ loop.index0 * 0.6 }}s">
-                            <div class="img-placeholder">
-                                {% if produto.imagem_url %}
-                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
-                                {% endif %}
+                    <div class="dashboard-corpo">
+                        
+                        <aside class="dashboard-sidebar">
+                            <div class="sidebar-label">DASHBOARD</div>
+                            <ul class="sidebar-menu">
+                                <li class="item-menu ativo" onclick="trocarAbasDashboard(this, 'aba-catalogos')">Catálogos</li>
+                                <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-categorias')">Categorias</li>
+                                <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-horarios')">Horários</li>
+                                <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-servicos')">Serviços disponíveis</li>
+                                <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-duvidas')">Dúvidas</li>
+                            </ul>
+                            <div class="sidebar-footer" onclick="voltarAoInicio()">
+                                <span>Sair</span>
                             </div>
-                            <h4>{{ produto.nome }}</h4>
-                            <p class="info-tamanho">Tamanho: {{ produto.tamanho }}</p>
-                            <p class="info-preco">R$ {{ "%.2f"|format(produto.preco) }}</p>
-                            {% if produto.disponivel %}
-                            <span class="status-disponivel">Disponível</span>
-                            {% else %}
-                            <span class="status-indisponivel">Indisponível</span>
-                            {% endif %}
-                        </div>
-                        {% else %}
-                        <!-- Fallback: dados de exemplo enquanto não há produtos no banco -->
-                        <div class="card-produto-flutuante" onclick="destacarProduto(this)">
-                            <div class="img-placeholder"></div>
-                            <h4>Camiseta SENAI</h4>
-                            <p class="info-tamanho">Tamanho: G</p>
-                            <p class="info-preco">R$ 49,90</p>
-                            <span class="status-disponivel">Disponível</span>
-                        </div>
-                        <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay:.8s">
-                            <div class="img-placeholder"></div>
-                            <h4>Apostila Têxtil</h4>
-                            <p class="info-tamanho">Tamanho: Único</p>
-                            <p class="info-preco">R$ 29,90</p>
-                            <span class="status-disponivel">Disponível</span>
-                        </div>
-                        <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay:1.6s">
-                            <div class="img-placeholder"></div>
-                            <h4>Boné AAPM</h4>
-                            <p class="info-tamanho">Tamanho: Único</p>
-                            <p class="info-preco">R$ 34,90</p>
-                            <span class="status-disponivel">Disponível</span>
-                        </div>
-                        {% endfor %}
+                        </aside>
+
+                        <main class="dashboard-conteudo-abas">
+                            
+                            <div class="aba-painel" id="aba-catalogos">
+                                <div class="grade-produtos">
+                                    {% for produto in produtos %}
+                                    <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay: {{ loop.index0 * 0.4 }}s">
+                                        <div class="img-placeholder">
+                                            {% if produto.imagem_url %}
+                                            <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
+                                            {% endif %}
+                                        </div>
+                                        <h4>{{ produto.nome }}</h4>
+                                        <p class="info-tamanho">Tamanho: {{ produto.tamanho }}</p>
+                                        <p class="info-preco">R$ {{ "%.2f"|format(produto.preco) }}</p>
+                                        <span class="status-{{ 'disponivel' if produto.disponivel else 'indisponivel' }}">
+                                            {{ 'Disponível' if produto.disponivel else 'Indisponível' }}
+                                        </span>
+                                    </div>
+                                    {% else %}
+                                    <div class="card-produto-flutuante" onclick="destacarProduto(this)">
+                                        <div class="img-placeholder"></div>
+                                        <h4>Camiseta SENAI</h4>
+                                        <p class="info-tamanho">Tamanho: G</p>
+                                        <p class="info-preco">R$ 49,90</p>
+                                        <span class="status-disponivel">Disponível</span>
+                                    </div>
+                                    <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay: 0.5s">
+                                        <div class="img-placeholder"></div>
+                                        <h4>Apostila Têxtil</h4>
+                                        <p class="info-tamanho">Tamanho: Único</p>
+                                        <p class="info-preco">R$ 29,90</p>
+                                        <span class="status-disponivel">Disponível</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="aba-painel oculta-aba" id="aba-categorias">
+                                <h3 class="titulo-aba-vazia">Categorias de Produtos</h3>
+                                <p class="texto-aba-vazia">Em breve a listagem de categorias sincronizadas com o banco.</p>
+                            </div>
+
+                            <div class="aba-painel oculta-aba" id="aba-horarios">
+                                <h3 class="titulo-aba-vazia">Horários de Atendimento</h3>
+                                <p class="texto-aba-vazia">Segunda a Sexta: 08:00 às 17:00</p>
+                            </div>
+
+                            <div class="aba-painel oculta-aba" id="aba-servicos">
+                                <h3 class="titulo-aba-vazia">Serviços Disponíveis</h3>
+                                <p class="texto-aba-vazia">Agendamentos, retirada de uniformes e materiais da AAPM.</p>
+                            </div>
+
+                            <div class="aba-painel oculta-aba" id="aba-duvidas">
+                                <div class="card-duvidas">
+                                    <h3>Perguntas Frequentes</h3>
+                                    <details>
+                                        <summary>Como faço meu pedido?</summary>
+                                        <p>Selecione o produto no catálogo e compareça presencialmente à secretaria da AAPM.</p>
+                                    </details>
+                                    <details>
+                                        <summary>Quais as formas de pagamento?</summary>
+                                        <p>Aceitamos dinheiro, cartões de débito/crédito e Pix.</p>
+                                    </details>
+                                </div>
+                            </div>
+
+                        </main>
                     </div>
                 </div>
-
-                <!-- Seção: Dúvidas -->
-                <div class="secao-conteudo oculta" id="secao-duvidas">
-                    <div class="card-duvidas">
-                        <h3>Perguntas Frequentes</h3>
-                        <details>
-                            <summary>Como faço meu pedido?</summary>
-                            <p>Selecione o produto no catálogo e entre em contato com a AAPM.</p>
-                        </details>
-                        <details>
-                            <summary>Qual o prazo de entrega?</summary>
-                            <p>O prazo varia conforme a disponibilidade do produto.</p>
-                        </details>
-                        <details>
-                            <summary>Posso devolver um produto?</summary>
-                            <p>Sim, desde que esteja nas condições originais em até 7 dias.</p>
-                        </details>
-                    </div>
-                </div>
-
-            </div>
-            <!-- fim universo-publico -->
-
-        </div>
+            </div> </div>
     </div>
 
     {% block content %}{% endblock %}
-
     <script src="{{ url_for('static', path='js/script.js') }}"></script>
 </body>
 </html>
