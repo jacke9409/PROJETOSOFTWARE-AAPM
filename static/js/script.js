@@ -450,3 +450,84 @@ async function confirmarDelecao() {
         alert("Erro de conexão com o servidor.");
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. GERENCIAMENTO EXCLUSIVO DE CATEGORIAS (AAPM SENAI BRÁS)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Variável global para armazenar temporariamente o ID da categoria que será deletada
+let categoriaDeletarId = null;
+
+function abrirModalCatAdicionar() {
+    const modal = document.getElementById('modal-cat-adicionar');
+    if (modal) {
+        modal.classList.add("visivel");
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function abrirModalCatEditar(id) {
+    const idNum = parseInt(id, 10);
+    const cat = window.CATEGORIAS_DB ? window.CATEGORIAS_DB.find(x => x.id === idNum) : null;
+    
+    if (!cat) {
+        console.error("Categoria não encontrada para o ID:", idNum);
+        return;
+    }
+
+    const inputId = document.getElementById("edit-cat-id");
+    const inputNome = document.getElementById("edit-cat-nome");
+
+    if (inputId) inputId.value = cat.id;
+    if (inputNome) inputNome.value = cat.nome;
+
+    const modal = document.getElementById('modal-cat-editar');
+    if (modal) {
+        modal.classList.add("visivel");
+        document.body.style.overflow = "hidden";
+    }
+}
+
+function abrirModalCatDeletar(id, elemento) {
+    // 🌟 SALVA O ID GLOBALMENTE: Assim a função confirmarDelecaoCategoria vai saber quem deletar
+    categoriaDeletarId = id;
+    
+    const nomeCategoria = elemento.getAttribute('data-nome');
+    const txtNome = document.getElementById('deletar-nome-categoria');
+    if (txtNome) txtNome.textContent = `"${nomeCategoria}"?`;
+
+    const modal = document.getElementById('modal-cat-deletar');
+    if (modal) {
+        modal.classList.add("visivel");
+        document.body.style.overflow = "hidden";
+    }
+}
+
+// 🌟 NOVA FUNÇÃO: Executa a chamada de exclusão no banco de dados do backend
+async function confirmarDelecaoCategoria() {
+    if (!categoriaDeletarId) return;
+
+    try {
+        // Faz a chamada para a rota de exclusão do seu FastAPI
+        const resposta = await fetch(`/admin/categorias/${categoriaDeletarId}`, {
+            method: "DELETE"
+        });
+
+        if (resposta.ok) {
+            // Fecha o modal de confirmação
+            fecharModal("modal-cat-deletar");
+            
+            // Recarrega a página de forma limpa para atualizar a tabela do banco
+            location.reload();
+        } else {
+            const erroDados = await resposta.json().catch(() => ({}));
+            alert(erroDados.detail || "Erro ao deletar categoria. Verifique se existem produtos vinculados a ela.");
+        }
+    } catch (erro) {
+        console.error("Erro na requisição de exclusão:", erro);
+        alert("Erro de conexão com o servidor.");
+    } finally {
+        // Reseta a variável de controle por segurança
+        categoriaDeletarId = null;
+    }
+}

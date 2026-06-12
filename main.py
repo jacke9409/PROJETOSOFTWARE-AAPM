@@ -96,12 +96,16 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
     
+    # Pré-serializa para evitar erros de JSON na view principal se necessário
+    categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
+    
     return templates.TemplateResponse(
         request=request,
         name="admin/dashboard.html",  
         context={
             "produtos": produtos_do_banco,
-            "categorias": categorias_do_banco
+            "categorias": categorias_do_banco,
+            "categorias_json": categorias_json
         }
     )
 
@@ -117,14 +121,21 @@ async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_
     )
 
 
-# Rota para Listar as Categorias
+# Rota para Listar as Categorias (CORRIGIDA COM SERIALIZAÇÃO ANTIEP強ICO)
 @app.get("/dashboard/categorias", response_class=HTMLResponse)
 async def pagina_dashboard_categorias(request: Request, db: Session = Depends(get_db)):
     categorias_do_banco = db.query(Categoria).all()
+    
+    # Converte os objetos do SQLAlchemy para dicionários comuns do Python
+    categorias_serializadas = [{"id": cat.id, "nome": cat.nome} for cat in categorias_do_banco]
+    
     return templates.TemplateResponse(
         request=request,
         name="admin/categorias.html",
-        context={"categorias": categorias_do_banco}
+        context={
+            "categorias": categorias_do_banco,       # Alimenta o loop `for` do HTML da tabela
+            "categorias_json": categorias_serializadas # Alimenta de forma limpa o atributo data-categorias do JS
+        }
     )
 
 
@@ -141,7 +152,7 @@ async def pagina_dashboard_vendas(request: Request):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (CRUD PRODUTOS & GALERIA DE ASSETS)
+# API REST (CRUD PRODUTOS, CATEGORIAS & GALERIA DE ASSETS)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Rota dinâmica que lê a pasta static/assets e abastece a galeria do JS
@@ -209,3 +220,22 @@ async def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
     db.delete(produto)
     db.commit()
     return {"status": "deletado"}
+
+
+# 🌟 NOVA ROTA ADICIONADA: Deleta Categorias com proteção contra restrição de chave estrangeira
+@app.delete("/admin/categorias/{categoria_id}")
+async def deletar_categoria(categoria_id: int, db: Session = Depends(get_db)):
+    categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    if not categoria:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada.")
+    
+    try:
+        db.delete(categoria)
+        db.commit()
+        return {"status": "deletado"}
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, 
+            detail="Não é possível deletar esta categoria pois existem produtos vinculados a ela."
+        )
