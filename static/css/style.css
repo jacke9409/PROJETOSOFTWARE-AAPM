@@ -695,3 +695,525 @@ html, body {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ==========================================================================
+   AAPM — produtos-css
+   Estilos exclusivos da página de gerenciamento de produtos.
+   NÃO altera nada do style.css original — apenas adiciona.
+   ========================================================================== */
+
+
+/* ---------- CABEÇALHO DA PÁGINA ---------- */
+.prod-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+}
+
+.prod-page-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.prod-page-header p {
+    color: rgba(255,255,255,0.60);
+    font-size: 0.85rem;
+    margin: 4px 0 0;
+}
+
+/* Botão "Adicionar Produto" no topo */
+.btn-adicionar-prod {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #27ae60, #1e8449);
+    border: none;
+    color: white;
+    padding: 11px 22px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 14px;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    box-shadow: 0 4px 18px rgba(39,174,96,0.35);
+    transition: transform 0.18s, box-shadow 0.18s;
+}
+
+.btn-adicionar-prod:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(39,174,96,0.50);
+}
+
+.btn-adicionar-prod:active {
+    transform: scale(0.97);
+}
+
+
+/* ---------- GRADE DE CARDS ---------- */
+.prod-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+    gap: 22px;
+}
+
+
+/* ---------- SKELETON DE CARREGAMENTO ---------- */
+.prod-skeleton {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    height: 280px;
+    animation: shimmer 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+    0%   { opacity: 0.4; }
+    100% { opacity: 0.9; }
+}
+
+
+/* ---------- CARD DE PRODUTO ---------- */
+.prod-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 18px;
+    overflow: hidden;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(28px) scale(0.95);
+    transition: background 0.3s, box-shadow 0.3s;
+    animation: flutuarEfeito 5s ease-in-out infinite alternate;
+}
+
+.prod-card:nth-child(1) { animation-delay: 0s;   }
+.prod-card:nth-child(2) { animation-delay: 0.6s; }
+.prod-card:nth-child(3) { animation-delay: 1.2s; }
+.prod-card:nth-child(4) { animation-delay: 1.8s; }
+.prod-card:nth-child(5) { animation-delay: 2.4s; }
+.prod-card:nth-child(6) { animation-delay: 3.0s; }
+
+.prod-card:hover {
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.30);
+}
+
+/* Imagem do card */
+.prod-card-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    background: rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.25);
+    font-size: 2.2rem;
+}
+
+.prod-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Corpo do card */
+.prod-card-body {
+    padding: 14px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.prod-card-body h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.prod-card-tamanho {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.55);
+}
+
+.prod-card-preco {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #6bbfff;
+    margin-top: 2px;
+}
+
+.prod-card-status {
+    font-size: 0.68rem;
+    padding: 2px 9px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 4px;
+    width: fit-content;
+}
+
+.status-ok  { background: rgba(23,185,120,0.20); color: #17b978; }
+.status-off { background: rgba(220,53,69,0.20);  color: #ff6b6b; }
+
+/* Rodapé de ações do card */
+.prod-card-acoes {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 14px;
+}
+
+.btn-card-acao {
+    flex: 1;
+    padding: 8px 0;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+    letter-spacing: 0.3px;
+}
+
+.btn-card-acao:hover  { opacity: 0.88; transform: scale(0.97); }
+.btn-card-acao:active { transform: scale(0.93); }
+
+.btn-editar  { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
+.btn-deletar { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+
+
+/* ---------- ESTADO VAZIO ---------- */
+.prod-vazio {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: rgba(255,255,255,0.40);
+    padding: 60px 0;
+    font-size: 0.95rem;
+}
+
+.prod-vazio span {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+
+/* ---------- MODAL BASE ---------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.60);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s;
+}
+
+.modal-overlay.visivel {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal-box {
+    background: rgba(18,32,58,0.92);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 24px;
+    padding: 36px 36px 30px;
+    width: 440px;
+    max-width: 94vw;
+    color: #fff;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.55);
+    transform: translateY(22px) scale(0.96);
+    transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s;
+    opacity: 0;
+    position: relative;
+}
+
+.modal-overlay.visivel .modal-box {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.modal-titulo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 22px;
+    letter-spacing: 0.4px;
+}
+
+.modal-fechar {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.55);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+
+.modal-fechar:hover { color: #fff; }
+
+
+/* ---------- FORMULÁRIO DOS MODAIS ---------- */
+.modal-campo {
+    margin-bottom: 16px;
+}
+
+.modal-campo label {
+    display: block;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.60);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.modal-campo input,
+.modal-campo select {
+    width: 100%;
+    padding: 11px 16px;
+    background: rgba(0,0,0,0.28);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.22s, background 0.22s;
+}
+
+.modal-campo input:focus,
+.modal-campo select:focus {
+    border-color: rgba(107,191,255,0.65);
+    background: rgba(0,0,0,0.38);
+}
+
+.modal-campo select option { background: #12203a; }
+
+/* Campos em linha (2 colunas) */
+.modal-linha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+
+/* ---------- GALERIA DE IMAGENS ---------- */
+.galeria-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.60);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.galeria-imagens {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding-right: 4px;
+    margin-bottom: 16px;
+}
+
+.galeria-imagens::-webkit-scrollbar        { width: 4px; }
+.galeria-imagens::-webkit-scrollbar-track  { background: rgba(255,255,255,0.05); border-radius: 4px; }
+.galeria-imagens::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.20); border-radius: 4px; }
+
+.galeria-item {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    background: rgba(0,0,0,0.3);
+}
+
+.galeria-item:hover      { transform: scale(1.06); }
+.galeria-item.selecionada { border-color: #6bbfff; }
+
+.galeria-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+
+/* ---------- BOTÕES DOS MODAIS ---------- */
+.modal-rodape {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-modal {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+}
+
+.btn-modal:hover  { opacity: 0.88; transform: scale(0.98); }
+.btn-modal:active { transform: scale(0.94); }
+
+.btn-confirmar-verde    { background: linear-gradient(135deg, #27ae60, #1e8449); color: #fff; }
+.btn-confirmar-laranja  { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
+.btn-confirmar-vermelho { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+.btn-cancelar           { background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.80); border: 1px solid rgba(255,255,255,0.15); }
+
+
+/* ---------- MODAL CONFIRMAR EXCLUSÃO ---------- */
+.modal-exclusao-icone {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.modal-exclusao-msg {
+    text-align: center;
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.80);
+    margin-bottom: 6px;
+}
+
+.modal-exclusao-nome {
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #ff6b6b;
+}
+
+
+/* ---------- ANIMAÇÃO DE ENTRADA DAS ABAS ---------- */
+@keyframes fadeInSuave {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+/* ==========================================================================
+   ESTILOS COMPLEMENTARES: NOVO FLUXO DA GALERIA EM MODAL SEPARADO
+   ========================================================================== */
+
+/* Caixa/Botão de Preview de Imagem dentro dos Formulários */
+.container-seletor-imagem {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.22s, border-color 0.22s, transform 0.15s;
+}
+
+.container-seletor-imagem:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(107, 191, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+.container-seletor-imagem:active {
+    transform: translateY(1px);
+}
+
+/* Miniatura da foto atual que fica dentro do formulário */
+.container-seletor-imagem img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Texto informativo ao lado do preview */
+.container-seletor-imagem span {
+    font-size: 0.88rem;
+    color: rgba(107, 191, 255, 0.9);
+    font-weight: 600;
+}
+
+
+/* Nova Grade de Mídias dentro do Modal de Galeria Separado */
+.galeria-imagens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    max-height: 360px; /* Altura confortável para ver mais fotos de uma vez */
+    overflow-y: auto;
+    padding-right: 6px;
+    margin-bottom: 8px;
+}
+
+/* Customização fina da barra de rolagem da nova grade */
+.galeria-imagens-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.galeria-imagens-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.galeria-imagens-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 10px;
+}
+
+.galeria-imagens-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Modificação no item da galeria para se ajustar à nova grade maior */
+.galeria-imagens-grid .galeria-item {
+    aspect-ratio: 1;
+    background: rgba(0, 0, 0, 0.35);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    transition: transform 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.galeria-imagens-grid .galeria-item:hover {
+    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.galeria-imagens-grid .galeria-item.selecionada {
+    border-color: #6bbfff;
+    background: rgba(107, 191, 255, 0.1);
+    box-shadow: 0 0 12px rgba(107, 191, 255, 0.2);
+}
+
+.galeria-imagens-grid .galeria-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}

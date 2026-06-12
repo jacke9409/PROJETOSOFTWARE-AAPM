@@ -1,57 +1,106 @@
-let universoAtual = 'home';
+/* ==========================================================================
+   AAPM — SCRIPT PRINCIPAL & GERENCIAMENTO DE PRODUTOS
+   ========================================================================== */
 
-// ==========================================
-// FUNÇÃO: VIAJAR PARA UM UNIVERSO (ADMIN OU PÚBLICO)
-// ==========================================
+"use strict";
+
+// Variáveis de Controle Global
+let universoAtual = 'home';
+let produtoDeletarId = null;
+let produtoDeletarNome = null;
+
+// Variáveis de controle para saber qual formulário está solicitando a imagem da galeria
+let modoGaleriaAlvo = null; // 'adicionar' ou 'editar'
+let imagemTemporariaSelecionada = null;
+
+// Banco de dados em memória populado pelo backend (FastAPI/Jinja2)
+let PRODUTOS_DB = [];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. INICIALIZAÇÃO DA APLICAÇÃO
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+    // Captura os dados injetados pelo backend no elemento injetado
+    const dadosElemento = document.getElementById("dados-produtos-backend");
+    if (dadosElemento && dadosElemento.dataset.produtos) {
+        try {
+            PRODUTOS_DB = JSON.parse(dadosElemento.dataset.produtos);
+        } catch (e) {
+            console.error("Erro ao processar dados de produtos do backend:", e);
+        }
+    }
+
+    // Interceptador do Formulário de Login (se aplicável na mesma página)
+    const formularioLogin = document.querySelector("#universo-admin form");
+    if (formularioLogin) {
+        formularioLogin.addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const dadosFormulario = new FormData(this);
+
+            try {
+                const resposta = await fetch("/auth/login", {
+                    method: "POST",
+                    body: dadosFormulario
+                });
+
+                if (resposta.ok) {
+                    const dados = await resposta.json();
+                    console.log("Sucesso! Bem-vindo,", dados.nome);
+                    window.location.href = "/dashboard";
+                } else {
+                    alert("⚠️ E-mail ou senha incorretos! Por favor, utilize os acessos gerados no seed.");
+                }
+            } catch (erro) {
+                console.error("Erro crítico na requisição:", erro);
+                alert("⚠️ Não foi possível conectar ao servidor do sistema. Verifique se o Uvicorn está rodando.");
+            }
+        });
+    }
+
+    // Fecha modais clicando na área escura (overlay)
+    document.querySelectorAll(".modal-overlay").forEach(overlay => {
+        overlay.addEventListener("click", e => {
+            if (e.target === overlay) fecharModal(overlay.id);
+        });
+    });
+
+    // Efeito de loading na grade de produtos: skeletons somem após 900ms
+    setTimeout(renderizarCards, 900);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. NAVEGAÇÃO ENTRE UNIVERSOS (GSAP)
+// ─────────────────────────────────────────────────────────────────────────────
 function viajarPara(destino) {
     if (universoAtual !== 'home') return;
     universoAtual = destino;
 
     if (destino === 'admin') {
-        document.getElementById("universo-admin").style.display = "flex";
+        const adminEnv = document.getElementById("universo-admin");
+        if (adminEnv) adminEnv.style.display = "flex";
 
-        // Câmera dá zoom e entra no universo da Esquerda (Admin / Formulário)
-        gsap.to("#universo-home", { 
-            scale: 2, 
-            x: "100vw", 
-            opacity: 0, 
-            duration: 1.2, 
-            ease: "power2.inOut" 
-        });
-        gsap.to("#universo-admin", { 
-            scale: 1, 
-            x: "0vw", 
-            opacity: 1, 
-            duration: 1.2, 
-            ease: "power2.inOut" 
-        });
+        if (document.getElementById("universo-home")) {
+            gsap.to("#universo-home", { scale: 2, x: "100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
+        }
+        if (adminEnv) {
+            gsap.to("#universo-admin", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
+        }
     } 
     else if (destino === 'publico') {
-        // Câmera dá zoom e entra no universo da Direita (Público/Dashboard/Catálogo)
-        gsap.to("#universo-home", { 
-            scale: 2, 
-            x: "-100vw", 
-            opacity: 0, 
-            duration: 1.2, 
-            ease: "power2.inOut" 
-        });
-        gsap.to("#universo-publico", { 
-            scale: 1, 
-            x: "0vw", 
-            opacity: 1, 
-            duration: 1.2, 
-            ease: "power2.inOut" 
-        });
+        if (document.getElementById("universo-home")) {
+            gsap.to("#universo-home", { scale: 2, x: "-100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
+        }
+        if (document.getElementById("universo-publico")) {
+            gsap.to("#universo-publico", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
+        }
     }
 }
-
-
 
 function voltarAoInicio() {
     if (universoAtual === 'home') return;
 
-    // Garante que o bloco de login fique visível novamente ao deslogar
-    document.getElementById("universo-admin").style.display = "flex";
+    const adminEnv = document.getElementById("universo-admin");
+    if (adminEnv) adminEnv.style.display = "flex";
 
     if (universoAtual === 'admin') {
         gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
@@ -65,9 +114,6 @@ function voltarAoInicio() {
     universoAtual = 'home';
 }
 
-// ==========================================
-// FUNÇÃO: EXPANDIR / DESTACAR CARD DE PRODUTO
-// ==========================================
 function destacarProduto(elemento) {
     if (elemento.classList.contains('expandido')) {
         gsap.to(elemento, { scale: 1, zIndex: 1, duration: 0.4, ease: "back.out(1.7)" });
@@ -78,41 +124,329 @@ function destacarProduto(elemento) {
     }
 }
 
-// ==========================================
-// INTERCEPTADOR DE LOGIN - REDIRECIONAMENTO DE VERDADE
-// ==========================================
-document.addEventListener("DOMContentLoaded", () => {
-    const formularioLogin = document.querySelector("#universo-admin form");
-
-    if (formularioLogin) {
-        formularioLogin.addEventListener("submit", async function(event) {
-            event.preventDefault(); // Impede o recarregamento padrão do formulário
-
-            // Captura os inputs do formulário (username e password)
-            const dadosFormulario = new FormData(this);
-
-            try {
-                // Envia exatamente para a rota configurada no seu main.py
-                const resposta = await fetch("/auth/login", {
-                    method: "POST",
-                    body: dadosFormulario
-                });
-
-                if (resposta.ok) {
-                    const dados = await resposta.json();
-                    console.log("Sucesso! Bem-vindo,", dados.nome);
-
-                    // 🟢 REDIRECIONAMENTO REAL: Redireciona o navegador para a página administrativa restrita
-                    window.location.href = "/dashboard";
-
-                } else {
-                    // Trata o erro 401 do FastAPI
-                    alert("⚠️ E-mail ou senha incorretos! Por favor, utilize os acessos gerados no seed.");
-                }
-            } catch (erro) {
-                console.error("Erro crítico na requisição:", erro);
-                alert("⚠️ Não foi possível conectar ao servidor do sistema. Verifique se o Uvicorn está rodando.");
-            }
-        });
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. CONTROLE VISUAL DOS MODAIS
+// ─────────────────────────────────────────────────────────────────────────────
+function abrirModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+    
+    modal.classList.add("visivel");
+    if (id !== "modal-galeria-midia") {
+        document.body.style.overflow = "hidden";
     }
-});
+}
+
+function fecharModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) return;
+
+    modal.classList.remove("visivel");
+    if (id !== "modal-galeria-midia") {
+        document.body.style.overflow = "";
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. RENDERIZAÇÃO DA GRADE DE PRODUTOS
+// ─────────────────────────────────────────────────────────────────────────────
+function renderizarCards() {
+    const grade = document.getElementById("prod-grade");
+    if (!grade) return;
+
+    // Limpa a grade (remove skeletons antigos ou mensagens)
+    grade.innerHTML = "";
+
+    if (!PRODUTOS_DB || PRODUTOS_DB.length === 0) {
+        grade.innerHTML = `
+            <div class="prod-vazio">
+                <span>📦</span>
+                Nenhum produto cadastrado ainda.<br>
+                Clique em <strong>Adicionar Produto</strong> para começar.
+            </div>`;
+        return;
+    }
+
+    PRODUTOS_DB.forEach((produto, i) => {
+        const card = criarCard(produto, i);
+        grade.appendChild(card);
+
+        gsap.to(card, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.5,
+            delay: i * 0.10,
+            ease: "back.out(1.4)"
+        });
+    });
+}
+
+function criarCard(p, i) {
+    const card = document.createElement("div");
+    card.className = "prod-card";
+    card.dataset.id = p.id;
+    card.style.animationDelay = (i * 0.6) + "s";
+
+    const imgHtml = p.imagem_url
+        ? `<img src="${p.imagem_url}" alt="${p.nome}">`
+        : `📦`;
+
+    const precoFormatado = parseFloat(p.preco).toFixed(2).replace(".", ",");
+    const nomeSeguro     = p.nome.replace(/'/g, "\\'");
+
+    card.innerHTML = `
+        <div class="prod-card-img">${imgHtml}</div>
+        <div class="prod-card-body">
+            <h4 title="${p.nome}">${p.nome}</h4>
+            <span class="prod-card-tamanho">Tamanho: ${p.tamanho}</span>
+            <span class="prod-card-preco">R$ ${precoFormatado}</span>
+            <span class="prod-card-status ${p.disponivel ? 'status-ok' : 'status-off'}">
+                ${p.disponivel ? "Disponível" : "Indisponível"}
+            </span>
+        </div>
+        <div class="prod-card-acoes">
+            <button class="btn-card-acao btn-editar"
+                    onclick="abrirModalEditar(${p.id})">✏️ Editar</button>
+            <button class="btn-card-acao btn-deletar"
+                    onclick="abrirModalDeletar(${p.id}, '${nomeSeguro}')">🗑️</button>
+        </div>
+    `;
+    return card;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. NOVA LÓGICA CONECTADA PARA A GALERIA DE MÍDIAS DO SEU HTML
+// ─────────────────────────────────────────────────────────────────────────────
+async function abrirGaleriaGlobal(modo) {
+    modoGaleriaAlvo = modo; // Guarda se veio de 'adicionar' ou 'editar'
+    
+    const galeriaGrid = document.getElementById("galeria-grid-dinamico");
+    if (!galeriaGrid) return;
+
+    // Captura qual imagem já está salva no formulário correspondente
+    const inputId = modo === 'adicionar' ? "img-selecionada-adicionar" : "img-selecionada-editar";
+    const inputHidden = document.getElementById(inputId);
+    const imagemAtual = inputHidden ? inputHidden.value : "";
+    imagemTemporariaSelecionada = imagemAtual; // Prepara o estado temporário
+
+    // Abre o modal de mídia mapeado no seu HTML
+    abrirModal("modal-galeria-midia");
+
+    galeriaGrid.innerHTML = `
+        <p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center; padding: 20px;">
+            ✨ Escaneando repositório de mídias...
+        </p>`;
+
+    try {
+        const resp = await fetch("/admin/assets/imagens");
+        const dados = await resp.json();
+        const imagens = dados.imagens;
+
+        galeriaGrid.innerHTML = "";
+
+        if (!imagens || imagens.length === 0) {
+            galeriaGrid.innerHTML = `
+                <p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center;">
+                    Nenhuma imagem encontrada na pasta /static/assets/
+                </p>`;
+            return;
+        }
+
+        imagens.forEach(src => {
+            const item = document.createElement("div");
+            item.className = "galeria-item";
+
+            // Se for a imagem padrão ou já selecionada, adiciona a classe visual
+            if (imagemAtual && src === imagemAtual) {
+                item.classList.add("selecionada");
+            }
+
+            item.innerHTML = `<img src="${src}" alt="Asset">`;
+
+            // Clique na miniatura guarda o valor provisoriamente e altera o visual
+            item.addEventListener("click", () => {
+                galeriaGrid.querySelectorAll(".galeria-item").forEach(i => i.classList.remove("selecionada"));
+                item.classList.add("selecionada");
+                imagemTemporariaSelecionada = src;
+            });
+
+            galeriaGrid.appendChild(item);
+        });
+
+    } catch (e) {
+        console.error("Erro ao buscar imagens do servidor:", e);
+        galeriaGrid.innerHTML = `
+            <p style="color:#ff6b6b; font-size:0.85rem; grid-column:1/-1; text-align:center;">
+                💥 Erro ao carregar as mídias. Verifique a API do servidor.
+            </p>`;
+    }
+}
+
+function confirmarEscolhaGaleria() {
+    if (!imagemTemporariaSelecionada) {
+        fecharModal("modal-galeria-midia");
+        return;
+    }
+
+    if (modoGaleriaAlvo === 'adicionar') {
+        const inputHidden = document.getElementById("img-selecionada-adicionar");
+        const previewImg = document.getElementById("preview-img-adicionar");
+        
+        if (inputHidden) inputHidden.value = imagemTemporariaSelecionada;
+        if (previewImg) previewImg.src = imagemTemporariaSelecionada;
+    } 
+    else if (modoGaleriaAlvo === 'editar') {
+        const inputHidden = document.getElementById("img-selecionada-editar");
+        const previewImg = document.getElementById("preview-img-editar");
+        
+        if (inputHidden) inputHidden.value = imagemTemporariaSelecionada;
+        if (previewImg) previewImg.src = imagemTemporariaSelecionada;
+    }
+
+    fecharModal("modal-galeria-midia");
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. OPERAÇÕES DE PRODUTOS (ADICIONAR, EDITAR, DELETAR)
+// ─────────────────────────────────────────────────────────────────────────────
+function abrirModalAdicionar() {
+    const form = document.getElementById("form-adicionar");
+    if (form) form.reset();
+
+    const inputImg = document.getElementById("img-selecionada-adicionar");
+    if (inputImg) inputImg.value = "/static/assets/Camisa malha branca.svg";
+
+    const previewImg = document.getElementById("preview-img-adicionar");
+    if (previewImg) previewImg.src = "/static/assets/Camisa malha branca.svg";
+
+    abrirModal("modal-adicionar");
+}
+
+async function salvarProduto(event) {
+    event.preventDefault();
+    const form = document.getElementById("form-adicionar");
+    if (!form) return;
+    
+    const dados = Object.fromEntries(new FormData(form));
+
+    try {
+        const resp = await fetch("/admin/produtos", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-adicionar");
+            location.reload();
+        } else {
+            alert("Erro ao salvar produto. Verifique os dados fornecidos.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
+function abrirModalEditar(id) {
+    const p = PRODUTOS_DB.find(x => x.id === id);
+    if (!p) return;
+
+    if (document.getElementById("edit-id")) document.getElementById("edit-id").value = p.id;
+    if (document.getElementById("edit-nome")) document.getElementById("edit-nome").value = p.nome;
+    if (document.getElementById("edit-preco")) document.getElementById("edit-preco").value = p.preco;
+    if (document.getElementById("edit-tamanho")) document.getElementById("edit-tamanho").value = p.tamanho;
+    if (document.getElementById("edit-disponivel")) document.getElementById("edit-disponivel").value = p.disponivel ? "1" : "0";
+    
+    const inputImg = document.getElementById("img-selecionada-editar");
+    if (inputImg) inputImg.value = p.imagem_url || "/static/assets/Camisa malha branca.svg";
+
+    const previewImg = document.getElementById("preview-img-editar");
+    if (previewImg) previewImg.src = p.imagem_url || "/static/assets/Camisa malha branca.svg";
+
+    abrirModal("modal-editar");
+}
+
+async function atualizarProduto(event) {
+    event.preventDefault();
+    const form = document.getElementById("form-editar");
+    if (!form) return;
+
+    const dados = Object.fromEntries(new FormData(form));
+    const id = dados.id;
+
+    try {
+        const resp = await fetch(`/admin/produtos/${id}`, {
+            method:  "PUT",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-editar");
+            location.reload();
+        } else {
+            alert("Erro ao atualizar produto.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
+function abrirModalDeletar(id, nome) {
+    produtoDeletarId = id;
+    produtoDeletarNome = nome;
+    
+    const txtNome = document.getElementById("deletar-nome-produto");
+    if (txtNome) txtNome.textContent = `"${nome}"?`;
+    
+    abrirModal("modal-deletar");
+}
+
+async function confirmarDelecao() {
+    if (!produtoDeletarId) return;
+
+    try {
+        const resp = await fetch(`/admin/produtos/${produtoDeletarId}`, {
+            method: "DELETE"
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-deletar");
+
+            const card = document.querySelector(`.prod-card[data-id="${produtoDeletarId}"]`);
+            if (card) {
+                gsap.to(card, {
+                    opacity: 0, scale: 0.7, y: -20,
+                    duration: 0.4,
+                    ease: "back.in(1.4)",
+                    onComplete: () => {
+                        card.remove();
+                        const idx = PRODUTOS_DB.findIndex(p => p.id === produtoDeletarId);
+                        if (idx !== -1) PRODUTOS_DB.splice(idx, 1);
+                        produtoDeletarId = null;
+                        produtoDeletarNome = null;
+
+                        if (PRODUTOS_DB.length === 0) {
+                            const grade = document.getElementById("prod-grade");
+                            if (grade) {
+                                grade.innerHTML = `
+                                    <div class="prod-vazio">
+                                        <span>📦</span>
+                                        Nenhum produto cadastrado ainda.
+                                    </div>`;
+                            }
+                        }
+                    }
+                });
+            }
+        } else {
+            alert("Erro ao deletar produto.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Erro de conexão com o servidor.");
+    }
+}

@@ -1,51 +1,204 @@
 {% extends "admin/dashboard.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+{% endblock %}
+
 {% block admin_content %}
-<div class="card-painel-interno" style="flex: 1; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff;">
-    <div class="panel-header-tabela" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+
+<div id="dados-produtos-backend" data-produtos='[
+    {% for p in produtos %}
+    {
+        "id": {{ p.id if p.id is defined and p.id is not none else loop.index }},
+        "nome": {{ (p.nome if p.nome is defined else "Sem Nome") | tojson }},
+        "tamanho": {{ (p.tamanho if p.tamanho is defined else "Único") | tojson }},
+        "preco": {{ p.preco if p.preco is defined and p.preco is not none else 0.00 }},
+        "disponivel": {{ 1 if p.disponivel else 0 }},
+        "imagem_url": {{ (p.imagem_url if p.imagem_url is defined and p.imagem_url is not none else "") | tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+]'></div>
+
+<div class="card-painel-interno" style="
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    overflow-y: auto;
+">
+
+    <div class="prod-page-header">
         <div>
-            <h2 style="margin: 0; font-size: 1.8rem;">Gerenciamento de Produtos</h2>
-            <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Consulte, adicione ou remova itens do catálogo integrado ao MySQL.</p>
+            <h2>Gerenciamento de Produtos</h2>
+            <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Adicione, edite ou remova itens do catálogo. Alterações refletem automaticamente.</p>
         </div>
-        <button style="background: #27ae60; border: none; color: white; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;">+ Novo Produto</button>
+        <button class="btn-adicionar-prod" onclick="abrirModalAdicionar()">
+            ＋ Adicionar Produto
+        </button>
     </div>
 
-    <div class="tabela-responsiva-admin" style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background: rgba(30, 62, 110, 0.6); height: 45px; border-bottom: 2px solid #2a5080;">
-                    <th style="padding: 12px; color: #fff;">ID</th>
-                    <th style="color: #fff;">Nome</th>
-                    <th style="color: #fff;">Tamanho</th>
-                    <th style="color: #fff;">Preço</th>
-                    <th style="text-align: center; color: #fff;">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for produto in produtos %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); height: 50px; background: rgba(255,255,255,0.02); transition: 0.3s;">
-                    <td style="padding: 12px;">{{ produto.id if produto.id is defined else loop.index }}</td>
-                    
-                    <td><strong>{{ produto.nome if produto.nome is defined else 'Sem Nome' }}</strong></td>
-                    
-                    <td><span style="background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 4px;">{{ produto.tamanho if produto.tamanho is defined else 'N/A' }}</span></td>
-                    
-                    <td style="color: #4db8ff; font-weight: bold;">
-                        R$ {{ produto.preco if produto.preco is defined else '0.00' }}
-                    </td>
-                    
-                    <td style="text-align: center;">
-                        <button style="background: #e67e22; border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px;">Editar</button>
-                        <button style="background: #e74c3c; border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">Excluir</button>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">Nenhum produto cadastrado no banco de dados.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="prod-grade" id="prod-grade">
+        <div class="prod-skeleton"></div>
+        <div class="prod-skeleton"></div>
+        <div class="prod-skeleton"></div>
+        <div class="prod-skeleton"></div>
+    </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-adicionar">
+    <div class="modal-box">
+        <button class="modal-fechar" onclick="fecharModal('modal-adicionar')">✕</button>
+        <div class="modal-titulo">➕ Novo Produto</div>
+
+        <form id="form-adicionar" onsubmit="salvarProduto(event)">
+            <div class="modal-campo">
+                <label>Nome do Produto</label>
+                <input type="text" name="nome" placeholder="Ex: Camiseta SENAI" required>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label>Preço (R$)</label>
+                    <input type="number" name="preco" step="0.01" min="0" placeholder="49.90" required>
+                </div>
+                <div class="modal-campo">
+                    <label>Tamanho</label>
+                    <select name="tamanho" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option>PP</option>
+                        <option>P</option>
+                        <option>M</option>
+                        <option>G</option>
+                        <option>GG</option>
+                        <option>XGG</option>
+                        <option>Único</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-campo">
+                <label>Disponibilidade</label>
+                <select name="disponivel">
+                    <option value="1">Disponível</option>
+                    <option value="0">Indisponível</option>
+                </select>
+            </div>
+
+            <div class="modal-campo">
+                <label>Imagem do Produto</label>
+                <div class="container-seletor-imagem" onclick="abrirGaleriaGlobal('adicionar')">
+                    <img id="preview-img-adicionar" src="/static/assets/Camisa malha branca.svg" alt="Preview">
+                    <span>Clique para escolher na Galeria</span>
+                </div>
+                <input type="hidden" name="imagem_url" id="img-selecionada-adicionar" value="/static/assets/Camisa malha branca.svg">
+            </div>
+
+            <div class="modal-rodape">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModal('modal-adicionar')">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-verde">Salvar Produto</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<div class="modal-overlay" id="modal-editar">
+    <div class="modal-box">
+        <button class="modal-fechar" onclick="fecharModal('modal-editar')">✕</button>
+        <div class="modal-titulo">✏️ Editar Produto</div>
+
+        <form id="form-editar" onsubmit="atualizarProduto(event)">
+            <input type="hidden" name="id" id="edit-id">
+
+            <div class="modal-campo">
+                <label>Nome do Produto</label>
+                <input type="text" name="nome" id="edit-nome" required>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label>Preço (R$)</label>
+                    <input type="number" name="preco" id="edit-preco" step="0.01" min="0" required>
+                </div>
+                <div class="modal-campo">
+                    <label>Tamanho</label>
+                    <select name="tamanho" id="edit-tamanho">
+                        <option>PP</option>
+                        <option>P</option>
+                        <option>M</option>
+                        <option>G</option>
+                        <option>GG</option>
+                        <option>XGG</option>
+                        <option>Único</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-campo">
+                <label>Disponibilidade</label>
+                <select name="disponivel" id="edit-disponivel">
+                    <option value="1">Disponível</option>
+                    <option value="0">Indisponível</option>
+                </select>
+            </div>
+
+            <div class="modal-campo">
+                <label>Imagem do Produto</label>
+                <div class="container-seletor-imagem" onclick="abrirGaleriaGlobal('editar')">
+                    <img id="preview-img-editar" src="/static/assets/Camisa malha branca.svg" alt="Preview">
+                    <span>Clique para alterar a Imagem</span>
+                </div>
+                <input type="hidden" name="imagem_url" id="img-selecionada-editar">
+            </div>
+
+            <div class="modal-rodape">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModal('modal-editar')">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-laranja">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-galeria-midia" style="z-index: 99999;">
+    <div class="modal-box" style="max-width: 600px;">
+        <button class="modal-fechar" onclick="fecharModal('modal-galeria-midia')">✕</button>
+        <div class="modal-titulo">🖼️ Selecionar Arte do Catálogo</div>
+        <p style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: -15px; margin-bottom: 20px;">
+            Clique sobre um dos assets oficiais abaixo para vincular ao produto.
+        </p>
+
+        <div class="galeria-imagens-grid" id="galeria-grid-dinamico"></div>
+
+        <div class="modal-rodape" style="margin-top: 20px;">
+            <button class="btn-modal btn-confirmar-verde" onclick="confirmarEscolhaGaleria()">Confirmar Seleção</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-deletar">
+    <div class="modal-box" style="max-width: 360px; text-align: center;">
+        <button class="modal-fechar" onclick="fecharModal('modal-deletar')">✕</button>
+
+        <div class="modal-exclusao-icone">🗑️</div>
+        <div class="modal-titulo" style="text-align:center">Confirmar Exclusão</div>
+        <p class="modal-exclusao-msg">Você tem certeza que deseja deletar</p>
+        <p class="modal-exclusao-nome" id="deletar-nome-produto"></p>
+        <p class="modal-exclusao-msg" style="margin-top:6px; font-size:0.8rem; color:rgba(255,255,255,0.45)">
+            Esta ação não pode ser desfeita.
+        </p>
+
+        <div class="modal-rodape">
+            <button class="btn-modal btn-cancelar" onclick="fecharModal('modal-deletar')">Cancelar</button>
+            <button class="btn-modal btn-confirmar-vermelho" onclick="confirmarDelecao()">Deletar</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', path='js/script.js') }}"></script>
+
 {% endblock %}

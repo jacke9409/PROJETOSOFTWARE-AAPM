@@ -10,6 +10,8 @@ from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario  # Garanta que o modelo Usuario está mapeado
+import os
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -128,10 +130,110 @@ async def pagina_dashboard_fornecedores(request: Request):
         name="admin/fornecedores.html"
     )
 
-# 4. Rota para Usuários
-@app.get("/dashboard/usuarios", response_class=HTMLResponse)
-async def pagina_dashboard_usuarios(request: Request):
+# 4. Rota para Visualizar o Histórico de Vendas (Substituindo Usuários)
+@app.get("/dashboard/vendas", response_class=HTMLResponse)
+async def pagina_dashboard_vendas(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="admin/usuarios.html"
+        name="admin/vendas.html"
     )
+
+# ================================================================
+# ADICIONE TAMBÉM ESSAS 3 ROTAS DE CRUD DE PRODUTOS (POST, PUT, DELETE)
+# se ainda não tiver no seu main.py
+# ================================================================
+from pydantic import BaseModel
+from typing import Optional
+ 
+class ProdutoSchema(BaseModel):
+    nome: str
+    preco: float
+    tamanho: str
+    disponivel: Optional[int] = 1
+    imagem_url: Optional[str] = ""
+ 
+@app.post("/admin/produtos")
+async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
+    novo = Produto(
+        nome       = dados.nome,
+        preco      = dados.preco,
+        tamanho    = dados.tamanho,
+        disponivel = bool(dados.disponivel),
+        imagem_url = dados.imagem_url
+    )
+    db.add(novo)
+    db.commit()
+    db.refresh(novo)
+    return {"status": "criado", "id": novo.id}
+ 
+@app.put("/admin/produtos/{produto_id}")
+async def atualizar_produto(produto_id: int, dados: ProdutoSchema, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado.")
+    produto.nome       = dados.nome
+    produto.preco      = dados.preco
+    produto.tamanho    = dados.tamanho
+    produto.disponivel = bool(dados.disponivel)
+    produto.imagem_url = dados.imagem_url
+    db.commit()
+    return {"status": "atualizado"}
+ 
+@app.delete("/admin/produtos/{produto_id}")
+async def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado.")
+    db.delete(produto)
+    db.commit()
+    return {"status": "deletado"}
+
+# ================================================================
+# ADICIONE TAMBÉM ESSAS 3 ROTAS DE CRUD DE PRODUTOS (POST, PUT, DELETE)
+# se ainda não tiver no seu main.py
+# ================================================================
+from pydantic import BaseModel
+from typing import Optional
+ 
+class ProdutoSchema(BaseModel):
+    nome: str
+    preco: float
+    tamanho: str
+    disponivel: Optional[int] = 1
+    imagem_url: Optional[str] = ""
+ 
+@app.post("/admin/produtos")
+async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
+    novo = Produto(
+        nome       = dados.nome,
+        preco      = dados.preco,
+        tamanho    = dados.tamanho,
+        disponivel = bool(dados.disponivel),
+        imagem_url = dados.imagem_url
+    )
+    db.add(novo)
+    db.commit()
+    db.refresh(novo)
+    return {"status": "criado", "id": novo.id}
+ 
+@app.put("/admin/produtos/{produto_id}")
+async def atualizar_produto(produto_id: int, dados: ProdutoSchema, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado.")
+    produto.nome       = dados.nome
+    produto.preco      = dados.preco
+    produto.tamanho    = dados.tamanho
+    produto.disponivel = bool(dados.disponivel)
+    produto.imagem_url = dados.imagem_url
+    db.commit()
+    return {"status": "atualizado"}
+ 
+@app.delete("/admin/produtos/{produto_id}")
+async def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter(Produto.id == produto_id).first()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado.")
+    db.delete(produto)
+    db.commit()
+    return {"status": "deletado"}
