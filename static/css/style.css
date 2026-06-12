@@ -1,216 +1,604 @@
 /* ==========================================================================
-   1. RESET TOTAL E VARIAVÈIS DE AMBIENTE
+   AAPM — style.css
+   Estrutura:
+   1. Reset & Base
+   2. Fundo de Montanhas (camadas SVG)
+   3. Palco 3D e Universos
+   4. Zonas de clique e setas
+   5. Universo Home
+   6. Universo Admin — Glassmorphism Login
+   7. Universo Público — Nav e Cards
+   8. Animações
    ========================================================================== */
-* {
+
+
+/* ==========================================================================
+   1. RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-body, html {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    background-color: #050f1a;
-}
 
 /* ==========================================================================
-   2. CONTAINER VERTICAL CONTÍNUO
+   2. FUNDO DE MONTANHAS
+   Cada "camada" é um div posicionado de forma absoluta com um SVG dentro.
+   A ordem dos z-index cria a sensação de profundidade (parallax visual).
    ========================================================================== */
-.universo-vertical {
-    width: 100vw;
-    height: 300vh; /* 3 telas empilhadas verticalmente */
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    transform: translateY(-100vh); /* Começa fixado no painel central */
+.fundo-fixo {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none; /* O fundo nunca bloqueia cliques */
 }
 
-.painel-vertical {
+/* Céu: gradiente do azul escuro (topo) até azul/cyan claro (base) */
+.sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        #0d1f3c 0%,
+        #163657 25%,
+        #2a5fa8 55%,
+        #5a9fd4 78%,
+        #9ecfe8 100%
+    );
+}
+
+/* Nuvens — ficam logo acima do horizonte */
+.camada-nuvens {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 55%;
+}
+
+/* Montanhas do fundo — mais claras, dão sensação de distância */
+.camada-montanhas-fundo {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 55%;
+}
+
+/* Montanhas da frente — mais escuras e nítidas */
+.camada-montanhas-frente {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40%;
+}
+
+/* Faixa de árvores + chão na base */
+.camada-arvores {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 14%;
+}
+
+
+/* ==========================================================================
+   3. PALCO 3D E UNIVERSOS
+   ========================================================================== */
+.palco-zoom {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    perspective: 1200px;
+    overflow: hidden;
+    z-index: 1; /* Fica acima do fundo */
+}
+
+.universo-3d {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+/* Cada "universo" ocupa a tela inteira e centraliza seu conteúdo */
+.camada-universo {
+    position: absolute;
+    inset: 0;
     width: 100vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    position: relative;
-    padding: 40px;
+    padding: 50px;
 }
+
+/* Posições iniciais dos universos no "espaço" */
+#universo-home {
+    z-index: 3;
+    transform: translateZ(0px);
+}
+
+#universo-admin {
+    z-index: 2;
+    opacity: 0;
+    transform: translateX(-110vw) scale(0.5);
+}
+
+#universo-publico {
+    z-index: 2;
+    opacity: 0;
+    transform: translateX(110vw) scale(0.5);
+}
+
 
 /* ==========================================================================
-   3. TRANSIÇÃO DE CORES DO CÉU E MONTANHAS (CSS ILUSTRATIVO)
+   4. ZONAS DE CLIQUE E SETAS
    ========================================================================== */
-/* Topo: Noite profunda com estrelas */
-#painel-login {
-    background: linear-gradient(to bottom, #02060c, #0b1a30);
-    box-shadow: inset 0 -100px 100px rgba(0,0,0,0.5);
+.zona-clique {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 14vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
 }
 
-/* Centro: O degradê azul clássico das suas montanhas originais */
-#painel-centro {
-    background: linear-gradient(to bottom, #0b1a30, #1e3d59, #17b978);
-    background: linear-gradient(to bottom, #0b1a30 0%, #173e65 50%, #2a628f 100%);
+.zona-esquerda { left: 0; }
+.zona-direita  { right: 0; }
+
+.zona-clique:hover {
+    background: rgba(255, 255, 255, 0.04);
 }
 
-/* Base: Transição suave para o portal do aluno/público */
-#painel-publico {
-    background: linear-gradient(to bottom, #2a628f, #132e4f);
-}
-
-/* ==========================================================================
-   4. COMPONENTES DO DESIGN (LOGO, CARD GLASS, BOTÕES)
-   ========================================================================== */
-.conteudo-marca {
-    text-align: center;
-    color: white;
-}
-
-.logo-aapm-vetorial {
-    font-size: 5rem;
-    font-weight: 900;
-    letter-spacing: 5px;
-    color: #ffffff;
-    text-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255,255,255,0.2);
-}
-
-.subtexto-marca {
-    font-size: 1rem;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    opacity: 0.8;
-    margin-top: -10px;
-}
-
-/* Card de Login em Glassmorphism */
-.card-glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 40px;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 380px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-}
-
-.titulo-admin {
-    color: white;
-    font-size: 1.1rem;
+.seta-suave {
+    color: rgba(255, 255, 255, 0.45);
     letter-spacing: 2px;
-    margin-bottom: 20px;
-    opacity: 0.9;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    user-select: none;
+    transition: color 0.3s;
 }
 
-.card-glass h3 {
+.zona-clique:hover .seta-suave {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Botão de voltar (aparece nos universos laterais) */
+.btn-voltar {
+    position: absolute;
+    top: 22px;
+    left: 22px;
     color: white;
-    font-size: 1.8rem;
-    margin-bottom: 25px;
-    font-weight: 400;
+    cursor: pointer;
+    opacity: 0.75;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.10);
+    padding: 7px 16px;
+    border-radius: 22px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    transition: opacity 0.2s, background 0.2s;
+    z-index: 20;
+}
+
+.btn-voltar:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+
+/* ==========================================================================
+   5. UNIVERSO HOME
+   ========================================================================== */
+
+/* Badge canto superior direito */
+.badge-senai {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    text-align: right;
+}
+
+.badge-titulo {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+.badge-sub {
+    font-size: 0.52rem;
+    color: rgba(255, 255, 255, 0.72);
+    letter-spacing: 0.8px;
+    margin-top: 4px;
+}
+
+.badge-rua {
+    font-size: 0.48rem;
+    color: rgba(255, 255, 255, 0.58);
+    letter-spacing: 0.5px;
+}
+
+/* Bloco central da Home */
+.conteudo-centro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.label-senai {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.65rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+/* Logo AAPM com efeito 3D suave */
+.logo-aapm-3d {
+    font-size: clamp(3.5rem, 9vw, 6.5rem);
+    font-weight: 900;
+    color: white;
+    letter-spacing: 8px;
+    font-style: italic;
+    text-shadow:
+        0  4px 0   rgba(0, 60, 130, 0.6),
+        0  8px 0   rgba(0, 40, 100, 0.4),
+        0 12px 30px rgba(0, 0, 0, 0.5),
+        0  0   60px rgba(100, 180, 255, 0.25);
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+    user-select: none;
+}
+
+.descricao-aapm {
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 480px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-top: 14px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+.descricao-aapm strong {
+    color: white;
+}
+
+.rodape-aapm {
+    position: absolute;
+    bottom: 16px;
+    font-size: 0.58rem;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 3px;
+}
+
+
+/* ==========================================================================
+   6. UNIVERSO ADMIN — GLASSMORPHISM LOGIN
+   ========================================================================== */
+.frase-topo-admin {
+    color: white;
+    font-size: 0.78rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+    opacity: 0.88;
+    text-align: center;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Card de login flutuante com glassmorphism */
+.card-glass-login {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    padding: 40px 36px;
+    border-radius: 24px;
+    width: 360px;
+    color: white;
+    box-shadow:
+        0 8px 40px rgba(0, 20, 60, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    animation: flutuarCard 5s ease-in-out infinite alternate;
+}
+
+.card-glass-login h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    text-align: center;
+    letter-spacing: 1px;
 }
 
 .input-grupo {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 
 .input-grupo input {
     width: 100%;
-    padding: 14px 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 30px;
+    padding: 12px 20px;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 28px;
     color: white;
+    font-size: 0.9rem;
     outline: none;
-    font-size: 1rem;
+    transition: border-color 0.25s, background 0.25s;
+}
+
+.input-grupo input::placeholder {
+    color: rgba(255, 255, 255, 0.48);
 }
 
 .input-grupo input:focus {
-    border-color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.50);
+    background: rgba(0, 0, 0, 0.28);
+}
+
+.lembrar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.72);
+    margin: 6px 0 20px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.lembrar-wrapper input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: white;
+    cursor: pointer;
 }
 
 .btn-entrar {
     width: 100%;
-    padding: 14px;
-    background: #ffffff;
+    padding: 13px;
+    background: white;
     border: none;
-    border-radius: 30px;
-    color: #0b1a30;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 28px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #163060;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.15s, opacity 0.15s;
 }
 
 .btn-entrar:hover {
-    background: #e5e5e5;
-    transform: translateY(-2px);
+    opacity: 0.92;
+    transform: scale(0.98);
 }
 
-/* Estilo do Site do Público */
-.conteudo-publico {
-    color: white;
-    text-align: center;
-    max-width: 600px;
+.btn-entrar:active {
+    transform: scale(0.95);
 }
 
-.titulo-publico {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-}
-
-.desc-publico {
-    font-size: 1.1rem;
-    opacity: 0.8;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
-
-.vitrine-fake-placeholder {
-    border: 2px dashed rgba(255,255,255,0.3);
-    padding: 60px;
-    border-radius: 15px;
-    background: rgba(255,255,255,0.02);
-}
 
 /* ==========================================================================
-   5. SETAS E ELEMENTOS INDICADORES DE NAVEGAÇÃO
+   7. UNIVERSO PÚBLICO — NAV E CARDS
    ========================================================================== */
-.seta-indicadora {
-    position: absolute;
-    color: white;
-    font-size: 0.9rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+
+/* Navegação do dashboard */
+.nav-dashboard {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 36px;
+}
+
+.item-nav {
+    color: rgba(255, 255, 255, 0.58);
     cursor: pointer;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.25s, border-color 0.25s;
+    user-select: none;
+}
+
+.item-nav:hover {
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.item-nav.ativo {
+    color: white;
+    border-bottom-color: white;
+}
+
+/* Seções de conteúdo (inicio / catalogo / duvidas) */
+.secao-conteudo {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    opacity: 0.6;
-    transition: opacity 0.3s, transform 0.3s;
-    user-select: none;
-    z-index: 10;
 }
 
-.seta-indicadora:hover {
-    opacity: 1;
+.secao-conteudo.oculta {
+    display: none;
 }
 
-.seta-indicadora span {
+.titulo-secao {
+    color: white;
     font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-.seta-topo { top: 40px; animation: bounceVert 2s infinite; }
-.seta-rodape { bottom: 40px; animation: bounceVertOs 2s infinite; }
-.seta-baixo { bottom: 40px; }
-.seta-cima { top: 40px; }
+.desc-secao {
+    color: rgba(255,255,255,0.75);
+    font-size: 1rem;
+}
 
-@keyframes bounceVert {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px); }
+/* Grade de produtos */
+.grade-produtos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
 }
-@keyframes bounceVertOs {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(6px); }
+
+/* Card de produto flutuante */
+.card-produto-flutuante {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    padding: 18px;
+    border-radius: 16px;
+    width: 200px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    animation: flutuarEfeito 4.5s ease-in-out infinite alternate;
+    position: relative;
 }
+
+.card-produto-flutuante:hover {
+    background: rgba(255, 255, 255, 0.13);
+}
+
+.img-placeholder {
+    width: 100%;
+    height: 130px;
+    background: rgba(0, 0, 0, 0.22);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.img-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-produto-flutuante h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.info-tamanho {
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.60);
+    margin: 3px 0;
+}
+
+.info-preco {
+    font-weight: 700;
+    color: #6bbfff;
+    font-size: 0.95rem;
+    margin: 5px 0;
+}
+
+.status-disponivel {
+    font-size: 0.70rem;
+    background: rgba(23, 185, 120, 0.20);
+    color: #17b978;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.status-indisponivel {
+    font-size: 0.70rem;
+    background: rgba(220, 53, 69, 0.20);
+    color: #ff6b6b;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* Card de dúvidas */
+.card-duvidas {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 30px;
+    border-radius: 18px;
+    max-width: 520px;
+    width: 100%;
+    color: white;
+}
+
+.card-duvidas h3 {
+    margin-bottom: 18px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.card-duvidas details {
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+    padding: 12px 0;
+}
+
+.card-duvidas summary {
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.85);
+    list-style: none;
+}
+
+.card-duvidas summary::before {
+    content: '+ ';
+    color: rgba(255,255,255,0.45);
+}
+
+.card-duvidas details[open] summary::before {
+    content: '− ';
+}
+
+.card-duvidas details p {
+    margin-top: 8px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.62);
+    padding-left: 16px;
+}
+
+
+/* ==========================================================================
+   8. ANIMAÇÕES
+   ========================================================================== */
+
+/* Flutuação dos cards de produto */
+@keyframes flutuarEfeito {
+    0%   { transform: translateY(0px); }
+    100% { transform: translateY(-12px); }
+}
+
+/* Flutuação do card de login */
+@keyframes flutuarCard {
+    0%   { transform: translateY(0px); }
+    100% { transform: translateY(-8px); }
+}
+
+/* Card expandido ao clicar */
+.card-produto-flutuante.expandido {
+    animation-play-state: paused; /* Para de flutuar enquanto expandido */
+}
+

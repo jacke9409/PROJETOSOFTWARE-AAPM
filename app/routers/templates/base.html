@@ -3,63 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM - Navegação Vertical 360</title>
+    <title>AAPM - SENAI Brás</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
 
-    <div class="universo-vertical" id="universoScroll">
+    <!-- =============================================
+         FUNDO: MONTANHAS (SVG em camadas)
+         ============================================= -->
+    <div class="fundo-fixo">
+        <!-- Céu degradê -->
+        <div class="sky"></div>
 
-        <section class="painel-vertical" id="painel-login">
-            <div class="wrapper-login">
-                <h2 class="titulo-admin">ACESSO RESTRITO ADMINISTRATIVO</h2>
-                <div class="card-glass">
+        <!-- Nuvens -->
+        <div class="camada-nuvens">
+            <svg width="100%" height="100%" viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grupo de nuvens à esquerda -->
+                <ellipse cx="160"  cy="100" rx="130" ry="55"  fill="white" opacity=".92"/>
+                <ellipse cx="240"  cy="80"  rx="90"  ry="48"  fill="white" opacity=".97"/>
+                <ellipse cx="80"   cy="110" rx="80"  ry="38"  fill="white" opacity=".85"/>
+                <!-- Centro-esquerda -->
+                <ellipse cx="480"  cy="70"  rx="110" ry="45"  fill="white" opacity=".88"/>
+                <ellipse cx="570"  cy="52"  rx="80"  ry="38"  fill="white" opacity=".93"/>
+                <ellipse cx="390"  cy="80"  rx="75"  ry="33"  fill="white" opacity=".80"/>
+                <!-- Centro -->
+                <ellipse cx="750"  cy="90"  rx="120" ry="48"  fill="white" opacity=".78"/>
+                <ellipse cx="850"  cy="70"  rx="85"  ry="38"  fill="white" opacity=".70"/>
+                <!-- Centro-direita -->
+                <ellipse cx="1050" cy="75"  rx="105" ry="44"  fill="white" opacity=".87"/>
+                <ellipse cx="1140" cy="55"  rx="78"  ry="36"  fill="white" opacity=".91"/>
+                <ellipse cx="960"  cy="85"  rx="68"  ry="30"  fill="white" opacity=".75"/>
+                <!-- Direita -->
+                <ellipse cx="1290" cy="95"  rx="95"  ry="42"  fill="white" opacity=".84"/>
+                <ellipse cx="1360" cy="78"  rx="65"  ry="32"  fill="white" opacity=".88"/>
+                <!-- Nuvens menores, mais baixas -->
+                <ellipse cx="300"  cy="170" rx="90"  ry="32"  fill="white" opacity=".50"/>
+                <ellipse cx="900"  cy="180" rx="100" ry="36"  fill="white" opacity=".45"/>
+                <ellipse cx="1200" cy="165" rx="80"  ry="28"  fill="white" opacity=".48"/>
+            </svg>
+        </div>
+
+        <!-- Montanhas ao fundo (mais claras) -->
+        <div class="camada-montanhas-fundo">
+            <svg width="100%" height="100%" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="0,340 0,180 100,100 200,160 340,70 480,140 620,50 760,130 900,60 1050,120 1200,55 1350,100 1400,80 1400,340" fill="#2a5080"/>
+                <polygon points="0,340 0,210 80,160 200,190 340,120 470,165 620,100 780,160 920,105 1060,155 1210,95 1360,140 1400,120 1400,340" fill="#1e3e6e"/>
+            </svg>
+        </div>
+
+        <!-- Montanhas na frente (mais escuras) -->
+        <div class="camada-montanhas-frente">
+            <svg width="100%" height="100%" viewBox="0 0 1400 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="0,260 0,140 130,50 280,120 430,30 600,100 760,20 930,90 1080,25 1250,80 1400,40 1400,260" fill="#163060"/>
+                <polygon points="0,260 0,175 110,110 260,150 410,80 580,130 740,65 900,120 1060,70 1220,110 1400,75 1400,260" fill="#0f2247"/>
+            </svg>
+        </div>
+
+        <!-- Faixa de árvores + chão -->
+        <div class="camada-arvores">
+            <svg width="100%" height="100%" viewBox="0 0 1400 100" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="1400" height="100" fill="#0a1830"/>
+                <!-- Árvores lado esquerdo -->
+                <polygon points="20,100  35,58  50,100"  fill="#0d2240"/>
+                <polygon points="12,100  35,38  58,100"  fill="#0d2240"/>
+                <polygon points="70,100  86,55  102,100" fill="#0d2240"/>
+                <polygon points="62,100  86,35  110,100" fill="#0d2240"/>
+                <polygon points="125,100 140,60 155,100" fill="#0d2240"/>
+                <polygon points="118,100 140,40 162,100" fill="#0d2240"/>
+                <polygon points="185,100 198,62 211,100" fill="#0d2240"/>
+                <polygon points="178,100 198,42 218,100" fill="#0d2240"/>
+                <polygon points="240,100 253,58 266,100" fill="#0d2240"/>
+                <polygon points="233,100 253,38 273,100" fill="#0d2240"/>
+                <polygon points="295,100 308,65 321,100" fill="#0d2240"/>
+                <polygon points="288,100 308,45 328,100" fill="#0d2240"/>
+                <!-- Árvores lado direito -->
+                <polygon points="1080,100 1095,58 1110,100" fill="#0d2240"/>
+                <polygon points="1073,100 1095,38 1117,100" fill="#0d2240"/>
+                <polygon points="1135,100 1150,55 1165,100" fill="#0d2240"/>
+                <polygon points="1128,100 1150,35 1172,100" fill="#0d2240"/>
+                <polygon points="1195,100 1210,60 1225,100" fill="#0d2240"/>
+                <polygon points="1188,100 1210,40 1232,100" fill="#0d2240"/>
+                <polygon points="1255,100 1270,58 1285,100" fill="#0d2240"/>
+                <polygon points="1248,100 1270,38 1292,100" fill="#0d2240"/>
+                <polygon points="1315,100 1330,62 1345,100" fill="#0d2240"/>
+                <polygon points="1308,100 1330,42 1352,100" fill="#0d2240"/>
+                <polygon points="1368,100 1382,65 1396,100" fill="#0d2240"/>
+                <polygon points="1361,100 1382,45 1400,100" fill="#0d2240"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- =============================================
+         PALCO DOS UNIVERSOS (zoom GSAP)
+         ============================================= -->
+    <div class="palco-zoom">
+        <div class="universo-3d" id="universo3D">
+
+            <!-- =========  UNIVERSO HOME  ========= -->
+            <div class="camada-universo" id="universo-home">
+
+                <!-- Zona de clique esquerda → Admin -->
+                <div class="zona-clique zona-esquerda" onclick="viajarPara('admin')" title="Área administrativa">
+                    <span class="seta-suave">&#9664; Admin</span>
+                </div>
+
+                <!-- Zona de clique direita → Catálogo -->
+                <div class="zona-clique zona-direita" onclick="viajarPara('publico')" title="Ver catálogo">
+                    <span class="seta-suave">Catálogo &#9654;</span>
+                </div>
+
+                <!-- Badge SENAI canto superior direito -->
+                <div class="badge-senai">
+                    <div class="badge-titulo">SENAI<br>BRÁS-SP</div>
+                    <div class="badge-sub">FRANCISCO MATARAZZO · RUA CORREIA DE ANDRADE 232</div>
+                    <div class="badge-rua">TÊXTIL E MODA</div>
+                </div>
+
+                <!-- Conteúdo central -->
+                <div class="conteudo-centro">
+                    <span class="label-senai">SENAI</span>
+                    <div class="logo-aapm-3d">AAPM</div>
+                    <p class="descricao-aapm">
+                        Acesse o site da AAPM e descubra nossos produtos com praticidade e rapidez.<br>
+                        <strong>Compre e agende com a AAPM</strong>
+                    </p>
+                </div>
+
+                <span class="rodape-aapm">AAPM</span>
+            </div>
+
+            <!-- =========  UNIVERSO ADMIN  ========= -->
+            <div class="camada-universo" id="universo-admin">
+                <span class="btn-voltar" onclick="voltarAoInicio()">&#8592; Voltar</span>
+                <p class="frase-topo-admin">&#9888; Acesso restrito — apenas administradores</p>
+
+                <div class="card-glass-login">
                     <h3>Login</h3>
-                    <form>
+                    <form onsubmit="fazerLogin(event)">
                         <div class="input-grupo">
-                            <input type="email" placeholder="E-mail" required>
+                            <input type="email" placeholder="E-mail" required autocomplete="email">
                         </div>
                         <div class="input-grupo">
-                            <input type="password" placeholder="Senha" required>
+                            <input type="password" placeholder="Senha" required autocomplete="current-password">
                         </div>
-                        <button type="submit" class="btn-entrar">Entrar</button>
+                        <label class="lembrar-wrapper">
+                            <input type="checkbox" id="lembrar"> Lembrar de mim
+                        </label>
+                        <button type="submit" class="btn-entrar">Acessar</button>
                     </form>
                 </div>
             </div>
-            <div class="seta-indicadora seta-baixo" onclick="moverParaPainel(1)">
-                <span>&#10225;</span> Voltar ao Início
-            </div>
-        </section>
 
-        <section class="painel-vertical" id="painel-centro">
-            <div class="seta-indicadora seta-topo" onclick="moverParaPainel(0)">
-                <span>&#9650;</span> Acesso Restrito
-            </div>
+            <!-- =========  UNIVERSO PÚBLICO  ========= -->
+            <div class="camada-universo" id="universo-publico">
+                <span class="btn-voltar" onclick="voltarAoInicio()">&#8592; Voltar para a Home</span>
 
-            <div class="conteudo-marca">
-                <div class="logo-aapm-vetorial">AAPM</div>
-                <p class="subtexto-marca">SENAI BRÁS</p>
-            </div>
+                <nav class="nav-dashboard">
+                    <span class="item-nav ativo" onclick="trocarNav(this, 'secao-inicio')">Início</span>
+                    <span class="item-nav"        onclick="trocarNav(this, 'secao-catalogo')">Catálogo de Produtos</span>
+                    <span class="item-nav"        onclick="trocarNav(this, 'secao-duvidas')">Dúvidas</span>
+                </nav>
 
-            <div class="seta-indicadora seta-rodape" onclick="moverParaPainel(2)">
-                Site Oficial <span>&#9660;</span>
-            </div>
-        </section>
-
-        <section class="painel-vertical" id="painel-publico">
-            <div class="seta-indicadora seta-cima" onclick="moverParaPainel(1)">
-                <span>&#10224;</span> Voltar ao Início
-            </div>
-            
-            <div class="conteudo-publico">
-                <h2 class="titulo-publico">SITE OFICIAL DA AAPM</h2>
-                <p class="desc-publico">Descubra nossos produtos com praticidade e rapidez. Compre e agende serviços aqui.</p>
-                <div class="vitrine-fake-placeholder">
-                    <span>Área do Aluno & Produtos</span>
+                <!-- Seção: Início -->
+                <div class="secao-conteudo" id="secao-inicio">
+                    <h2 class="titulo-secao">Bem-vindo à AAPM</h2>
+                    <p class="desc-secao">Selecione "Catálogo de Produtos" para ver o que está disponível.</p>
                 </div>
-            </div>
-        </section>
 
+                <!-- Seção: Catálogo -->
+                <div class="secao-conteudo oculta" id="secao-catalogo">
+                    <div class="grade-produtos" id="grade-produtos">
+                        <!-- Cards gerados via JS / Jinja -->
+                        {% for produto in produtos %}
+                        <div class="card-produto-flutuante" onclick="destacarProduto(this)"
+                             style="animation-delay: {{ loop.index0 * 0.6 }}s">
+                            <div class="img-placeholder">
+                                {% if produto.imagem_url %}
+                                <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
+                                {% endif %}
+                            </div>
+                            <h4>{{ produto.nome }}</h4>
+                            <p class="info-tamanho">Tamanho: {{ produto.tamanho }}</p>
+                            <p class="info-preco">R$ {{ "%.2f"|format(produto.preco) }}</p>
+                            {% if produto.disponivel %}
+                            <span class="status-disponivel">Disponível</span>
+                            {% else %}
+                            <span class="status-indisponivel">Indisponível</span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <!-- Fallback: dados de exemplo enquanto não há produtos no banco -->
+                        <div class="card-produto-flutuante" onclick="destacarProduto(this)">
+                            <div class="img-placeholder"></div>
+                            <h4>Camiseta SENAI</h4>
+                            <p class="info-tamanho">Tamanho: G</p>
+                            <p class="info-preco">R$ 49,90</p>
+                            <span class="status-disponivel">Disponível</span>
+                        </div>
+                        <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay:.8s">
+                            <div class="img-placeholder"></div>
+                            <h4>Apostila Têxtil</h4>
+                            <p class="info-tamanho">Tamanho: Único</p>
+                            <p class="info-preco">R$ 29,90</p>
+                            <span class="status-disponivel">Disponível</span>
+                        </div>
+                        <div class="card-produto-flutuante" onclick="destacarProduto(this)" style="animation-delay:1.6s">
+                            <div class="img-placeholder"></div>
+                            <h4>Boné AAPM</h4>
+                            <p class="info-tamanho">Tamanho: Único</p>
+                            <p class="info-preco">R$ 34,90</p>
+                            <span class="status-disponivel">Disponível</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Seção: Dúvidas -->
+                <div class="secao-conteudo oculta" id="secao-duvidas">
+                    <div class="card-duvidas">
+                        <h3>Perguntas Frequentes</h3>
+                        <details>
+                            <summary>Como faço meu pedido?</summary>
+                            <p>Selecione o produto no catálogo e entre em contato com a AAPM.</p>
+                        </details>
+                        <details>
+                            <summary>Qual o prazo de entrega?</summary>
+                            <p>O prazo varia conforme a disponibilidade do produto.</p>
+                        </details>
+                        <details>
+                            <summary>Posso devolver um produto?</summary>
+                            <p>Sim, desde que esteja nas condições originais em até 7 dias.</p>
+                        </details>
+                    </div>
+                </div>
+
+            </div>
+            <!-- fim universo-publico -->
+
+        </div>
     </div>
 
     {% block content %}{% endblock %}

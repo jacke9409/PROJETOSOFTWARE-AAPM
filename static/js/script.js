@@ -1,66 +1,69 @@
-const universoScroll = document.getElementById('universoScroll');
+let universoAtual = 'home';
 
-// Guardamos os índices dos painéis: 0 = Login, 1 = Centro, 2 = Público
-let painelAtual = 1; 
-const totalPaineis = 3;
-let emTransicao = false;
+function viajarPara(destino) {
+    if (universoAtual !== 'home') return;
+    universoAtual = destino;
 
-// Função direta para mover via cliques nas setas indicadores
-function moverParaPainel(indice) {
-    if (indice < 0 || indice >= totalPaineis) return;
-    painelAtual = indice;
-    
-    // Multiplica o índice por -100vh para deslocar a visualização verticalmente
-    universoScroll.style.transform = `translateY(-${indice * 100}vh)`;
+    if (destino === 'admin') {
+        // Câmera dá zoom e entra no universo da Esquerda
+        gsap.to("#universo-home", { 
+            scale: 2, 
+            x: "100vw", 
+            opacity: 0, 
+            duration: 1.2, 
+            ease: "power2.inOut" 
+        });
+        gsap.to("#universo-admin", { 
+            scale: 1, 
+            x: "0vw", 
+            opacity: 1, 
+            duration: 1.2, 
+            ease: "power2.inOut" 
+        });
+    } 
+    else if (destino === 'publico') {
+        // Câmera dá zoom e entra no universo da Direita
+        gsap.to("#universo-home", { 
+            scale: 2, 
+            x: "-100vw", 
+            opacity: 0, 
+            duration: 1.2, 
+            ease: "power2.inOut" 
+        });
+        gsap.to("#universo-publico", { 
+            scale: 1, 
+            x: "0vw", 
+            opacity: 1, 
+            duration: 1.2, 
+            ease: "power2.inOut" 
+        });
+    }
 }
 
-// Intercepta o scroll da roda do mouse (Wheel) para dar o efeito magnético 360°
-window.addEventListener('wheel', (e) => {
-    if (emTransicao) return;
+function voltarAoInicio() {
+    if (universoAtual === 'home') return;
 
-    if (e.deltaY > 0) {
-        // Scroll para Baixo
-        if (painelAtual < totalPaineis - 1) {
-            painelAtual++;
-            executarMudanca();
-        }
-    } else if (e.deltaY < 0) {
-        // Scroll para Cima
-        if (painelAtual > 0) {
-            painelAtual--;
-            executarMudanca();
-        }
+    if (universoAtual === 'admin') {
+        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1, ease: "power2.out" });
+        gsap.to("#universo-admin", { scale: 0.5, x: "-100vw", opacity: 0, duration: 1, ease: "power2.out" });
+    } 
+    else if (universoAtual === 'publico') {
+        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1, ease: "power2.out" });
+        gsap.to("#universo-publico", { scale: 0.5, x: "100vw", opacity: 0, duration: 1, ease: "power2.out" });
     }
-}, { passive: true });
-
-function executarMudanca() {
-    emTransicao = true;
-    universoScroll.style.transform = `translateY(-${painelAtual * 100}vh)`;
     
-    // Trava temporariamente para evitar saltos múltiplos bruscos de tela
-    setTimeout(() => {
-        emTransicao = false;
-    }, 800); // Tempo batendo com o '0.8s' definido no CSS transition
+    universoAtual = 'home';
 }
 
-// Suporte opcional para arrastar em telas de toque (Touch)
-let touchStartY = 0;
-window.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-}, { passive: true });
-
-window.addEventListener('touchend', (e) => {
-    if (emTransicao) return;
-    const touchEndY = e.changedTouches[0].clientY;
-    const diffY = touchStartY - touchEndY;
-
-    if (Math.abs(diffY) > 50) { // Sensibilidade mínima de movimento
-        if (diffY > 0 && painelAtual < totalPaineis - 1) {
-            painelAtual++;
-            executarMudanca();
-        } else if (diffY < 0 && painelAtual > 0) {
-            painelAtual--;
-            executarMudanca();
-        }
+// Animação interativa: Quando clica no produto, ele expande na tela
+function destacarProduto(elemento) {
+    // Se o card já estiver gigante, volta ao normal
+    if (elemento.classList.contains('expandido')) {
+        gsap.to(elemento, { scale: 1, zIndex: 1, duration: 0.4, ease: "back.out(1.7)" });
+        elemento.classList.remove('expandido');
+    } else {
+        // Faz o card vir para frente e crescer
+        gsap.to(elemento, { scale: 1.2, zIndex: 100, duration: 0.4, ease: "back.out(1.7)" });
+        elemento.classList.add('expandido');
     }
-}, { passive: true });
+}
