@@ -349,7 +349,7 @@ function abrirModalEditar(id) {
     if (document.getElementById("edit-preco")) document.getElementById("edit-preco").value = p.preco;
     if (document.getElementById("edit-tamanho")) document.getElementById("edit-tamanho").value = p.tamanho;
     if (document.getElementById("edit-disponivel")) document.getElementById("edit-disponivel").value = p.disponivel ? "1" : "0";
-    
+    if (document.getElementById("edit-categoria-id")) document.getElementById("edit-categoria-id").value = p.categoria_id || "";
     const inputImg = document.getElementById("img-selecionada-editar");
     if (inputImg) inputImg.value = p.imagem_url || "/static/assets/Camisa malha branca.svg";
 

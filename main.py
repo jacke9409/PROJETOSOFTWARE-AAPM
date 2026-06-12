@@ -27,14 +27,16 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 # Schemas Pydantic para validação de dados recebidos via JSON
+# 🌟 AJUSTE: Adicionado categoria_id para aceitar o campo quando criar ou editar produtos
 class ProdutoSchema(BaseModel):
     nome: str
     preco: float
     tamanho: str
     disponivel: Optional[int] = 1
+    categoria_id: Optional[int] = None  # 👈 Crucial para o Pydantic não rejeitar o dado do JS
     imagem_url: Optional[str] = ""
 
-# 🌟 SCHEMA DE CATEGORIAS: Adicionado para validar a criação e edição
+# 🌟 SCHEMA DE CATEGORIAS
 class CategoriaSchema(BaseModel):
     nome: str
 
@@ -71,19 +73,15 @@ async def processar_login(
     password: str = Form(...), 
     db: Session = Depends(get_db)
 ):
-    # 1. Busca o usuário cadastrado no MySQL pelo email informado
     usuario = db.query(Usuario).filter(Usuario.email == username).first()
     
-    # 2. Valida se o usuário existe e se a senha criptografada confere
     if usuario and pwd_context.verify(password, usuario.senha):
-        # Retorna sucesso em formato JSON para o JavaScript processar e mudar de página
         return {
             "status": "sucesso", 
             "nome": usuario.nome, 
             "role": usuario.role
         }
         
-    # 3. Retorna erro de credencial caso os dados estejam incorretos
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="E-mail ou senha incorretos."
@@ -100,7 +98,6 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
     
-    # Pré-serializa para evitar erros de JSON na view principal se necessário
     categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
     
     return templates.TemplateResponse(
@@ -114,31 +111,35 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     )
 
 
-# Rota para Listar os Produtos
+# 🌟 SOLUÇÃO DA DUPLICIDADE: Esta é a rota que o seu painel realmente chama!
+# Atualizada para buscar tanto produtos quanto categorias e injetar no template.
 @app.get("/dashboard/produtos", response_class=HTMLResponse)
 async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
+    categorias_do_banco = db.query(Categoria).all()  # 👈 Busca as categorias do banco aqui!
+    
     return templates.TemplateResponse(
         request=request,
         name="admin/produtos.html",
-        context={"produtos": produtos_do_banco}
+        context={
+            "produtos": produtos_do_banco,
+            "categorias": categorias_do_banco  # 👈 Injeta na página de produtos!
+        }
     )
 
 
-# Rota para Listar as Categorias (CORRIGIDA COM SERIALIZAÇÃO ANTIEP強ICO)
+# Rota para Listar as Categorias
 @app.get("/dashboard/categorias", response_class=HTMLResponse)
 async def pagina_dashboard_categorias(request: Request, db: Session = Depends(get_db)):
     categorias_do_banco = db.query(Categoria).all()
-    
-    # Converte os objetos do SQLAlchemy para dicionários comuns do Python
     categorias_serializadas = [{"id": cat.id, "nome": cat.nome} for cat in categorias_do_banco]
     
     return templates.TemplateResponse(
         request=request,
         name="admin/categorias.html",
         context={
-            "categories": categorias_do_banco,       # Alimenta o loop `for` do HTML da tabela
-            "categorias_json": categorias_serializadas # Alimenta de forma limpa o atributo data-categorias do JS
+            "categories": categorias_do_banco,
+            "categorias_json": categorias_serializadas
         }
     )
 
@@ -159,12 +160,9 @@ async def pagina_dashboard_vendas(request: Request):
 # API REST (CRUD PRODUTOS, CATEGORIAS & GALERIA DE ASSETS)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Rota dinâmica que lê a pasta static/assets e abastece a galeria do JS
 @app.get("/admin/assets/imagens")
 async def listar_imagens_galeria():
     caminho_pasta = os.path.join("static", "assets")
-    
-    # Se a pasta não existir no servidor, cria ela vazia preventivamente
     if not os.path.exists(caminho_pasta):
         os.makedirs(caminho_pasta)
         return {"imagens": []}
@@ -186,14 +184,16 @@ async def listar_imagens_galeria():
 
 # --- CRUD PRODUTOS ---
 
+# 🌟 AJUSTE: Salvando o categoria_id que vem do formulário no banco de dados
 @app.post("/admin/produtos")
 async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
     novo = Produto(
-        nome       = dados.nome,
-        preco      = dados.preco,
-        tamanho    = dados.tamanho,
-        disponivel = bool(dados.disponivel),
-        imagem_url = dados.imagem_url
+        nome         = dados.nome,
+        preco        = dados.preco,
+        tamanho      = dados.tamanho,
+        disponivel   = bool(dados.disponivel),
+        categoria_id = dados.categoria_id,  # 👈 Vincula a categoria enviada
+        imagem_url   = dados.imagem_url
     )
     db.add(novo)
     db.commit()
@@ -201,16 +201,18 @@ async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
     return {"status": "criado", "id": novo.id}
 
 
+# 🌟 AJUSTE: Criando a rota PUT para atualizar os produtos (incluindo a categoria)
 @app.put("/admin/produtos/{produto_id}")
 async def atualizar_produto(produto_id: int, dados: ProdutoSchema, db: Session = Depends(get_db)):
     produto = db.query(Produto).filter(Produto.id == produto_id).first()
     if not produto:
         raise HTTPException(status_code=404, detail="Produto não encontrado.")
-        
-    produto.nome       = dados.nome
-    produto.preco      = dados.preco
-    produto.tamanho    = dados.tamanho
+    
+    produto.nome = dados.nome
+    produto.preco = dados.preco
+    produto.tamanho = dados.tamanho
     produto.disponivel = bool(dados.disponivel)
+    produto.categoria_id = dados.categoria_id  # 👈 Atualiza a categoria
     produto.imagem_url = dados.imagem_url
     
     db.commit()
@@ -230,7 +232,6 @@ async def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
 
 # --- CRUD CATEGORIAS ---
 
-# 🌟 ROTA POST: Adicionar categoria via requisição JSON
 @app.post("/admin/categorias")
 async def criar_categoria(dados: CategoriaSchema, db: Session = Depends(get_db)):
     nova = Categoria(nome=dados.nome)
@@ -240,7 +241,6 @@ async def criar_categoria(dados: CategoriaSchema, db: Session = Depends(get_db))
     return {"status": "criado", "id": nova.id}
 
 
-# 🌟 ROTA PUT: Editar/Atualizar categoria via requisição JSON
 @app.put("/admin/categorias/{categoria_id}")
 async def atualizar_categoria(categoria_id: int, dados: CategoriaSchema, db: Session = Depends(get_db)):
     categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()

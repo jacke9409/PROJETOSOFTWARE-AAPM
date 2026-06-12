@@ -14,6 +14,7 @@
         "tamanho": {{ (p.tamanho if p.tamanho is defined else "Único") | tojson }},
         "preco": {{ p.preco if p.preco is defined and p.preco is not none else 0.00 }},
         "disponivel": {{ 1 if p.disponivel else 0 }},
+        "categoria_id": {{ p.categoria_id if p.categoria_id is defined and p.categoria_id is not none else "null" }},
         "imagem_url": {{ (p.imagem_url if p.imagem_url is defined and p.imagem_url is not none else "") | tojson }}
     }{% if not loop.last %},{% endif %}
     {% endfor %}
@@ -21,7 +22,7 @@
 
 <div class="card-painel-interno" style="
     flex: 1;
-    max-height: calc(100vh - 180px); /* 💡 Limita a altura para travar dentro da tela */
+    max-height: calc(100vh - 180px);
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -30,7 +31,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     color: #fff;
-    overflow-y: auto; /* Ativa a rolagem interna quando houver muitos produtos */
+    overflow-y: auto;
 ">
     <div class="prod-page-header">
         <div>
@@ -82,12 +83,24 @@
                 </div>
             </div>
 
-            <div class="modal-campo">
-                <label>Disponibilidade</label>
-                <select name="disponivel">
-                    <option value="1">Disponível</option>
-                    <option value="0">Indisponível</option>
-                </select>
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label>Categoria</label>
+                    <select name="categoria_id" required>
+                        <option value="" disabled selected>Selecione uma categoria</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="modal-campo">
+                    <label>Disponibilidade</label>
+                    <select name="disponivel">
+                        <option value="1">Disponível</option>
+                        <option value="0">Indisponível</option>
+                    </select>
+                </div>
             </div>
 
             <div class="modal-campo">
@@ -139,12 +152,24 @@
                 </div>
             </div>
 
-            <div class="modal-campo">
-                <label>Disponibilidade</label>
-                <select name="disponivel" id="edit-disponivel">
-                    <option value="1">Disponível</option>
-                    <option value="0">Indisponível</option>
-                </select>
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label>Categoria</label>
+                    <select name="categoria_id" id="edit-categoria-id" required>
+                        <option value="" disabled>Selecione uma categoria</option>
+                        {% for cat in categorias %}
+                        <option value="{{ cat.id }}">{{ cat.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="modal-campo">
+                    <label>Disponibilidade</label>
+                    <select name="disponivel" id="edit-disponivel">
+                        <option value="1">Disponível</option>
+                        <option value="0">Indisponível</option>
+                    </select>
+                </div>
             </div>
 
             <div class="modal-campo">
