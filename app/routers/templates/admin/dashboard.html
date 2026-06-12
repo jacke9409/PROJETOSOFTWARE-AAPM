@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AAPM — Painel Administrativo</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body style="overflow: auto !important; background: #0a1830;">
+
+    <div class="fundo-fixo">
+        <div class="sky"></div>
+        <div class="camada-nuvens"></div>
+        <div class="camada-montanhas-fundo"></div>
+        <div class="camada-montanhas-frente"></div>
+        <div class="camada-arvores"></div>
+    </div>
+
+    <div class="painel-admin-wrapper">
+        <header class="admin-top-bar">
+            <div class="top-bar-title">
+                <span class="txt-destaque">PAINEL</span> ADMINISTRATIVO
+            </div>
+            <div class="top-bar-user">
+                <div class="avatar-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Admin">
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-corpo-layout">
+            <aside class="admin-sidebar-vertical">
+                <div class="sidebar-top-label">DASHBOARD</div>
+                <nav class="sidebar-nav">
+                    <a href="/dashboard/produtos" class="nav-item-link ativo">Produtos</a>
+                    <a href="/dashboard/categorias" class="nav-item-link">Categorias</a>
+                    <a href="/dashboard/fornecedores" class="nav-item-link">Fornecedores</a>
+                    <a href="/dashboard/vendas" class="nav-item-link">Vendas</a>
+                </nav>
+                <a href="/" class="sidebar-btn-sair">Sair</a>
+            </aside>
+
+            <main class="admin-conteudo-principal">
+                <div class="card-painel-interno">
+                    <div class="painel-header-tabela">
+                        <h2>Visão Geral do Sistema</h2>
+                        <p>Selecione uma das opções ao lado para gerenciar os dados inseridos no banco MySQL.</p>
+                    </div>
+                    <div class="status-banco-placeholder">
+                        <p>Pronto para listar seus 88 produtos cadastrados da AAPM.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="admin-footer-status">
+            <div class="status-indicator">🖥️ Dashboard</div>
+        </footer>
+    </div>
+
+</body>
+</html>

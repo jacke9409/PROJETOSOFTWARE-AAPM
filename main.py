@@ -42,12 +42,13 @@ async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
-    
+
+# Mude de: "dashboard.html" 
+# Para: "admin/dashboard.html"
+
+@app.get("/dashboard") # ou o nome exato da sua rota na linha 46
+async def pagina_dashboard(request: Request):
     return templates.TemplateResponse(
-        request=request, 
-        name="dashboard.html", 
-        context={
-            "produtos": produtos_do_banco, 
-            "categorias": categorias_do_banco
-        }
+        name="admin/dashboard.html",  # <-- Adicione o "admin/" aqui!
+        context={"request": request}
     )
