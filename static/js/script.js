@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AAPM — SCRIPT PRINCIPAL & GERENCIAMENTO DE PRODUTOS E CATEGORIAS
+   AAPM — SCRIPT PRINCIPAL & GERENCIAMENTO DE PRODUTOS, CATEGORIAS E FORNECEDORES
    ========================================================================== */
 
 "use strict";
@@ -15,7 +15,8 @@ let imagemTemporariaSelecionada = null;
 
 // Bancos de dados em memória populados pelo backend (FastAPI/Jinja2)
 let PRODUTOS_DB = [];
-let CATEGORIAS_DB = []; // 🌟 Variável global de categorias declarada corretamente
+let CATEGORIAS_DB = []; 
+let FORNECEDORES_DB = []; // 🌟 Variável global de fornecedores mapeada
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. INICIALIZAÇÃO DA APLICAÇÃO
@@ -31,14 +32,25 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🌟 CAPTURA OS DADOS DE CATEGORIAS: Busca o elemento de dados que enviamos no HTML de categorias
+    // CAPTURA OS DADOS DE CATEGORIAS
     const dadosCatElemento = document.getElementById("dados-categorias-backend");
     if (dadosCatElemento && dadosCatElemento.dataset.categorias) {
         try {
             CATEGORIAS_DB = JSON.parse(dadosCatElemento.dataset.categorias);
-            window.CATEGORIAS_DB = CATEGORIAS_DB; // Define na window para garantir compatibilidade
+            window.CATEGORIAS_DB = CATEGORIAS_DB; 
         } catch (e) {
             console.error("Erro ao processar dados de categorias do backend:", e);
+        }
+    }
+
+    // 🌟 CAPTURA OS DADOS DE FORNECEDORES: Mapeia do container oculto do HTML
+    const dadosFornElemento = document.getElementById("dados-fornecedores-backend");
+    if (dadosFornElemento && dadosFornElemento.dataset.fornecedores) {
+        try {
+            FORNECEDORES_DB = JSON.parse(dadosFornElemento.dataset.fornecedores);
+            window.FORNECEDORES_DB = FORNECEDORES_DB;
+        } catch (e) {
+            console.error("Erro ao processar dados de fornecedores do backend:", e);
         }
     }
 
@@ -359,7 +371,7 @@ function abrirModalEditar(id) {
     abrirModal("modal-editar");
 }
 
-async function atualizarProduto(event) {
+async function actualizarProduto(event) {
     event.preventDefault();
     const form = document.getElementById("form-editar");
     if (!form) return;
@@ -442,21 +454,15 @@ async function confirmarDelecao() {
 // 7. GERENCIAMENTO EXCLUSIVO DE CATEGORIAS (AAPM SENAI BRÁS)
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Variável global para armazenar temporariamente o ID da categoria que será deletada
 let categoriaDeletarId = null;
 
 function abrirModalCatAdicionar() {
     const form = document.getElementById("form-cat-adicionar");
-    if (form) form.reset(); // Reseta campos antigos
+    if (form) form.reset(); 
 
-    const modal = document.getElementById('modal-cat-adicionar');
-    if (modal) {
-        modal.classList.add("visivel");
-        document.body.style.overflow = "hidden";
-    }
+    abrirModal('modal-cat-adicionar');
 }
 
-// 🌟 NOVA FUNÇÃO: Cadastra nova categoria enviando JSON para a rota POST do FastAPI
 async function salvarCategoria(event) {
     event.preventDefault();
     const nomeInput = document.getElementById("cat-nome");
@@ -486,7 +492,6 @@ async function salvarCategoria(event) {
 
 function abrirModalCatEditar(id) {
     const idNum = parseInt(id, 10);
-    // Lê perfeitamente do array mapeado e preenchido pelo DOMContentLoaded
     const cat = CATEGORIAS_DB ? CATEGORIAS_DB.find(x => x.id === idNum) : null;
     
     if (!cat) {
@@ -500,14 +505,9 @@ function abrirModalCatEditar(id) {
     if (inputId) inputId.value = cat.id;
     if (inputNome) inputNome.value = cat.nome;
 
-    const modal = document.getElementById('modal-cat-editar');
-    if (modal) {
-        modal.classList.add("visivel");
-        document.body.style.overflow = "hidden";
-    }
+    abrirModal('modal-cat-editar');
 }
 
-// 🌟 NOVA FUNÇÃO: Envia a requisição PUT via JSON para o FastAPI salvar no MySQL
 async function atualizarCategoria(event) {
     event.preventDefault();
     const idInput = document.getElementById("edit-cat-id");
@@ -543,11 +543,7 @@ function abrirModalCatDeletar(id, nome) {
     const txtNome = document.getElementById('deletar-nome-categoria');
     if (txtNome) txtNome.textContent = `"${nome}"?`;
 
-    const modal = document.getElementById('modal-cat-deletar');
-    if (modal) {
-        modal.classList.add("visivel");
-        document.body.style.overflow = "hidden";
-    }
+    abrirModal('modal-cat-deletar');
 }
 
 async function confirmarDelecaoCategoria() {
@@ -570,5 +566,143 @@ async function confirmarDelecaoCategoria() {
         alert("Erro de conexão com o servidor.");
     } finally {
         categoriaDeletarId = null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 🌟 8. GERENCIAMENTO EXCLUSIVO DE FORNECEDORES (NOVO)
+// ─────────────────────────────────────────────────────────────────────────────
+
+let fornecedorDeletarId = null;
+
+function abrirModalFornAdicionar() {
+    const form = document.getElementById("form-forn-adicionar");
+    if (form) form.reset(); // Limpa dados antigos antes de abrir
+    abrirModal("modal-forn-adicionar");
+}
+
+async function salvarFornecedor(event) {
+    event.preventDefault();
+    const form = document.getElementById("form-forn-adicionar");
+    if (!form) return;
+
+    const dadosForm = new FormData(form);
+    const dados = Object.fromEntries(dadosForm);
+
+    try {
+        const resp = await fetch("/admin/fornecedores", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-forn-adicionar");
+            location.reload();
+        } else {
+            const erro = await resp.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao salvar o fornecedor. Verifique se o CNPJ é único.");
+        }
+    } catch (e) {
+        console.error("Erro ao conectar ao servidor:", e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
+function abrirModalFornEditar(id) {
+    const idNum = parseInt(id, 10);
+    const forn = FORNECEDORES_DB ? FORNECEDORES_DB.find(x => x.id === idNum) : null;
+
+    if (!forn) {
+        console.error("Fornecedor não encontrado localmente para o ID:", idNum);
+        return;
+    }
+
+    // Preenche cirurgicamente os inputs do modal usando a base de dados em memória
+    if (document.getElementById("edit-forn-id")) document.getElementById("edit-forn-id").value = forn.id;
+    if (document.getElementById("edit-forn-nome")) document.getElementById("edit-forn-nome").value = forn.nome_fantasia;
+    if (document.getElementById("edit-forn-cnpj")) document.getElementById("edit-forn-cnpj").value = forn.cnpj;
+    if (document.getElementById("edit-forn-telefone")) document.getElementById("edit-forn-telefone").value = forn.telefone;
+    if (document.getElementById("edit-forn-email")) document.getElementById("edit-forn-email").value = forn.email || "";
+    if (document.getElementById("edit-forn-localidade")) document.getElementById("edit-forn-localidade").value = forn.localidade;
+    if (document.getElementById("edit-forn-contato")) document.getElementById("edit-forn-contato").value = forn.nome_contato || "";
+
+    abrirModal("modal-forn-editar");
+}
+
+async function atualizarFornecedor(event) {
+    event.preventDefault();
+    const form = document.getElementById("form-forn-editar");
+    if (!form) return;
+
+    const dadosForm = new FormData(form);
+    const dados = Object.fromEntries(dadosForm);
+    const id = dados.id;
+
+    try {
+        const resp = await fetch(`/admin/fornecedores/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-forn-editar");
+            location.reload();
+        } else {
+            const erro = await resp.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao atualizar os dados do fornecedor.");
+        }
+    } catch (e) {
+        console.error("Erro de comunicação com a API:", e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
+function abrirModalFornDeletar(id, nome) {
+    fornecedorDeletarId = id;
+    
+    const txtNome = document.getElementById("deletar-nome-fornecedor");
+    if (txtNome) txtNome.textContent = `"${nome}"?`;
+
+    abrirModal("modal-forn-deletar");
+}
+
+async function confirmarDelecaoFornecedor() {
+    if (!fornecedorDeletarId) return;
+
+    try {
+        const resp = await fetch(`/admin/fornecedores/${fornecedorDeletarId}`, {
+            method: "DELETE"
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-forn-deletar");
+
+            // Efeito visual GSAP na linha da tabela antes de forçar o recarregamento ou remoção
+            const linha = document.getElementById(`linha-fornecedor-{{ fornecedorDeletarId }}`) || document.querySelector(`button[data-id="${fornecedorDeletarId}"]`).closest('tr');
+            if (linha) {
+                gsap.to(linha, {
+                    opacity: 0,
+                    x: -30,
+                    duration: 0.35,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        linha.remove();
+                        location.reload(); // Recarrega para sincronizar totalmente o banco local
+                    }
+                });
+            } else {
+                location.reload();
+            }
+        } else {
+            const erro = await resp.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao deletar fornecedor.");
+        }
+    } catch (e) {
+        console.error("Erro ao enviar comando DELETE:", e);
+        alert("Erro de conexão com o servidor.");
+    } finally {
+        fornecedorDeletarId = null;
     }
 }

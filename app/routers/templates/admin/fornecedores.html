@@ -1,17 +1,205 @@
 {% extends "admin/dashboard.html" %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+{% endblock %}
+
 {% block admin_content %}
-<div class="card-painel-interno" style="flex: 1; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff;">
-    <div class="panel-header-tabela" style="margin-bottom: 25px;">
-        <h2 style="margin: 0; font-size: 1.8rem;">Fornecedores Homologados</h2>
-        <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Controle de parceiros de suprimentos e materiais da AAPM.</p>
+
+<div id="dados-fornecedores-backend"
+     data-fornecedores='{{ fornecedores_json | tojson | safe }}'
+     style="display:none;">
+</div>
+
+<script>
+    // Inicializa a variável global que o script vai gerenciar
+    const containerFornecedores = document.getElementById('dados-fornecedores-backend');
+    try {
+        window.FORNECEDORES_DB = JSON.parse(containerFornecedores.getAttribute('data-fornecedores')) || [];
+    } catch (e) {
+        window.FORNECEDORES_DB = [];
+        console.error("Erro ao carregar FORNECEDORES_DB no escopo global:", e);
+    }
+</script>
+
+<div class="card-painel-interno" style="
+    flex: 1;
+    max-height: calc(100vh - 180px);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    overflow-y: auto;
+">
+    <div class="panel-header-tabela" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.8rem;">Gestão de Fornecedores</h2>
+            <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Gerencie os parceiros comerciais e canais de suprimentos do catálogo.</p>
+        </div>
+        <button onclick="abrirModalFornAdicionar()" style="background: linear-gradient(135deg, #27ae60, #1e8449); border: none; color: white; padding: 11px 22px; font-weight: bold; border-radius: 14px; cursor: pointer; transition: 0.18s; box-shadow: 0 4px 18px rgba(39,174,96,0.35);">
+            + Novo Fornecedor
+        </button>
     </div>
 
-    <div style="padding: 50px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; text-align: center;">
-        <span style="font-size: 2.5rem; display: block; margin-bottom: 15px;">📦</span>
-        <p style="color: rgba(255,255,255,0.6); font-size: 1.1rem; margin: 0;">
-            Módulo de Fornecedores estruturado e pronto para receber a integração com o banco MySQL.
-        </p>
+    <div class="tabela-responsiva-admin" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(30, 62, 110, 0.6); height: 45px; border-bottom: 2px solid #2a5080;">
+                    <th style="padding: 12px; color: #fff; width: 25%;">Empresa</th>
+                    <th style="color: #fff; width: 20%;">CNPJ</th>
+                    <th style="color: #fff; width: 15%;">Telefone</th>
+                    <th style="color: #fff; width: 20%;">Localidade</th>
+                    <th style="text-align: center; color: #fff; width: 20%;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for forn in fornecedores %}
+                <tr id="linha-fornecedor-{{ forn.id }}" style="border-bottom: 1px solid rgba(255,255,255,0.1); height: 50px; background: rgba(255,255,255,0.02); transition: 0.3s;">
+                    <td style="padding: 12px;"><strong>{{ forn.nome_fantasia }}</strong></td>
+                    <td>{{ forn.cnpj }}</td>
+                    <td>{{ forn.telefone }}</td>
+                    <td>{{ forn.localidade }}</td>
+                    <td style="text-align: center;">
+                        <button type="button" 
+                                onclick="abrirModalFornEditar(this.getAttribute('data-id'))" 
+                                data-id="{{ forn.id }}" 
+                                style="background: linear-gradient(135deg, #e67e22, #d35400); border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 6px; font-weight: bold; margin-right: 5px; transition: 0.15s;">
+                            Editar
+                        </button>
+                        
+                        <button type="button" 
+                                onclick="abrirModalFornDeletar(this.getAttribute('data-id'), this.getAttribute('data-nome'))" 
+                                data-id="{{ forn.id }}"
+                                data-nome="{{ forn.nome }}" 
+                                style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.15s;">
+                            Excluir
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">Nenhum fornecedor cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<div class="modal-overlay" id="modal-forn-adicionar">
+    <div class="modal-box">
+        <button class="modal-fechar" onclick="fecharModal('modal-forn-adicionar')">✕</button>
+        <div class="modal-titulo">🏢 Novo Fornecedor</div>
+        <form id="form-forn-adicionar" onsubmit="salvarFornecedor(event)">
+            
+            <div class="modal-campo">
+                <label for="forn-nome">Nome da Empresa</label>
+                <input type="text" id="forn-nome" name="nome" placeholder="Ex: SENAI Uniformes LTDA" required>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label for="forn-cnpj">CNPJ</label>
+                    <input type="text" id="forn-cnpj" name="cnpj" placeholder="00.000.000/0001-00" required>
+                </div>
+                <div class="modal-campo">
+                    <label for="forn-telefone">Telefone</label>
+                    <input type="text" id="forn-telefone" name="telefone" placeholder="(11) 99999-9999" required>
+                </div>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label for="forn-email">E-mail de Contato</label>
+                    <input type="email" id="forn-email" name="email" placeholder="comercial@empresa.com">
+                </div>
+                <div class="modal-campo">
+                    <label for="forn-localidade">Localidade (Cidade - UF)</label>
+                    <input type="text" id="forn-localidade" name="localidade" placeholder="São Paulo - SP" required>
+                </div>
+            </div>
+
+            <div class="modal-campo">
+                <label for="forn-contato">Nome do Vendedor / Representante</label>
+                <input type="text" id="forn-contato" name="nome_contato" placeholder="Ex: Roberto das Vendas">
+            </div>
+
+            <div class="modal-rodape">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModal('modal-forn-adicionar')">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-verde">Salvar Fornecedor</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-forn-editar">
+    <div class="modal-box">
+        <button class="modal-fechar" onclick="fecharModal('modal-forn-editar')">✕</button>
+        <div class="modal-titulo"> Editar Fornecedor</div>
+        <form id="form-forn-editar" onsubmit="atualizarFornecedor(event)">
+            <input type="hidden" name="id" id="edit-forn-id">
+            
+            <div class="modal-campo">
+                <label for="edit-forn-nome">Nome da Empresa</label>
+                <input type="text" id="edit-forn-nome" name="nome" required>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label for="edit-forn-cnpj">CNPJ</label>
+                    <input type="text" id="edit-forn-cnpj" name="cnpj" required>
+                </div>
+                <div class="modal-campo">
+                    <label for="edit-forn-telefone">Telefone</label>
+                    <input type="text" id="edit-forn-telefone" name="telefone" required>
+                </div>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo">
+                    <label for="edit-forn-email">E-mail de Contato</label>
+                    <input type="email" id="edit-forn-email" name="email">
+                </div>
+                <div class="modal-campo">
+                    <label for="edit-forn-localidade">Localidade (Cidade - UF)</label>
+                    <input type="text" id="edit-forn-localidade" name="localidade" required>
+                </div>
+            </div>
+
+            <div class="modal-campo">
+                <label for="edit-forn-contato">Nome do Vendedor / Representante</label>
+                <input type="text" id="edit-forn-contato" name="nome_contato">
+            </div>
+
+            <div class="modal-rodape">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModal('modal-forn-editar')">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-laranja">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-forn-deletar">
+    <div class="modal-box" style="max-width: 360px; text-align: center;">
+        <button class="modal-fechar" onclick="fecharModal('modal-forn-deletar')">✕</button>
+        <div class="modal-exclusao-icone">🗑️</div>
+        <div class="modal-titulo" style="text-align:center">Confirmar Exclusão</div>
+        <p class="modal-exclusao-msg">Você tem certeza que deseja remover o fornecedor</p>
+        <p class="modal-exclusao-nome" id="deletar-nome-fornecedor" style="color: #ff6b6b; font-weight: bold;"></p>
+        <p class="modal-exclusao-msg" style="margin-top:6px; font-size:0.8rem; color:rgba(255,255,255,0.45)">
+            Esta ação não poderá ser desfeita. Certifique-se de salvar os contatos importantes antes.
+        </p>
+        <div class="modal-rodape">
+            <button type="button" class="btn-modal btn-cancelar" onclick="fecharModal('modal-forn-deletar')">Cancelar</button>
+            <button type="button" class="btn-modal btn-confirmar-vermelho" onclick="confirmarDelecaoFornecedor()">Deletar</button>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', path='js/script.js') }}"></script>
+
 {% endblock %}

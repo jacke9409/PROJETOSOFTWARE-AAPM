@@ -13,6 +13,7 @@ from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario
+from app.models.fornecedor import Fornecedor  # 👈 1. IMPORTAÇÃO DO MODELO DE FORNECEDOR
 
 app = FastAPI()
 
@@ -26,19 +27,29 @@ templates = Jinja2Templates(directory="app/routers/templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# Schemas Pydantic para validação de dados recebidos via JSON
-# 🌟 AJUSTE: Adicionado categoria_id para aceitar o campo quando criar ou editar produtos
+# ─────────────────────────────────────────────────────────────────────────────
+# SCHEMAS PYDANTIC (VALIDAÇÃO DE ENTRADAS JSON)
+# ─────────────────────────────────────────────────────────────────────────────
+
 class ProdutoSchema(BaseModel):
     nome: str
     preco: float
     tamanho: str
     disponivel: Optional[int] = 1
-    categoria_id: Optional[int] = None  # 👈 Crucial para o Pydantic não rejeitar o dado do JS
+    categoria_id: Optional[int] = None  
     imagem_url: Optional[str] = ""
 
-# 🌟 SCHEMA DE CATEGORIAS
 class CategoriaSchema(BaseModel):
     nome: str
+
+# 🌟 2. SCHEMA DE FORNECEDORES (Garante o contrato de dados perfeito com o JS)
+class FornecedorSchema(BaseModel):
+    nome_fantasia: str
+    cnpj: str
+    telefone: str
+    email: Optional[str] = None
+    localidade: str
+    nome_contato: Optional[str] = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -55,7 +66,6 @@ async def pagina_login(request: Request):
     return templates.TemplateResponse(request=request, name="auth/login.html")
 
 
-# 📊 SPRINT 3: Lista de Visualização puxando os produtos do MySQL
 @app.get("/visualizacao", response_class=HTMLResponse)
 async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
@@ -66,7 +76,6 @@ async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
     )
 
 
-# 🔑 SPRINT 2: Rota que processa o login integrado ao Banco de Dados
 @app.post("/auth/login")
 async def processar_login(
     username: str = Form(...), 
@@ -92,7 +101,6 @@ async def processar_login(
 # ROTAS DO PAINEL ADMINISTRATIVO (VIEWS)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Dashboard unificada renderizando os dados reais do banco
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
@@ -111,24 +119,21 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     )
 
 
-# 🌟 SOLUÇÃO DA DUPLICIDADE: Esta é a rota que o seu painel realmente chama!
-# Atualizada para buscar tanto produtos quanto categorias e injetar no template.
 @app.get("/dashboard/produtos", response_class=HTMLResponse)
 async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_db)):
     produtos_do_banco = db.query(Produto).all()
-    categorias_do_banco = db.query(Categoria).all()  # 👈 Busca as categorias do banco aqui!
+    categorias_do_banco = db.query(Categoria).all()  
     
     return templates.TemplateResponse(
         request=request,
         name="admin/produtos.html",
         context={
             "produtos": produtos_do_banco,
-            "categorias": categorias_do_banco  # 👈 Injeta na página de produtos!
+            "categorias": categorias_do_banco  
         }
     )
 
 
-# Rota para Listar as Categorias
 @app.get("/dashboard/categorias", response_class=HTMLResponse)
 async def pagina_dashboard_categorias(request: Request, db: Session = Depends(get_db)):
     categorias_do_banco = db.query(Categoria).all()
@@ -144,20 +149,42 @@ async def pagina_dashboard_categorias(request: Request, db: Session = Depends(ge
     )
 
 
-# Rota para Fornecedores
+# 🌟 3. ROTA DE FORNECEDORES ATUALIZADA (Puxa os dados do MySQL e injeta no HTML/JS)
 @app.get("/dashboard/fornecedores", response_class=HTMLResponse)
-async def pagina_dashboard_fornecedores(request: Request):
-    return templates.TemplateResponse(request=request, name="admin/fornecedores.html")
+async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(get_db)):
+    fornecedores_do_banco = db.query(Fornecedor).all()
+    
+    # Cria o array JSON idêntico ao padrão de categorias para abastecer o FORNECEDORES_DB do front
+    fornecedores_serializados = [
+        {
+            "id": f.id,
+            "nome_fantasia": f.nome_fantasia,
+            "cnpj": f.cnpj,
+            "telefone": f.telefone,
+            "email": f.email,
+            "localidade": f.localidade,
+            "nome_contato": f.nome_contato
+        }
+        for f in fornecedores_do_banco
+    ]
+    
+    return templates.TemplateResponse(
+        request=request, 
+        name="admin/fornecedores.html",
+        context={
+            "fornecedores": fornecedores_do_banco,
+            "fornecedores_json": fornecedores_serializados
+        }
+    )
 
 
-# Rota para Visualizar o Histórico de Vendas
 @app.get("/dashboard/vendas", response_class=HTMLResponse)
 async def pagina_dashboard_vendas(request: Request):
     return templates.TemplateResponse(request=request, name="admin/vendas.html")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (CRUD PRODUTOS, CATEGORIAS & GALERIA DE ASSETS)
+# API REST (CRUD PRODUTOS, CATEGORIAS, FORNECEDORES & GALERIA DE ASSETS)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/admin/assets/imagens")
@@ -174,7 +201,7 @@ async def listar_imagens_galeria():
         imagens = [
             f"/static/assets/{arq}" 
             for arq in arquivos 
-            if arq.lower().endswith(extensoes_permitidas)
+            for arq in [arq] if arq.lower().endswith(extensoes_permitidas)
         ]
         return {"imagens": sorted(imagens)}
         
@@ -184,7 +211,6 @@ async def listar_imagens_galeria():
 
 # --- CRUD PRODUTOS ---
 
-# 🌟 AJUSTE: Salvando o categoria_id que vem do formulário no banco de dados
 @app.post("/admin/produtos")
 async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
     novo = Produto(
@@ -192,7 +218,7 @@ async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
         preco        = dados.preco,
         tamanho      = dados.tamanho,
         disponivel   = bool(dados.disponivel),
-        categoria_id = dados.categoria_id,  # 👈 Vincula a categoria enviada
+        categoria_id = dados.categoria_id,  
         imagem_url   = dados.imagem_url
     )
     db.add(novo)
@@ -201,7 +227,6 @@ async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
     return {"status": "criado", "id": novo.id}
 
 
-# 🌟 AJUSTE: Criando a rota PUT para atualizar os produtos (incluindo a categoria)
 @app.put("/admin/produtos/{produto_id}")
 async def atualizar_produto(produto_id: int, dados: ProdutoSchema, db: Session = Depends(get_db)):
     produto = db.query(Produto).filter(Produto.id == produto_id).first()
@@ -212,7 +237,7 @@ async def atualizar_produto(produto_id: int, dados: ProdutoSchema, db: Session =
     produto.preco = dados.preco
     produto.tamanho = dados.tamanho
     produto.disponivel = bool(dados.disponivel)
-    produto.categoria_id = dados.categoria_id  # 👈 Atualiza a categoria
+    produto.categoria_id = dados.categoria_id  
     produto.imagem_url = dados.imagem_url
     
     db.commit()
@@ -268,3 +293,55 @@ async def deletar_categoria(categoria_id: int, db: Session = Depends(get_db)):
             status_code=400, 
             detail="Não é possível deletar esta categoria pois existem produtos vinculados a ela."
         )
+
+
+# 🌟 4. CRUD FORNECEDORES (ENDPOINTS DA API REST)
+
+@app.post("/admin/fornecedores")
+async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db)):
+    # Tratamento de erro caso tentem cadastrar um CNPJ repetido
+    cnpj_existente = db.query(Fornecedor).filter(Fornecedor.cnpj == dados.cnpj).first()
+    if cnpj_existente:
+        raise HTTPException(status_code=400, detail="Já existe um fornecedor cadastrado com este CNPJ.")
+
+    novo = Fornecedor(
+        nome_fantasia = dados.nome_fantasia,
+        cnpj          = dados.cnpj,
+        telefone      = dados.telefone,
+        email         = dados.email,
+        localidade    = dados.localidade,
+        nome_contato  = dados.nome_contato
+    )
+    db.add(novo)
+    db.commit()
+    db.refresh(novo)
+    return {"status": "criado", "id": novo.id}
+
+
+@app.put("/admin/fornecedores/{fornecedor_id}")
+async def atualizar_fornecedor(fornecedor_id: int, dados: FornecedorSchema, db: Session = Depends(get_db)):
+    fornecedor = db.query(Fornecedor).filter(Fornecedor.id == proveedor_id if False else Fornecedor.id == fornecedor_id).first()
+    if not fornecedor:
+        raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
+    
+    # Atualiza cada propriedade enviada no formulário
+    fornecedor.nome_fantasia = dados.nome_fantasia
+    fornecedor.cnpj          = dados.cnpj
+    fornecedor.telefone      = dados.telefone
+    fornecedor.email         = dados.email
+    fornecedor.localidade    = dados.localidade
+    fornecedor.nome_contato  = dados.nome_contato
+    
+    db.commit()
+    return {"status": "atualizado"}
+
+
+@app.delete("/admin/fornecedores/{fornecedor_id}")
+async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
+    fornecedor = db.query(Fornecedor).filter(Fornecedor.id == fornecedor_id).first()
+    if not fornecedor:
+        raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
+    
+    db.delete(fornecedor)
+    db.commit()
+    return {"status": "deletado"}
