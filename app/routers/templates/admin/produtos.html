@@ -21,6 +21,7 @@
 
 <div class="card-painel-interno" style="
     flex: 1;
+    max-height: calc(100vh - 180px); /* 💡 Limita a altura para travar dentro da tela */
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -29,9 +30,8 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     color: #fff;
-    overflow-y: auto;
+    overflow-y: auto; /* Ativa a rolagem interna quando houver muitos produtos */
 ">
-
     <div class="prod-page-header">
         <div>
             <h2>Gerenciamento de Produtos</h2>
@@ -191,7 +191,7 @@
         <p class="modal-exclusao-msg" style="margin-top:6px; font-size:0.8rem; color:rgba(255,255,255,0.45)">
             Esta ação não pode ser desfeita.
         </p>
-
+    
         <div class="modal-rodape">
             <button class="btn-modal btn-cancelar" onclick="fecharModal('modal-deletar')">Cancelar</button>
             <button class="btn-modal btn-confirmar-vermelho" onclick="confirmarDelecao()">Deletar</button>
