@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AAPM — SCRIPT PRINCIPAL & GERENCIAMENTO DE PRODUTOS
+   AAPM — SCRIPT PRINCIPAL & GERENCIAMENTO DE PRODUTOS E CATEGORIAS
    ========================================================================== */
 
 "use strict";
@@ -13,14 +13,15 @@ let produtoDeletarNome = null;
 let modoGaleriaAlvo = null; // 'adicionar' ou 'editar'
 let imagemTemporariaSelecionada = null;
 
-// Banco de dados em memória populado pelo backend (FastAPI/Jinja2)
+// Bancos de dados em memória populados pelo backend (FastAPI/Jinja2)
 let PRODUTOS_DB = [];
+let CATEGORIAS_DB = []; // 🌟 Variável global de categorias declarada corretamente
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. INICIALIZAÇÃO DA APLICAÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-    // Captura os dados injetados pelo backend no elemento injetado
+    // Captura os dados de PRODUTOS injetados pelo backend
     const dadosElemento = document.getElementById("dados-produtos-backend");
     if (dadosElemento && dadosElemento.dataset.produtos) {
         try {
@@ -30,7 +31,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Interceptador do Formulário de Login (se aplicável na mesma página)
+    // 🌟 CAPTURA OS DADOS DE CATEGORIAS: Busca o elemento de dados que enviamos no HTML de categorias
+    const dadosCatElemento = document.getElementById("dados-categorias-backend");
+    if (dadosCatElemento && dadosCatElemento.dataset.categorias) {
+        try {
+            CATEGORIAS_DB = JSON.parse(dadosCatElemento.dataset.categorias);
+            window.CATEGORIAS_DB = CATEGORIAS_DB; // Define na window para garantir compatibilidade
+        } catch (e) {
+            console.error("Erro ao processar dados de categorias do backend:", e);
+        }
+    }
+
+    // Interceptador do Formulário de Login
     const formularioLogin = document.querySelector("#universo-admin form");
     if (formularioLogin) {
         formularioLogin.addEventListener("submit", async function(event) {
@@ -154,7 +166,6 @@ function renderizarCards() {
     const grade = document.getElementById("prod-grade");
     if (!grade) return;
 
-    // Limpa a grade (remove skeletons antigos ou mensagens)
     grade.innerHTML = "";
 
     if (!PRODUTOS_DB || PRODUTOS_DB.length === 0) {
@@ -188,10 +199,7 @@ function criarCard(p, i) {
     card.dataset.id = p.id;
     card.style.animationDelay = (i * 0.6) + "s";
 
-    const imgHtml = p.imagem_url
-        ? `<img src="${p.imagem_url}" alt="${p.nome}">`
-        : `📦`;
-
+    const imgHtml = p.imagem_url ? `<img src="${p.imagem_url}" alt="${p.nome}">` : `📦`;
     const precoFormatado = parseFloat(p.preco).toFixed(2).replace(".", ",");
     const nomeSeguro     = p.nome.replace(/'/g, "\\'");
 
@@ -206,37 +214,30 @@ function criarCard(p, i) {
             </span>
         </div>
         <div class="prod-card-acoes">
-            <button class="btn-card-acao btn-editar"
-                    onclick="abrirModalEditar(${p.id})">✏️ Editar</button>
-            <button class="btn-card-acao btn-deletar"
-                    onclick="abrirModalDeletar(${p.id}, '${nomeSeguro}')">🗑️</button>
+            <button class="btn-card-acao btn-editar" onclick="abrirModalEditar(${p.id})">✏️ Editar</button>
+            <button class="btn-card-acao btn-deletar" onclick="abrirModalDeletar(${p.id}, '${nomeSeguro}')">🗑️</button>
         </div>
     `;
     return card;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 5. NOVA LÓGICA CONECTADA PARA A GALERIA DE MÍDIAS DO SEU HTML
+// 5. GALERIA DE MÍDIAS
 // ─────────────────────────────────────────────────────────────────────────────
 async function abrirGaleriaGlobal(modo) {
-    modoGaleriaAlvo = modo; // Guarda se veio de 'adicionar' ou 'editar'
+    modoGaleriaAlvo = modo; 
     
     const galeriaGrid = document.getElementById("galeria-grid-dinamico");
     if (!galeriaGrid) return;
 
-    // Captura qual imagem já está salva no formulário correspondente
     const inputId = modo === 'adicionar' ? "img-selecionada-adicionar" : "img-selecionada-editar";
     const inputHidden = document.getElementById(inputId);
     const imagemAtual = inputHidden ? inputHidden.value : "";
-    imagemTemporariaSelecionada = imagemAtual; // Prepara o estado temporário
+    imagemTemporariaSelecionada = imagemAtual; 
 
-    // Abre o modal de mídia mapeado no seu HTML
     abrirModal("modal-galeria-midia");
 
-    galeriaGrid.innerHTML = `
-        <p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center; padding: 20px;">
-            ✨ Escaneando repositório de mídias...
-        </p>`;
+    galeriaGrid.innerHTML = `<p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center; padding: 20px;">✨ Escaneando repositório de mídias...</p>`;
 
     try {
         const resp = await fetch("/admin/assets/imagens");
@@ -246,10 +247,7 @@ async function abrirGaleriaGlobal(modo) {
         galeriaGrid.innerHTML = "";
 
         if (!imagens || imagens.length === 0) {
-            galeriaGrid.innerHTML = `
-                <p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center;">
-                    Nenhuma imagem encontrada na pasta /static/assets/
-                </p>`;
+            galeriaGrid.innerHTML = `<p style="color:rgba(255,255,255,0.4); font-size:0.85rem; grid-column:1/-1; text-align:center;">Nenhuma imagem encontrada na pasta /static/assets/</p>`;
             return;
         }
 
@@ -257,14 +255,12 @@ async function abrirGaleriaGlobal(modo) {
             const item = document.createElement("div");
             item.className = "galeria-item";
 
-            // Se for a imagem padrão ou já selecionada, adiciona a classe visual
             if (imagemAtual && src === imagemAtual) {
                 item.classList.add("selecionada");
             }
 
             item.innerHTML = `<img src="${src}" alt="Asset">`;
 
-            // Clique na miniatura guarda o valor provisoriamente e altera o visual
             item.addEventListener("click", () => {
                 galeriaGrid.querySelectorAll(".galeria-item").forEach(i => i.classList.remove("selecionada"));
                 item.classList.add("selecionada");
@@ -276,10 +272,7 @@ async function abrirGaleriaGlobal(modo) {
 
     } catch (e) {
         console.error("Erro ao buscar imagens do servidor:", e);
-        galeriaGrid.innerHTML = `
-            <p style="color:#ff6b6b; font-size:0.85rem; grid-column:1/-1; text-align:center;">
-                💥 Erro ao carregar as mídias. Verifique a API do servidor.
-            </p>`;
+        galeriaGrid.innerHTML = `<p style="color:#ff6b6b; font-size:0.85rem; grid-column:1/-1; text-align:center;">💥 Erro ao carregar as mídias. Verifique a API do servidor.</p>`;
     }
 }
 
@@ -292,14 +285,12 @@ function confirmarEscolhaGaleria() {
     if (modoGaleriaAlvo === 'adicionar') {
         const inputHidden = document.getElementById("img-selecionada-adicionar");
         const previewImg = document.getElementById("preview-img-adicionar");
-        
         if (inputHidden) inputHidden.value = imagemTemporariaSelecionada;
         if (previewImg) previewImg.src = imagemTemporariaSelecionada;
     } 
     else if (modoGaleriaAlvo === 'editar') {
         const inputHidden = document.getElementById("img-selecionada-editar");
         const previewImg = document.getElementById("preview-img-editar");
-        
         if (inputHidden) inputHidden.value = imagemTemporariaSelecionada;
         if (previewImg) previewImg.src = imagemTemporariaSelecionada;
     }
@@ -432,11 +423,7 @@ async function confirmarDelecao() {
                         if (PRODUTOS_DB.length === 0) {
                             const grade = document.getElementById("prod-grade");
                             if (grade) {
-                                grade.innerHTML = `
-                                    <div class="prod-vazio">
-                                        <span>📦</span>
-                                        Nenhum produto cadastrado ainda.
-                                    </div>`;
+                                grade.innerHTML = `<div class="prod-vazio"><span>📦</span>Nenhum produto cadastrado ainda.</div>`;
                             }
                         }
                     }
@@ -459,6 +446,9 @@ async function confirmarDelecao() {
 let categoriaDeletarId = null;
 
 function abrirModalCatAdicionar() {
+    const form = document.getElementById("form-cat-adicionar");
+    if (form) form.reset(); // Reseta campos antigos
+
     const modal = document.getElementById('modal-cat-adicionar');
     if (modal) {
         modal.classList.add("visivel");
@@ -466,9 +456,38 @@ function abrirModalCatAdicionar() {
     }
 }
 
+// 🌟 NOVA FUNÇÃO: Cadastra nova categoria enviando JSON para a rota POST do FastAPI
+async function salvarCategoria(event) {
+    event.preventDefault();
+    const nomeInput = document.getElementById("cat-nome");
+    if (!nomeInput) return;
+
+    const dados = { nome: nomeInput.value };
+
+    try {
+        const resp = await fetch("/admin/categorias", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-cat-adicionar");
+            location.reload();
+        } else {
+            const erro = await resp.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao salvar a categoria.");
+        }
+    } catch (e) {
+        console.error("Erro na requisição:", e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
 function abrirModalCatEditar(id) {
     const idNum = parseInt(id, 10);
-    const cat = window.CATEGORIAS_DB ? window.CATEGORIAS_DB.find(x => x.id === idNum) : null;
+    // Lê perfeitamente do array mapeado e preenchido pelo DOMContentLoaded
+    const cat = CATEGORIAS_DB ? CATEGORIAS_DB.find(x => x.id === idNum) : null;
     
     if (!cat) {
         console.error("Categoria não encontrada para o ID:", idNum);
@@ -488,13 +507,41 @@ function abrirModalCatEditar(id) {
     }
 }
 
-function abrirModalCatDeletar(id, elemento) {
-    // 🌟 SALVA O ID GLOBALMENTE: Assim a função confirmarDelecaoCategoria vai saber quem deletar
+// 🌟 NOVA FUNÇÃO: Envia a requisição PUT via JSON para o FastAPI salvar no MySQL
+async function atualizarCategoria(event) {
+    event.preventDefault();
+    const idInput = document.getElementById("edit-cat-id");
+    const nomeInput = document.getElementById("edit-cat-nome");
+    
+    if (!idInput || !nomeInput) return;
+    
+    const id = idInput.value;
+    const dados = { nome: nomeInput.value };
+
+    try {
+        const resp = await fetch(`/admin/categorias/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dados)
+        });
+
+        if (resp.ok) {
+            fecharModal("modal-cat-editar");
+            location.reload();
+        } else {
+            alert("Erro ao atualizar categoria.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Erro de conexão com o servidor.");
+    }
+}
+
+function abrirModalCatDeletar(id, nome) {
     categoriaDeletarId = id;
     
-    const nomeCategoria = elemento.getAttribute('data-nome');
     const txtNome = document.getElementById('deletar-nome-categoria');
-    if (txtNome) txtNome.textContent = `"${nomeCategoria}"?`;
+    if (txtNome) txtNome.textContent = `"${nome}"?`;
 
     const modal = document.getElementById('modal-cat-deletar');
     if (modal) {
@@ -503,21 +550,16 @@ function abrirModalCatDeletar(id, elemento) {
     }
 }
 
-// 🌟 NOVA FUNÇÃO: Executa a chamada de exclusão no banco de dados do backend
 async function confirmarDelecaoCategoria() {
     if (!categoriaDeletarId) return;
 
     try {
-        // Faz a chamada para a rota de exclusão do seu FastAPI
         const resposta = await fetch(`/admin/categorias/${categoriaDeletarId}`, {
             method: "DELETE"
         });
 
         if (resposta.ok) {
-            // Fecha o modal de confirmação
             fecharModal("modal-cat-deletar");
-            
-            // Recarrega a página de forma limpa para atualizar a tabela do banco
             location.reload();
         } else {
             const erroDados = await resposta.json().catch(() => ({}));
@@ -527,7 +569,6 @@ async function confirmarDelecaoCategoria() {
         console.error("Erro na requisição de exclusão:", erro);
         alert("Erro de conexão com o servidor.");
     } finally {
-        // Reseta a variável de controle por segurança
         categoriaDeletarId = null;
     }
 }

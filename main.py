@@ -34,6 +34,10 @@ class ProdutoSchema(BaseModel):
     disponivel: Optional[int] = 1
     imagem_url: Optional[str] = ""
 
+# 🌟 SCHEMA DE CATEGORIAS: Adicionado para validar a criação e edição
+class CategoriaSchema(BaseModel):
+    nome: str
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ROTAS PÚBLICAS & AUTENTICAÇÃO
@@ -133,7 +137,7 @@ async def pagina_dashboard_categorias(request: Request, db: Session = Depends(ge
         request=request,
         name="admin/categorias.html",
         context={
-            "categorias": categorias_do_banco,       # Alimenta o loop `for` do HTML da tabela
+            "categories": categorias_do_banco,       # Alimenta o loop `for` do HTML da tabela
             "categorias_json": categorias_serializadas # Alimenta de forma limpa o atributo data-categorias do JS
         }
     )
@@ -180,6 +184,8 @@ async def listar_imagens_galeria():
         raise HTTPException(status_code=500, detail=f"Erro ao ler pasta de mídias: {str(e)}")
 
 
+# --- CRUD PRODUTOS ---
+
 @app.post("/admin/produtos")
 async def criar_produto(dados: ProdutoSchema, db: Session = Depends(get_db)):
     novo = Produto(
@@ -222,7 +228,30 @@ async def deletar_produto(produto_id: int, db: Session = Depends(get_db)):
     return {"status": "deletado"}
 
 
-# 🌟 NOVA ROTA ADICIONADA: Deleta Categorias com proteção contra restrição de chave estrangeira
+# --- CRUD CATEGORIAS ---
+
+# 🌟 ROTA POST: Adicionar categoria via requisição JSON
+@app.post("/admin/categorias")
+async def criar_categoria(dados: CategoriaSchema, db: Session = Depends(get_db)):
+    nova = Categoria(nome=dados.nome)
+    db.add(nova)
+    db.commit()
+    db.refresh(nova)
+    return {"status": "criado", "id": nova.id}
+
+
+# 🌟 ROTA PUT: Editar/Atualizar categoria via requisição JSON
+@app.put("/admin/categorias/{categoria_id}")
+async def atualizar_categoria(categoria_id: int, dados: CategoriaSchema, db: Session = Depends(get_db)):
+    categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    if not categoria:
+        raise HTTPException(status_code=404, detail="Categoria não encontrada.")
+    
+    categoria.nome = dados.nome
+    db.commit()
+    return {"status": "atualizado"}
+
+
 @app.delete("/admin/categorias/{categoria_id}")
 async def deletar_categoria(categoria_id: int, db: Session = Depends(get_db)):
     categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()
