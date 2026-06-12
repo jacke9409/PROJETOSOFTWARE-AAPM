@@ -86,3 +86,52 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
             "categorias": categorias_do_banco
         }
     )
+# =================================================================
+# ROTAS DO PAINEL ADMINISTRATIVO (VERSÃO FINAL UNIFICADA)
+# =================================================================
+
+# Rota base do painel (Boas-vindas padrão)
+@app.get("/dashboard", response_class=HTMLResponse)
+async def pagina_dashboard(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/dashboard.html"
+    )
+
+# 1. Rota para Listar os Produtos
+@app.get("/dashboard/produtos", response_class=HTMLResponse)
+async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_db)):
+    produtos_do_banco = db.query(Produto).all()
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/produtos.html",
+        context={"produtos": produtos_do_banco}
+    )
+
+# 2. Rota para Listar as Categorias
+@app.get("/dashboard/categorias", response_class=HTMLResponse)
+async def pagina_dashboard_categorias(request: Request, db: Session = Depends(get_db)):
+    categorias_do_banco = db.query(Categoria).all()
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/categorias.html",
+        context={"categorias": categorias_do_banco}
+    )
+
+# 3. Rota para Fornecedores
+@app.get("/dashboard/fornecedores", response_class=HTMLResponse)
+async def pagina_dashboard_fornecedores(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/fornecedores.html"
+    )
+
+# 4. Rota para Usuários
+@app.get("/dashboard/usuarios", response_class=HTMLResponse)
+async def pagina_dashboard_usuarios(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/usuarios.html"
+    )

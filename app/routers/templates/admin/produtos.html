@@ -1,0 +1,51 @@
+{% extends "admin/dashboard.html" %}
+
+{% block admin_content %}
+<div class="card-painel-interno" style="flex: 1; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff;">
+    <div class="panel-header-tabela" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.8rem;">Gerenciamento de Produtos</h2>
+            <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Consulte, adicione ou remova itens do catálogo integrado ao MySQL.</p>
+        </div>
+        <button style="background: #27ae60; border: none; color: white; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;">+ Novo Produto</button>
+    </div>
+
+    <div class="tabela-responsiva-admin" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background: rgba(30, 62, 110, 0.6); height: 45px; border-bottom: 2px solid #2a5080;">
+                    <th style="padding: 12px; color: #fff;">ID</th>
+                    <th style="color: #fff;">Nome</th>
+                    <th style="color: #fff;">Tamanho</th>
+                    <th style="color: #fff;">Preço</th>
+                    <th style="text-align: center; color: #fff;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); height: 50px; background: rgba(255,255,255,0.02); transition: 0.3s;">
+                    <td style="padding: 12px;">{{ produto.id if produto.id is defined else loop.index }}</td>
+                    
+                    <td><strong>{{ produto.nome if produto.nome is defined else 'Sem Nome' }}</strong></td>
+                    
+                    <td><span style="background: rgba(255,255,255,0.15); padding: 3px 8px; border-radius: 4px;">{{ produto.tamanho if produto.tamanho is defined else 'N/A' }}</span></td>
+                    
+                    <td style="color: #4db8ff; font-weight: bold;">
+                        R$ {{ produto.preco if produto.preco is defined else '0.00' }}
+                    </td>
+                    
+                    <td style="text-align: center;">
+                        <button style="background: #e67e22; border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-right: 5px;">Editar</button>
+                        <button style="background: #e74c3c; border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold;">Excluir</button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" style="padding: 30px; text-align: center; color: rgba(255,255,255,0.5);">Nenhum produto cadastrado no banco de dados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

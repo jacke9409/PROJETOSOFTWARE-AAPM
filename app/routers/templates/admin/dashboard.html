@@ -1,61 +1,74 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM — Painel Administrativo</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>AAPM - SENAI Brás (Admin)</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
-<body style="overflow: auto !important; background: #0a1830;">
+<body style="background: linear-gradient(180deg, #0a192f 0%, #4db8ff 100%); min-height: 100vh; margin: 0; font-family: sans-serif; overflow-x: hidden;">
 
-    <div class="fundo-fixo">
+    <div class="fundo-fixo" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;">
         <div class="sky"></div>
         <div class="camada-nuvens"></div>
-        <div class="camada-montanhas-fundo"></div>
-        <div class="camada-montanhas-frente"></div>
-        <div class="camada-arvores"></div>
+        <div class="camada-montanhas-fundo" style="opacity: 1; transform: none;"></div>
+        <div class="camada-montanhas-frente" style="opacity: 1; transform: none;"></div>
+        <div class="camada-arvores" style="opacity: 1; transform: none;"></div>
     </div>
 
-    <div class="painel-admin-wrapper">
-        <header class="admin-top-bar">
-            <div class="top-bar-title">
-                <span class="txt-destaque">PAINEL</span> ADMINISTRATIVO
+    <div class="painel-admin-wrapper" style="position: relative; z-index: 10; display: flex; flex-direction: column; min-height: 100vh; padding: 20px; box-sizing: border-box;">
+        
+        <header class="dashboard-header" style="background: rgba(30, 30, 30, 0.75); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <div class="header-titulos">
+                <h2 style="color: #fff; margin: 0; font-size: 1.4rem;"><span style="color: #e67e22; font-weight: bold;">PAINEL</span> ADMINISTRATIVO</h2>
+                <p style="color: rgba(255,255,255,0.6); margin: 0; font-size: 0.85rem;">Controle Interno — AAPM SENAI Brás</p>
             </div>
-            <div class="top-bar-user">
-                <div class="avatar-wrapper">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" alt="Admin">
+            <div class="header-usuario" style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: #e67e22; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; border: 2px solid rgba(255,255,255,0.2);">
+                    AD
                 </div>
             </div>
         </header>
 
-        <div class="admin-corpo-layout">
-            <aside class="admin-sidebar-vertical">
-                <div class="sidebar-top-label">DASHBOARD</div>
-                <nav class="sidebar-nav">
-                    <a href="/dashboard/produtos" class="nav-item-link ativo">Produtos</a>
-                    <a href="/dashboard/categorias" class="nav-item-link">Categorias</a>
-                    <a href="/dashboard/fornecedores" class="nav-item-link">Fornecedores</a>
-                    <a href="/dashboard/vendas" class="nav-item-link">Vendas</a>
-                </nav>
-                <a href="/" class="sidebar-btn-sair">Sair</a>
+        <div class="dashboard-corpo" style="display: flex; flex: 1; gap: 20px; align-items: stretch;">
+            
+            <aside class="dashboard-sidebar" style="width: 260px; background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px 15px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+                <div>
+                    <div class="sidebar-label" style="color: rgba(255,255,255,0.4); font-size: 0.8rem; font-weight: bold; letter-spacing: 2px; padding-left: 15px; margin-bottom: 25px;">CONFIGURAÇÕES</div>
+                    <ul class="sidebar-menu" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                        <li><a href="/dashboard/produtos" style="display: block; color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s;">Produtos</a></li>
+                        <li><a href="/dashboard/categorias" style="display: block; color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s;">Categorias</a></li>
+                        <li><a href="/dashboard/fornecedores" style="display: block; color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s;">Fornecedores</a></li>
+                        <li><a href="/dashboard/usuarios" style="display: block; color: #fff; text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: 500; transition: 0.3s;">Usuários</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-footer" style="padding: 0;">
+                    <a href="/" style="display: block; color: #ff4d4d; text-decoration: none; padding: 12px 15px; border-radius: 10px; font-weight: bold; border: 1px solid rgba(255,77,77,0.2); text-align: center; background: rgba(255,77,77,0.05); transition: 0.3s;">Sair</a>
+                </div>
             </aside>
 
-            <main class="admin-conteudo-principal">
-                <div class="card-painel-interno">
-                    <div class="painel-header-tabela">
-                        <h2>Visão Geral do Sistema</h2>
-                        <p>Selecione uma das opções ao lado para gerenciar os dados inseridos no banco MySQL.</p>
+            <main class="admin-conteudo-principal" style="flex: 1; display: flex; flex-direction: column;">
+                
+                {% block admin_content %}
+                <div class="card-painel-interno" style="flex: 1; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff;">
+                    <div class="panel-header-tabela">
+                        <h2 style="margin-top: 0; font-size: 1.8rem;">Visão Geral do Sistema</h2>
+                        <p style="color: rgba(255,255,255,0.7);">Selecione uma das opções no menu lateral para gerenciar o banco de dados MySQL.</p>
                     </div>
-                    <div class="status-banco-placeholder">
-                        <p>Pronto para listar seus 88 produtos cadastrados da AAPM.</p>
+                    
+                    <div class="status-banco-placeholder" style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 10px; border: 1px dashed rgba(255,255,255,0.1); text-align: center;">
+                        <p style="color: rgba(255,255,255,0.5); margin: 0;">Pronto para listar as coleções da AAPM Senai Brás em tempo real.</p>
                     </div>
                 </div>
-            </main>
-        </div>
+                {% endblock %}
 
-        <footer class="admin-footer-status">
-            <div class="status-indicator">🖥️ Dashboard</div>
-        </footer>
+            </main>
+
+        </div>
     </div>
 
 </body>
