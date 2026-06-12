@@ -108,17 +108,18 @@
                 <div class="card-glass-login">
                     <h3>Login</h3>
                     <form onsubmit="fazerLogin(event)">
-                        <div class="input-grupo">
-                            <input type="email" placeholder="E-mail" required autocomplete="email">
-                        </div>
-                        <div class="input-grupo">
-                            <input type="password" placeholder="Senha" required autocomplete="current-password">
-                        </div>
-                        <label class="lembrar-wrapper">
-                            <input type="checkbox" id="lembrar"> Lembrar de mim
-                        </label>
-                        <button type="submit" class="btn-entrar">Acessar</button>
-                    </form>
+                        <form>
+    <div class="input-grupo">
+        <input type="email" name="username" placeholder="E-mail" required autocomplete="email">
+    </div>
+    <div class="input-grupo">
+        <input type="password" name="password" placeholder="Senha" required autocomplete="current-password">
+    </div>
+    <label class="lembrar-wrapper">
+        <input type="checkbox" id="lembrar"> Lembrar de mim
+    </label>
+    <button type="submit" class="btn-entrar">Acessar</button>
+</form>
                 </div>
             </div>
 

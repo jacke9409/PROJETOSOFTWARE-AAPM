@@ -1,15 +1,20 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, Form, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 
-# Importa a dependência, engine e os modelos estruturados
+# Importações da estrutura do projeto
 from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
+from app.models.usuario import Usuario  # Garanta que o modelo Usuario está mapeado
 
 app = FastAPI()
+
+# Contexto para checar a senha criptografada em BCrypt vinda do seed.py
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Aponta para onde a pasta templates REALMENTE está
 templates = Jinja2Templates(directory="app/routers/templates")
@@ -17,38 +22,67 @@ templates = Jinja2Templates(directory="app/routers/templates")
 # Monta a pasta static da raiz corretamente no FastAPI
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
 @app.get("/", response_class=HTMLResponse)
 async def pagina_inicial(request: Request):
     return templates.TemplateResponse(request=request, name="base.html")
+
 
 @app.get("/login", response_class=HTMLResponse)
 async def pagina_login(request: Request):
     return templates.TemplateResponse(request=request, name="auth/login.html")
 
-# 📊 SPRINT 3: Lista de Visualização puxando os 88 produtos do MySQL
+
+# 📊 SPRINT 3: Lista de Visualização puxando os produtos do MySQL
 @app.get("/visualizacao", response_class=HTMLResponse)
 async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
-    # Busca a lista real da AAPM que injetamos via seed.py
     produtos_do_banco = db.query(Produto).all()
-    
     return templates.TemplateResponse(
         request=request, 
         name="public/visualizacao.html", 
         context={"produtos": produtos_do_banco}
     )
 
-# 🔑 SPRINT 2: Dashboard Inicial com controle de dados do banco
+
+# 🔑 SPRINT 2: Rota que processa o login integrado ao Banco de Dados
+@app.post("/auth/login")
+async def processar_login(
+    username: str = Form(...), 
+    password: str = Form(...), 
+    db: Session = Depends(get_db)
+):
+    # 1. Busca o usuário cadastrado no MySQL pelo email informado
+    usuario = db.query(Usuario).filter(Usuario.email == username).first()
+    
+    # 2. Valida se o usuário existe e se a senha criptografada confere
+    if usuario and pwd_context.verify(password, usuario.senha):
+        # Retorna sucesso em formato JSON para o JavaScript processar e mudar de página
+        return {
+            "status": "sucesso", 
+            "nome": usuario.nome, 
+            "role": usuario.role
+        }
+        
+    # 3. Retorna erro de credencial caso os dados estejam incorretos
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, 
+        detail="E-mail ou senha incorretos."
+    )
+
+
+# 📊 SPRINT 2 CORRIGIDA: Dashboard unificada renderizando a pasta admin/
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
+    # Busca os dados reais do seu banco de dados
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
-
-# Mude de: "dashboard.html" 
-# Para: "admin/dashboard.html"
-
-@app.get("/dashboard") # ou o nome exato da sua rota na linha 46
-async def pagina_dashboard(request: Request):
+    
+    # Retorna o template correto passando as coleções de dados
     return templates.TemplateResponse(
-        name="admin/dashboard.html",  # <-- Adicione o "admin/" aqui!
-        context={"request": request}
+        request=request,
+        name="admin/dashboard.html",  
+        context={
+            "produtos": produtos_do_banco,
+            "categorias": categorias_do_banco
+        }
     )
