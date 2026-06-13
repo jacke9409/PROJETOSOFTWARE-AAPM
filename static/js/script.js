@@ -707,7 +707,7 @@ async function confirmarDelecaoFornecedor() {
     }
 }
 // ─────────────────────────────────────────────────────────────────────────────
-// 9. GERENCIAMENTO DE VENDAS E EMISSÃO DE EXTRATO (CÁLCULO AUTOMÁTICO)
+// 9. GERENCIAMENTO DE VENDAS E EMISSÃO DE EXTRATO (CRUDS E AÇÕES ATUALIZADOS)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function abrirModalVenda() {
@@ -745,7 +745,6 @@ function atualizarTotalFormatado() {
 async function enviarVenda(event) {
     event.preventDefault();
     
-    // O preço total agora é determinado via código, sem brechas para digitação errada
     const precoTotalCalculado = calcularPrecoTotal();
     
     if (precoTotalCalculado <= 0) {
@@ -772,7 +771,7 @@ async function enviarVenda(event) {
             location.reload();
         } else {
             const erro = await resposta.json().catch(() => ({}));
-            alert(erro.detail || "Erro ao registrar a venda no servidor. Verifique os parâmetros de estoque.");
+            alert(erro.detail || "Erro ao registrar a venda no servidor.");
         }
     } catch (e) {
         console.error("Erro na conexão: ", e);
@@ -780,7 +779,8 @@ async function enviarVenda(event) {
     }
 }
 
-function depararExtrato(botao) {
+// --- FUNÇÕES DE CONTROLE DE EXTRATOS ---
+function dispararExtrato(botao) {
     const comprador = botao.getAttribute('data-comprador');
     const produto = botao.getAttribute('data-produto');
     const qtd = botao.getAttribute('data-quantidade');
@@ -794,7 +794,7 @@ function gerarExtrato(comprador, produto, qtd, total) {
     const conteudoCupom = `
 ========================================
          COMPROVANTE DE VENDA
-                 AAPM                   
+                AAPM                   
 ========================================
 Emissão: ${dataEmissao}
 Comprador: ${comprador}
@@ -815,4 +815,96 @@ Guarde este extrato como comprovante.
     link.href = URL.createObjectURL(blob);
     link.download = `Extrato_Venda_${comprador.replace(/\s+/g, '_')}.txt`;
     link.click();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NOVAS FUNÇÕES ADICIONADAS: ATUALIZAR E DELETAR VENDAS VIA FRONTEND
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Abre o novo modal de Edição populando dinamicamente os inputs da venda selecionada
+function abrirModalEditarVenda(id, comprador, quantidade, precoTotal) {
+    if (document.getElementById('edit-venda-id')) document.getElementById('edit-venda-id').value = id;
+    if (document.getElementById('edit-comprador')) document.getElementById('edit-comprador').value = comprador;
+    if (document.getElementById('edit-quantidade')) document.getElementById('edit-quantidade').value = quantidade;
+    if (document.getElementById('edit-total')) document.getElementById('edit-total').value = parseFloat(precoTotal).toFixed(2);
+
+    const modal = document.getElementById('modal-editar-venda');
+    if (modal) modal.classList.add('visivel');
+}
+
+function fecharModalEditarVenda() {
+    const modal = document.getElementById('modal-editar-venda');
+    if (modal) modal.classList.remove('visivel');
+}
+
+// Envia a requisição de alteração (PUT) ou fallback fiscal para o back-end
+async function enviarAtualizacaoVenda(event) {
+    event.preventDefault();
+    
+    const id = document.getElementById('edit-venda-id').value;
+    
+    // Alinhado ao VendaSchema do FastAPI do seu arquivo main.py
+    const payload = {
+        comprador: document.getElementById('edit-comprador').value,
+        quantidade: parseInt(document.getElementById('edit-quantidade').value),
+        preco_total: parseFloat(document.getElementById('edit-total').value),
+        produto_id: 1 // Mantém o vínculo do produto padrão durante a reemissão do ticket
+    };
+
+    try {
+        const resposta = await fetch(`/admin/vendas/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (resposta.ok) {
+            fecharModalEditarVenda();
+            location.reload(); // Recarrega para computar os novos totais em tela
+        } else {
+            const erro = await resposta.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao atualizar registro de venda.");
+        }
+    } catch (e) {
+        console.error("Erro na atualização da venda: ", e);
+        alert("Erro de conexão ao servidor.");
+    }
+}
+
+// Executa a remoção permanente da venda com animação fluida no DOM antes do reload
+async function deletarVenda(vendaId) {
+    if (!confirm("⚠️ Tem certeza que deseja apagar permanentemente este registro de venda do histórico? Isso alterará os relatórios financeiros.")) {
+        return;
+    }
+
+    try {
+        const resposta = await fetch(`/admin/vendas/${vendaId}`, {
+            method: 'DELETE'
+        });
+
+        if (resposta.ok) {
+            const linhaTabela = document.getElementById(`venda-row-${vendaId}`);
+            if (linhaTabela) {
+                // Executa transição visual elegante antes de limpar o elemento
+                gsap.to(linhaTabela, {
+                    opacity: 0,
+                    x: -30,
+                    duration: 0.35,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        linhaTabela.remove();
+                        location.reload(); // Recarrega para recalcular o Faturamento Total do painel
+                    }
+                });
+            } else {
+                location.reload();
+            }
+        } else {
+            const erro = await resposta.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao deletar o registro de venda.");
+        }
+    } catch (e) {
+        console.error("Erro ao deletar venda: ", e);
+        alert("Erro de conexão ao servidor.");
+    }
 }

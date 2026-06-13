@@ -397,21 +397,59 @@ async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
     return {"status": "deletado"}
 
 
-# --- INTERFACE REST PARA VENDAS (Mapeado corretamente) ---
+# ─────────────────────────────────────────────────────────────────────────────
+# VIEW E CRUD DE VENDAS ATUALIZADOS COMPLETOS
+# ─────────────────────────────────────────────────────────────────────────────
 
-# --- INTERFACE REST PARA VENDAS (CORREÇÃO DEFINITIVA) ---
+@app.get("/dashboard/vendas", response_class=HTMLResponse)
+async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db)):
+    # 1. Coleta os produtos ativos para preencher o select do Modal
+    produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
+    
+    # 2. Coleta o histórico de vendas salvas e formata com os dados dos produtos
+    vendas_formatadas = []
+    faturamento_calculado = 0.0
+    
+    if Venda:
+        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
+        
+        for v in vendas_do_banco:
+            # Busca o produto associado a essa venda para capturar o nome real
+            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
+            nome_produto = prod.nome if prod else "Produto Indisponível"
+            
+            faturamento_calculado += v.preco_total
+            
+            vendas_formatadas.append({
+                "id": v.id,
+                "comprador": v.comprador,
+                "produto_nome": nome_produto,
+                "quantidade": v.quantidade,
+                "preco_total": v.preco_total,
+                "data_venda": v.data_venda
+            })
+    
+    return templates.TemplateResponse(
+        request=request, 
+        name="admin/vendas.html",
+        context={
+            "produtos": produtos_do_banco,
+            "vendas": vendas_formatadas,  # Passa a lista nova estruturada com os nomes corretos
+            "faturamento_total": f"{faturamento_calculado:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+        }
+    )
+
+
+# --- API REST COMPLETA PARA VENDAS ---
 
 @app.post("/admin/vendas")
 async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
-    # Caso o bloco try/except lá em cima tenha falhado, importamos diretamente aqui para ver o erro real
     from app.models.venda import Venda
     
-    # Verifica se o produto vendido existe no estoque
     produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
     if not produto:
         raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
 
-    # Criando o objeto com o parâmetro 'comprador' que seu banco exige
     nova_venda = Venda(
         comprador=dados.comprador,
         produto_id=dados.produto_id,
@@ -423,3 +461,39 @@ async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nova_venda)
     return {"status": "criado", "id": nova_venda.id}
+
+
+# --- NOVA ROTA: DELETAR / APAGAR VENDA ---
+@app.delete("/admin/vendas/{venda_id}")
+async def deletar_venda(venda_id: int, db: Session = Depends(get_db)):
+    from app.models.venda import Venda
+    
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        raise HTTPException(status_code=404, detail="Venda não encontrada.")
+        
+    db.delete(venda)
+    db.commit()
+    return {"status": "deletado"}
+
+
+# --- NOVA ROTA: EXTRATO DA VENDA (RETORNO DE DADOS DO COMPROVANTE) ---
+@app.get("/admin/vendas/{venda_id}/extrato")
+async def gerar_extrato_venda(venda_id: int, db: Session = Depends(get_db)):
+    from app.models.venda import Venda
+    
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        raise HTTPException(status_code=404, detail="Venda não encontrada no banco.")
+        
+    prod = db.query(Produto).filter(Produto.id == venda.produto_id).first()
+    
+    return {
+        "titulo": "COMPROVANTE DE VENDA - AAPM",
+        "venda_id": venda.id,
+        "comprador": venda.comprador,
+        "produto": prod.nome if prod else "Produto Indisponível",
+        "quantidade": venda.quantidade,
+        "total_pago": venda.preco_total,
+        "data": venda.data_venda.strftime("%d/%m/%Y %H:%M") if venda.data_venda else ""
+    }
