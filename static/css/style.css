@@ -812,3 +812,18 @@ body[class*="painel"] .fundo-fixo {
     background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* Força o fundo decorativo a ignorar cliques do mouse, deixando passar para os inputs */
+.fundo-fixo, 
+.sky, 
+.camada-nuvens, 
+.camada-montanhas-fundo {
+    pointer-events: none !important;
+}
+
+/* Garante que o card de login e tudo dentro dele capture os cliques perfeitamente */
+.card-glass-login,
+.card-glass-login *,
+.container-login-centralizado {
+    pointer-events: auto !important;
+}
