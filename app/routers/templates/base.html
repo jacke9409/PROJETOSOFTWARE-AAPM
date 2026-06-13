@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AAPM - SENAI Brás</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="{{ url_for('static', path='js/script.js') }}" defer></script>
 </head>
 <body>
 
     <div class="fundo-fixo">
         <div class="sky"></div>
         <div class="camada-nuvens">
+            <body {% if contexto_dashboard %}class="modo-painel-ativo"{% endif %}></body>
             <svg width="100%" height="100%" viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="160"  cy="100" rx="130" ry="55"  fill="white" opacity=".92"/>
                 <ellipse cx="240"  cy="80"  rx="90"  ry="48"  fill="white" opacity=".97"/>
@@ -137,7 +140,7 @@
                         <aside class="dashboard-sidebar">
                             <div class="sidebar-label">DASHBOARD</div>
                             <ul class="sidebar-menu">
-                                <li class="item-menu ativo" onclick="trocarAbasDashboard(this, 'aba-catalogos')">Catálogos</li>
+                                <li class="item-menu ativo" onclick="trocarAbasDashboard(this, 'aba-produtos')">Produtos</li>
                                 <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-categorias')">Categorias</li>
                                 <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-horarios')">Horários</li>
                                 <li class="item-menu" onclick="trocarAbasDashboard(this, 'aba-servicos')">Serviços disponíveis</li>
@@ -150,7 +153,9 @@
 
                         <main class="dashboard-conteudo-abas custom-scroll">
                             
-                            <div class="aba-painel" id="aba-catalogos">
+                            <div class="aba-painel" id="aba-produtos">
+                                <h2 class="aba-titulo">Produtos</h2>
+                                <p class="aba-subtitulo">Confira os itens disponíveis na AAPM</p>
                                 <div class="grade-produtos">
                                     {% for produto in produtos %}
                                     <div class="card-produto-flutuante" onclick="destacarProduto(this)">
@@ -186,31 +191,127 @@
                             </div>
 
                             <div class="aba-painel oculta-aba" id="aba-categorias">
-                                <h3 class="titulo-aba-vazia">Categorias de Produtos</h3>
-                                <p class="texto-aba-vazia">Em breve a listagem de categorias sincronizadas com o banco.</p>
+                                <h2 class="aba-titulo">Categorias</h2>
+                                <p class="aba-subtitulo">Navegue pelos tipos de produto</p>
+                                <p class="titulo-aba-vazia">Em construção</p>
+                                <p class="texto-aba-vazia">Em breve a listagem de categorias sincronizada com o banco de dados.</p>
                             </div>
 
                             <div class="aba-painel oculta-aba" id="aba-horarios">
-                                <h3 class="titulo-aba-vazia">Horários de Atendimento</h3>
-                                <p class="texto-aba-vazia">Segunda a Sexta: 08:00 às 17:00</p>
+                                <h2 class="aba-titulo">Horários de Atendimento</h2>
+                                <p class="aba-subtitulo">Confira quando a AAPM está aberta</p>
+
+                                <div class="horarios-grid">
+                                    <div class="horario-card">
+                                        <div class="horario-dia">Segunda — Sexta</div>
+                                        <div class="horario-periodo">08:00 — 12:00</div>
+                                        <div class="horario-obs">Manhã</div>
+                                        <span class="horario-tag horario-tag-aberto">Aberto</span>
+                                    </div>
+                                    <div class="horario-card">
+                                        <div class="horario-dia">Segunda — Sexta</div>
+                                        <div class="horario-periodo">13:00 — 17:00</div>
+                                        <div class="horario-obs">Tarde</div>
+                                        <span class="horario-tag horario-tag-aberto">Aberto</span>
+                                    </div>
+                                    <div class="horario-card">
+                                        <div class="horario-dia">Sábado</div>
+                                        <div class="horario-periodo">—</div>
+                                        <div class="horario-obs">Sem atendimento</div>
+                                        <span class="horario-tag horario-tag-fechado">Fechado</span>
+                                    </div>
+                                    <div class="horario-card">
+                                        <div class="horario-dia">Domingo</div>
+                                        <div class="horario-periodo">—</div>
+                                        <div class="horario-obs">Sem atendimento</div>
+                                        <span class="horario-tag horario-tag-fechado">Fechado</span>
+                                    </div>
+                                </div>
+
+                                <div class="horario-aviso">
+                                    <span class="horario-aviso-icon">&#9432;</span>
+                                    <span>Em feriados e datas especiais o atendimento pode ser suspenso. Acompanhe os avisos no mural da AAPM.</span>
+                                </div>
                             </div>
 
                             <div class="aba-painel oculta-aba" id="aba-servicos">
-                                <h3 class="titulo-aba-vazia">Serviços Disponíveis</h3>
-                                <p class="texto-aba-vazia">Agendamentos, retirada de uniformes e materiais da AAPM.</p>
+                                <h2 class="aba-titulo">Serviços Disponíveis</h2>
+                                <p class="aba-subtitulo">O que a AAPM oferece para os alunos</p>
+
+                                <div class="servicos-lista">
+                                    <div class="servico-item">
+                                        <div class="servico-icone">&#128230;</div>
+                                        <div class="servico-corpo">
+                                            <div class="servico-nome">Retirada de Uniformes</div>
+                                            <div class="servico-desc">Retire seu uniforme SENAI diretamente na secretaria da AAPM, mediante comprovante de pagamento.</div>
+                                        </div>
+                                    </div>
+                                    <div class="servico-item">
+                                        <div class="servico-icone">&#128197;</div>
+                                        <div class="servico-corpo">
+                                            <div class="servico-nome">Agendamento de Materiais</div>
+                                            <div class="servico-desc">Agende a retirada de materiais didáticos e kits de têxtil com antecedência pelo balcão da AAPM.</div>
+                                        </div>
+                                        <span class="servico-badge servico-badge-novo">Novo</span>
+                                    </div>
+                                    <div class="servico-item">
+                                        <div class="servico-icone">&#128200;</div>
+                                        <div class="servico-corpo">
+                                            <div class="servico-nome">Vendas de Produtos AAPM</div>
+                                            <div class="servico-desc">Camisetas, apostilas, materiais de costura e outros itens disponíveis para venda presencial.</div>
+                                        </div>
+                                    </div>
+                                    <div class="servico-item">
+                                        <div class="servico-icone">&#128179;</div>
+                                        <div class="servico-corpo">
+                                            <div class="servico-nome">Pagamento via Pix e Cartão</div>
+                                            <div class="servico-desc">Aceitamos dinheiro, débito, crédito e Pix. O pagamento é realizado diretamente no guichê.</div>
+                                        </div>
+                                    </div>
+                                    <div class="servico-item">
+                                        <div class="servico-icone">&#127891;</div>
+                                        <div class="servico-corpo">
+                                            <div class="servico-nome">Apoio ao Aluno</div>
+                                            <div class="servico-desc">Informações sobre a grade curricular, horários, eventos e suporte para alunos matriculados no SENAI Brás.</div>
+                                        </div>
+                                        <span class="servico-badge servico-badge-breve">Em breve</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="aba-painel oculta-aba" id="aba-duvidas">
-                                <div class="card-duvidas">
-                                    <h3>Perguntas Frequentes</h3>
-                                    <details>
+                                <h2 class="aba-titulo">Perguntas Frequentes</h2>
+                                <p class="aba-subtitulo">Respostas para as dúvidas mais comuns</p>
+
+                                <div class="duvidas-wrapper">
+                                    <details class="faq-item">
                                         <summary>Como faço meu pedido?</summary>
-                                        <p>Selecione o produto no catálogo e compareça presencialmente à secretaria da AAPM.</p>
+                                        <p class="faq-resposta">Selecione o produto no catálogo, anote o nome e o tamanho desejado, e compareça presencialmente à secretaria da AAPM durante o horário de atendimento.</p>
                                     </details>
-                                    <details>
-                                        <summary>Quais as formas de pagamento?</summary>
-                                        <p>Aceitamos dinheiro, cartões de débito/crédito e Pix.</p>
+                                    <details class="faq-item">
+                                        <summary>Quais as formas de pagamento aceitas?</summary>
+                                        <p class="faq-resposta">Aceitamos dinheiro, cartões de débito e crédito (nas principais bandeiras) e Pix. O pagamento é realizado no momento da retirada.</p>
                                     </details>
+                                    <details class="faq-item">
+                                        <summary>Posso encomendar um produto que está indisponível?</summary>
+                                        <p class="faq-resposta">Sim. Fale diretamente com a equipe da AAPM. Encomendas ficam sujeitas à disponibilidade de estoque e prazo de reposição.</p>
+                                    </details>
+                                    <details class="faq-item">
+                                        <summary>Qual o prazo para retirada após o pedido?</summary>
+                                        <p class="faq-resposta">Para itens em estoque a retirada é imediata. Para encomendas, o prazo varia entre 3 e 10 dias úteis dependendo do produto.</p>
+                                    </details>
+                                    <details class="faq-item">
+                                        <summary>Alunos de outros cursos podem comprar na AAPM?</summary>
+                                        <p class="faq-resposta">O atendimento é prioritário para alunos matriculados no SENAI Brás. Produtos de uso geral podem ser adquiridos por qualquer aluno da unidade.</p>
+                                    </details>
+
+                                    <div class="faq-contato">
+                                        <div class="faq-contato-icon">&#9742;</div>
+                                        <div>
+                                            <div class="faq-contato-titulo">Ainda tem dúvidas?</div>
+                                            <div class="faq-contato-texto">Nos encontre pessoalmente na secretaria da AAPM, localizada no SENAI Brás — Rua Correia de Andrade, 232. Atendimento de segunda a sexta, das 08h às 17h.</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -224,6 +325,5 @@
 
     {% block content %}{% endblock %}
 
-    <script src="{{ url_for('static', path='js/script.js') }}"></script>
 </body>
 </html>

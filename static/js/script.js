@@ -16,13 +16,145 @@ let imagemTemporariaSelecionada = null;
 // Bancos de dados em memória populados pelo backend (FastAPI/Jinja2)
 let PRODUTOS_DB = [];
 let CATEGORIAS_DB = []; 
-let FORNECEDORES_DB = []; // 🌟 Variável global de fornecedores mapeada
+let FORNECEDORES_DB = []; // Variável global de fornecedores mapeada
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARTÍCULAS DE LOGIN (MÓDULO EMBUTIDO)
+// ─────────────────────────────────────────────────────────────────────────────
+const CONFIG_PARTICULAS = {
+    quantidade:    120,    
+    velocidadeMin: 1.2,    
+    velocidadeMax: 3.8,    
+    opacidadeMin:  0.08,
+    opacidadeMax:  0.55,
+    tamanhoMin:    1,
+    tamanhoMax:    2.5,
+    cores: [
+        'rgba(56,  189, 248, OP)',   // azul ciano
+        'rgba(129, 140, 248, OP)',   // violeta
+        'rgba(255, 255, 255, OP)',   // branco puro
+        'rgba(96,  165, 250, OP)',   // azul médio
+    ]
+};
+
+let canvas, ctx, particulas = [], rodandoParticulas = false, animFrame;
+
+function criarCanvasParticulas() {
+    const universoAdmin = document.getElementById('universo-admin');
+    if (!universoAdmin) return false;
+
+    const existente = document.getElementById('canvas-particulas');
+    if (existente) existente.remove();
+
+    canvas = document.createElement('canvas');
+    canvas.id = 'canvas-particulas';
+    canvas.style.cssText = `
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+    `;
+    universoAdmin.insertBefore(canvas, universoAdmin.firstChild);
+    ctx = canvas.getContext('2d');
+    redimensionarCanvas();
+    return true;
+}
+
+function redimensionarCanvas() {
+    if (!canvas) return;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function criarParticula() {
+    const op = (Math.random() * (CONFIG_PARTICULAS.opacidadeMax - CONFIG_PARTICULAS.opacidadeMin) + CONFIG_PARTICULAS.opacidadeMin).toFixed(2);
+    const corBase = CONFIG_PARTICULAS.cores[Math.floor(Math.random() * CONFIG_PARTICULAS.cores.length)];
+    return {
+        x:           Math.random() * (canvas ? canvas.width : window.innerWidth),
+        y:           Math.random() * -window.innerHeight, 
+        velocidade:  Math.random() * (CONFIG_PARTICULAS.velocidadeMax - CONFIG_PARTICULAS.velocidadeMin) + CONFIG_PARTICULAS.velocidadeMin,
+        tamanho:     Math.random() * (CONFIG_PARTICULAS.tamanhoMax - CONFIG_PARTICULAS.tamanhoMin) + CONFIG_PARTICULAS.tamanhoMin,
+        cor:         corBase.replace('OP', op),
+        comprimento: Math.random() * 18 + 8, 
+        oscilacao:   Math.random() * 0.5 - 0.25, 
+    };
+}
+
+function iniciarEstruturaParticulas() {
+    particulas = [];
+    for (let i = 0; i < CONFIG_PARTICULAS.quantidade; i++) {
+        const p = criarParticula();
+        p.y = Math.random() * (canvas ? canvas.height : window.innerHeight); 
+        particulas.push(p);
+    }
+}
+
+function desenharParticulas() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particulas.forEach(p => {
+        ctx.save();
+        ctx.strokeStyle = p.cor;
+        ctx.lineWidth   = p.tamanho;
+        ctx.lineCap     = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(p.x + p.oscilacao * 4, p.y + p.comprimento);
+        ctx.stroke();
+        ctx.restore();
+
+        p.y += p.velocidade;
+        p.x += p.oscilacao * 0.3;
+
+        if (p.y > canvas.height + p.comprimento) {
+            const nova = criarParticula();
+            p.x           = nova.x;
+            p.y           = -p.comprimento - Math.random() * 50;
+            p.velocidade  = nova.velocidade;
+            p.tamanho     = nova.tamanho;
+            p.cor         = nova.cor;
+            p.comprimento = nova.comprimento;
+            p.oscilacao   = nova.oscilacao;
+        }
+    });
+}
+
+function loopParticulas() {
+    if (!rodandoParticulas) return;
+    desenharParticulas();
+    animFrame = requestAnimationFrame(loopParticulas);
+}
+
+const particulasLogin = {
+    iniciar: () => {
+        if (!criarCanvasParticulas()) return;
+        iniciarEstruturaParticulas();
+        rodandoParticulas = true;
+        loopParticulas();
+    },
+    parar: () => {
+        rodandoParticulas = false;
+        cancelAnimationFrame(animFrame);
+        if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+};
+
+window.addEventListener('resize', () => {
+    if (rodandoParticulas) {
+        redimensionarCanvas();
+        iniciarEstruturaParticulas();
+    }
+});
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. INICIALIZAÇÃO DA APLICAÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-    // Captura os dados de PRODUTOS injetados pelo backend
     const dadosElemento = document.getElementById("dados-produtos-backend");
     if (dadosElemento && dadosElemento.dataset.produtos) {
         try {
@@ -32,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // CAPTURA OS DADOS DE CATEGORIAS
     const dadosCatElemento = document.getElementById("dados-categorias-backend");
     if (dadosCatElemento && dadosCatElemento.dataset.categorias) {
         try {
@@ -43,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🌟 CAPTURA OS DADOS DE FORNECEDORES: Mapeia do container oculto do HTML
     const dadosFornElemento = document.getElementById("dados-fornecedores-backend");
     if (dadosFornElemento && dadosFornElemento.dataset.fornecedores) {
         try {
@@ -54,7 +184,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Interceptador do Formulário de Login
     const formularioLogin = document.querySelector("#universo-admin form");
     if (formularioLogin) {
         formularioLogin.addEventListener("submit", async function(event) {
@@ -81,19 +210,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Fecha modais clicando na área escura (overlay)
     document.querySelectorAll(".modal-overlay").forEach(overlay => {
         overlay.addEventListener("click", e => {
             if (e.target === overlay) fecharModal(overlay.id);
         });
     });
 
-    // Efeito de loading na grade de produtos: skeletons somem após 900ms
     setTimeout(renderizarCards, 900);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. NAVEGAÇÃO ENTRE UNIVERSOS (GSAP)
+// 2. NAVEGAÇÃO ENTRE UNIVERSOS & ABAS (GSAP + PARTÍCULAS)
 // ─────────────────────────────────────────────────────────────────────────────
 function viajarPara(destino) {
     if (universoAtual !== 'home') return;
@@ -107,7 +234,12 @@ function viajarPara(destino) {
             gsap.to("#universo-home", { scale: 2, x: "100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
         }
         if (adminEnv) {
-            gsap.to("#universo-admin", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
+            gsap.to("#universo-admin", { 
+                scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut",
+                onComplete: () => {
+                    particulasLogin.iniciar();
+                }
+            });
         }
     } 
     else if (destino === 'publico') {
@@ -127,6 +259,7 @@ function voltarAoInicio() {
     if (adminEnv) adminEnv.style.display = "flex";
 
     if (universoAtual === 'admin') {
+        particulasLogin.parar();
         gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
         gsap.to("#universo-admin", { scale: 0.5, x: "-100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
     } 
@@ -136,6 +269,23 @@ function voltarAoInicio() {
     }
     
     universoAtual = 'home';
+}
+
+function trocarAbasDashboard(elemento, abaId) {
+    document.querySelectorAll(".menu-item").forEach(btn => btn.classList.remove("ativo"));
+    if (elemento) elemento.classList.add("ativo");
+
+    document.querySelectorAll(".aba-painel").forEach(aba => {
+        aba.style.display = "none";
+        aba.classList.remove("ativa");
+    });
+
+    const abaAlvo = document.getElementById(abaId);
+    if (abaAlvo) {
+        abaAlvo.style.display = "block";
+        abaAlvo.classList.add("ativa");
+        gsap.fromTo(abaAlvo, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" });
+    }
 }
 
 function destacarProduto(elemento) {
@@ -195,11 +345,8 @@ function renderizarCards() {
         grade.appendChild(card);
 
         gsap.to(card, {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.5,
-            delay: i * 0.10,
+            opacity: 1, y: 0, scale: 1,
+            duration: 0.5, delay: i * 0.10,
             ease: "back.out(1.4)"
         });
     });
@@ -371,7 +518,7 @@ function abrirModalEditar(id) {
     abrirModal("modal-editar");
 }
 
-async function actualizarProduto(event) {
+async function atualizarProduto(event) {
     event.preventDefault();
     const form = document.getElementById("form-editar");
     if (!form) return;
@@ -453,7 +600,6 @@ async function confirmarDelecao() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. GERENCIAMENTO EXCLUSIVO DE CATEGORIAS (AAPM SENAI BRÁS)
 // ─────────────────────────────────────────────────────────────────────────────
-
 let categoriaDeletarId = null;
 
 function abrirModalCatAdicionar() {
@@ -559,7 +705,7 @@ async function confirmarDelecaoCategoria() {
             location.reload();
         } else {
             const erroDados = await resposta.json().catch(() => ({}));
-            alert(erroDados.detail || "Erro ao deletar categoria. Verifique se existem produtos vinculados a ela.");
+            alert(erroDados.detail || "Não é possível deletar esta categoria pois existem produtos vinculados a ela.");
         }
     } catch (erro) {
         console.error("Erro na requisição de exclusão:", erro);
@@ -570,14 +716,13 @@ async function confirmarDelecaoCategoria() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 🌟 8. GERENCIAMENTO EXCLUSIVO DE FORNECEDORES (NOVO)
+// 8. GERENCIAMENTO EXCLUSIVO DE FORNECEDORES
 // ─────────────────────────────────────────────────────────────────────────────
-
 let fornecedorDeletarId = null;
 
 function abrirModalFornAdicionar() {
     const form = document.getElementById("form-forn-adicionar");
-    if (form) form.reset(); // Limpa dados antigos antes de abrir
+    if (form) form.reset(); 
     abrirModal("modal-forn-adicionar");
 }
 
@@ -618,7 +763,6 @@ function abrirModalFornEditar(id) {
         return;
     }
 
-    // Preenche cirurgicamente os inputs do modal usando a base de dados em memória
     if (document.getElementById("edit-forn-id")) document.getElementById("edit-forn-id").value = forn.id;
     if (document.getElementById("edit-forn-nome")) document.getElementById("edit-forn-nome").value = forn.nome_fantasia;
     if (document.getElementById("edit-forn-cnpj")) document.getElementById("edit-forn-cnpj").value = forn.cnpj;
@@ -679,17 +823,14 @@ async function confirmarDelecaoFornecedor() {
         if (resp.ok) {
             fecharModal("modal-forn-deletar");
 
-            // Efeito visual GSAP na linha da tabela antes de forçar o recarregamento ou remoção
-            const linha = document.getElementById(`linha-fornecedor-{{ fornecedorDeletarId }}`) || document.querySelector(`button[data-id="${fornecedorDeletarId}"]`).closest('tr');
+            const btnId = document.querySelector(`button[data-id="${fornecedorDeletarId}"]`);
+            const linha = document.getElementById(`linha-fornecedor-${fornecedorDeletarId}`) || (btnId ? btnId.closest('tr') : null);
             if (linha) {
                 gsap.to(linha, {
-                    opacity: 0,
-                    x: -30,
-                    duration: 0.35,
-                    ease: "power2.in",
+                    opacity: 0, x: -30, duration: 0.35, ease: "power2.in",
                     onComplete: () => {
                         linha.remove();
-                        location.reload(); // Recarrega para sincronizar totalmente o banco local
+                        location.reload(); 
                     }
                 });
             } else {
@@ -702,31 +843,35 @@ async function confirmarDelecaoFornecedor() {
     } catch (e) {
         console.error("Erro ao enviar comando DELETE:", e);
         alert("Erro de conexão com o servidor.");
-    } finally {
+    } finally { 
         fornecedorDeletarId = null;
     }
 }
-// ─────────────────────────────────────────────────────────────────────────────
-// 9. GERENCIAMENTO DE VENDAS E EMISSÃO DE EXTRATO (CRUDS E AÇÕES ATUALIZADOS)
-// ─────────────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. GERENCIAMENTO DE VENDAS E EMISSÃO DE EXTRATO
+// ─────────────────────────────────────────────────────────────────────────────
 function abrirModalVenda() {
-    document.getElementById('form-nova-venda').reset();
-    document.getElementById('label-total-venda').textContent = "R$ 0,00";
-    const modal = document.getElementById('modal-venda');
-    if (modal) modal.classList.add('visivel');
+    const formVenda = document.getElementById('form-nova-venda');
+    if (formVenda) formVenda.reset();
+    
+    const labelTotal = document.getElementById('label-total-venda');
+    if (labelTotal) labelTotal.textContent = "R$ 0,00";
+    
+    abrirModal('modal-venda');
 }
 
 function fecharModalVenda() {
-    const modal = document.getElementById('modal-venda');
-    if (modal) modal.classList.remove('visivel');
+    fecharModal('modal-venda');
 }
 
-// Calcula o valor total multiplicando preço unitário x quantidade
 function calcularPrecoTotal() {
     const selectProduto = document.getElementById('produto_id');
+    if (!selectProduto) return 0.0;
+    
     const opcaoSelecionada = selectProduto.options[selectProduto.selectedIndex];
-    const quantidade = parseInt(document.getElementById('quantidade').value) || 1;
+    const quantidadeInput = document.getElementById('quantidade');
+    const quantidade = quantidadeInput ? (parseInt(quantidadeInput.value) || 1) : 1;
 
     if (!opcaoSelecionada || !opcaoSelecionada.dataset.preco) {
         return 0.0;
@@ -736,15 +881,16 @@ function calcularPrecoTotal() {
     return precoUnitario * quantidade;
 }
 
-// Atualiza a interface gráfica do modal com o valor atualizado
 function atualizarTotalFormatado() {
     const total = calcularPrecoTotal();
-    document.getElementById('label-total-venda').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    const labelTotal = document.getElementById('label-total-venda');
+    if (labelTotal) {
+        labelTotal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
 }
 
 async function enviarVenda(event) {
     event.preventDefault();
-    
     const precoTotalCalculado = calcularPrecoTotal();
     
     if (precoTotalCalculado <= 0) {
@@ -779,7 +925,6 @@ async function enviarVenda(event) {
     }
 }
 
-// --- FUNÇÕES DE CONTROLE DE EXTRATOS ---
 function dispararExtrato(botao) {
     const comprador = botao.getAttribute('data-comprador');
     const produto = botao.getAttribute('data-produto');
@@ -817,38 +962,31 @@ Guarde este extrato como comprovante.
     link.click();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NOVAS FUNÇÕES ADICIONADAS: ATUALIZAR E DELETAR VENDAS VIA FRONTEND
-// ─────────────────────────────────────────────────────────────────────────────
-
-// Abre o novo modal de Edição populando dinamicamente os inputs da venda selecionada
-function abrirModalEditarVenda(id, comprador, quantidade, precoTotal) {
+function abrirModalEditarVenda(id, comprador, quantidade, precoTotal, produtoId) {
     if (document.getElementById('edit-venda-id')) document.getElementById('edit-venda-id').value = id;
     if (document.getElementById('edit-comprador')) document.getElementById('edit-comprador').value = comprador;
     if (document.getElementById('edit-quantidade')) document.getElementById('edit-quantidade').value = quantidade;
     if (document.getElementById('edit-total')) document.getElementById('edit-total').value = parseFloat(precoTotal).toFixed(2);
+    if (document.getElementById('edit-produto-id')) document.getElementById('edit-produto-id').value = produtoId || "";
 
-    const modal = document.getElementById('modal-editar-venda');
-    if (modal) modal.classList.add('visivel');
+    abrirModal('modal-editar-venda');
 }
 
 function fecharModalEditarVenda() {
-    const modal = document.getElementById('modal-editar-venda');
-    if (modal) modal.classList.remove('visivel');
+    fecharModal('modal-editar-venda');
 }
 
-// Envia a requisição de alteração (PUT) ou fallback fiscal para o back-end
 async function enviarAtualizacaoVenda(event) {
     event.preventDefault();
     
     const id = document.getElementById('edit-venda-id').value;
+    const produtoIdInput = document.getElementById('edit-produto-id');
     
-    // Alinhado ao VendaSchema do FastAPI do seu arquivo main.py
     const payload = {
         comprador: document.getElementById('edit-comprador').value,
         quantidade: parseInt(document.getElementById('edit-quantidade').value),
         preco_total: parseFloat(document.getElementById('edit-total').value),
-        produto_id: 1 // Mantém o vínculo do produto padrão durante a reemissão do ticket
+        produto_id: produtoIdInput ? parseInt(produtoIdInput.value) : 1 
     };
 
     try {
@@ -860,51 +998,12 @@ async function enviarAtualizacaoVenda(event) {
 
         if (resposta.ok) {
             fecharModalEditarVenda();
-            location.reload(); // Recarrega para computar os novos totais em tela
+            location.reload(); 
         } else {
             const erro = await resposta.json().catch(() => ({}));
             alert(erro.detail || "Erro ao atualizar registro de venda.");
         }
     } catch (e) {
         console.error("Erro na atualização da venda: ", e);
-        alert("Erro de conexão ao servidor.");
-    }
-}
-
-// Executa a remoção permanente da venda com animação fluida no DOM antes do reload
-async function deletarVenda(vendaId) {
-    if (!confirm("⚠️ Tem certeza que deseja apagar permanentemente este registro de venda do histórico? Isso alterará os relatórios financeiros.")) {
-        return;
-    }
-
-    try {
-        const resposta = await fetch(`/admin/vendas/${vendaId}`, {
-            method: 'DELETE'
-        });
-
-        if (resposta.ok) {
-            const linhaTabela = document.getElementById(`venda-row-${vendaId}`);
-            if (linhaTabela) {
-                // Executa transição visual elegante antes de limpar o elemento
-                gsap.to(linhaTabela, {
-                    opacity: 0,
-                    x: -30,
-                    duration: 0.35,
-                    ease: "power2.in",
-                    onComplete: () => {
-                        linhaTabela.remove();
-                        location.reload(); // Recarrega para recalcular o Faturamento Total do painel
-                    }
-                });
-            } else {
-                location.reload();
-            }
-        } else {
-            const erro = await resposta.json().catch(() => ({}));
-            alert(erro.detail || "Erro ao deletar o registro de venda.");
-        }
-    } catch (e) {
-        console.error("Erro ao deletar venda: ", e);
-        alert("Erro de conexão ao servidor.");
     }
 }

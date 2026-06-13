@@ -14,12 +14,10 @@ from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario
 from app.models.fornecedor import Fornecedor 
-# Nota: Certifique-se de que o seu model de Venda está criado em app.models.venda
+
 try:
     from app.models.venda import Venda
 except ImportError:
-    # Caso ainda não tenha criado o modelo de banco de dados para vendas,
-    # descomente ou configure sua tabela correspondente.
     Venda = None
 
 app = FastAPI()
@@ -69,8 +67,13 @@ class VendaSchema(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
-async def pagina_inicial(request: Request):
-    return templates.TemplateResponse(request=request, name="base.html")
+async def pagina_inicial(request: Request, db: Session = Depends(get_db)):
+    produtos_do_banco = db.query(Produto).all()
+    return templates.TemplateResponse(
+        request=request, 
+        name="base.html",
+        context={"produtos": produtos_do_banco}
+    )
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -147,11 +150,56 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
             "produtos": produtos_do_banco,
             "categories": categorias_do_banco,
             "fornecedores": fornecedores_do_banco,
-            "categorias_json": categorias_json,  # CORRIGIDO: Agora aponta exatamente para a variável correta
+            "categorias_json": categorias_json,
             "fornecedores_json": fornecedores_json
         }
     )
 
+
+@app.get("/dashboard/visaogeral", response_class=HTMLResponse)
+async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(get_db)):
+    # 1. Buscar contadores dinâmicos do Banco de Dados
+    total_produtos = db.query(Produto).count()
+    total_categorias = db.query(Categoria).count()
+    total_fornecedores = db.query(Fornecedor).count()
+    
+    # 2. Inicializar variáveis de vendas seguras caso o Model exista
+    vendas_formatadas = []
+    total_vendas_valor = 0.0
+    
+    if Venda:
+        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
+        
+        # Calcular o faturamento total somando o preco_total real de cada venda
+        total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
+        
+        # Pegar as 5 vendas mais recentes estruturadas para o HTML
+        vendas_recentes = vendas_do_banco[:5]
+        for v in vendas_recentes:
+            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
+            nome_produto = prod.nome if prod else "Produto Indisponível"
+            
+            vendas_formatadas.append({
+                "id": v.id,
+                "comprador": v.comprador,
+                "produto_nome": nome_produto,
+                "quantidade": v.quantidade,
+                "preco_total": v.preco_total,
+                "data_venda": v.data_venda
+            })
+
+    # 3. Retornar os dados usando a palavra-chave 'context=' explicitamente (isso corrige o TypeError)
+    return templates.TemplateResponse(
+        request=request,
+        name="admin/visaogeral.html",
+        context={
+            "total_produtos": total_produtos,
+            "total_categorias": total_categorias,
+            "total_fornecedores": total_fornecedores,
+            "faturamento_total": total_vendas_valor,
+            "vendas_recentes": vendas_formatadas
+        }
+    )
 
 @app.get("/dashboard/produtos", response_class=HTMLResponse)
 async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_db)):
@@ -210,26 +258,40 @@ async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(
     )
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# VIEW E CRUD DE VENDAS ATUALIZADOS COMPLETOS
+# ─────────────────────────────────────────────────────────────────────────────
+
 @app.get("/dashboard/vendas", response_class=HTMLResponse)
 async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db)):
-    # 1. Coleta os produtos ativos para preencher o select do Modal
     produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
-    
-    # 2. Coleta o histórico de vendas salvas
-    vendas_do_banco = []
+    vendas_formatadas = []
     faturamento_calculado = 0.0
     
     if Venda:
         vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
-        # Calcula o somatório de faturamento total das vendas realizadas
-        faturamento_calculado = sum(v.preco_total for v in vendas_do_banco)
+        
+        for v in vendas_do_banco:
+            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
+            nome_produto = prod.nome if prod else "Produto Indisponível"
+            
+            faturamento_calculado += v.preco_total
+            
+            vendas_formatadas.append({
+                "id": v.id,
+                "comprador": v.comprador,
+                "produto_nome": nome_produto,
+                "quantidade": v.quantidade,
+                "preco_total": v.preco_total,
+                "data_venda": v.data_venda
+            })
     
     return templates.TemplateResponse(
         request=request, 
         name="admin/vendas.html",
         context={
             "produtos": produtos_do_banco,
-            "vendas": vendas_do_banco,
+            "vendas": vendas_formatadas,
             "faturamento_total": f"{faturamento_calculado:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
         }
     )
@@ -320,7 +382,7 @@ async def criar_categoria(dados: CategoriaSchema, db: Session = Depends(get_db))
 
 @app.put("/admin/categorias/{categoria_id}")
 async def atualizar_categoria(categoria_id: int, dados: CategoriaSchema, db: Session = Depends(get_db)):
-    categoria = db.query(Categoria).filter(Categoria.id == category_id).first()
+    categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoria não encontrada.")
     
@@ -372,7 +434,7 @@ async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db
 @app.put("/admin/fornecedores/{fornecedor_id}")
 async def atualizar_fornecedor(fornecedor_id: int, dados: FornecedorSchema, db: Session = Depends(get_db)):
     fornecedor = db.query(Fornecedor).filter(Fornecedor.id == fornecedor_id).first()
-    if not fornecedor:  # CORRIGIDO: Estava 'supplier', o que causava NameError interno
+    if not fornecedor: 
         raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
     
     fornecedor.nome_fantasia = dados.nome_fantasia
@@ -397,55 +459,10 @@ async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
     return {"status": "deletado"}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# VIEW E CRUD DE VENDAS ATUALIZADOS COMPLETOS
-# ─────────────────────────────────────────────────────────────────────────────
-
-@app.get("/dashboard/vendas", response_class=HTMLResponse)
-async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db)):
-    # 1. Coleta os produtos ativos para preencher o select do Modal
-    produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
-    
-    # 2. Coleta o histórico de vendas salvas e formata com os dados dos produtos
-    vendas_formatadas = []
-    faturamento_calculado = 0.0
-    
-    if Venda:
-        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
-        
-        for v in vendas_do_banco:
-            # Busca o produto associado a essa venda para capturar o nome real
-            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
-            nome_produto = prod.nome if prod else "Produto Indisponível"
-            
-            faturamento_calculado += v.preco_total
-            
-            vendas_formatadas.append({
-                "id": v.id,
-                "comprador": v.comprador,
-                "produto_nome": nome_produto,
-                "quantidade": v.quantidade,
-                "preco_total": v.preco_total,
-                "data_venda": v.data_venda
-            })
-    
-    return templates.TemplateResponse(
-        request=request, 
-        name="admin/vendas.html",
-        context={
-            "produtos": produtos_do_banco,
-            "vendas": vendas_formatadas,  # Passa a lista nova estruturada com os nomes corretos
-            "faturamento_total": f"{faturamento_calculado:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
-        }
-    )
-
-
 # --- API REST COMPLETA PARA VENDAS ---
 
 @app.post("/admin/vendas")
 async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
-    from app.models.venda import Venda
-    
     produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
     if not produto:
         raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
@@ -463,11 +480,8 @@ async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
     return {"status": "criado", "id": nova_venda.id}
 
 
-# --- NOVA ROTA: DELETAR / APAGAR VENDA ---
 @app.delete("/admin/vendas/{venda_id}")
 async def deletar_venda(venda_id: int, db: Session = Depends(get_db)):
-    from app.models.venda import Venda
-    
     venda = db.query(Venda).filter(Venda.id == venda_id).first()
     if not venda:
         raise HTTPException(status_code=404, detail="Venda não encontrada.")
@@ -477,11 +491,8 @@ async def deletar_venda(venda_id: int, db: Session = Depends(get_db)):
     return {"status": "deletado"}
 
 
-# --- NOVA ROTA: EXTRATO DA VENDA (RETORNO DE DADOS DO COMPROVANTE) ---
 @app.get("/admin/vendas/{venda_id}/extrato")
 async def gerar_extrato_venda(venda_id: int, db: Session = Depends(get_db)):
-    from app.models.venda import Venda
-    
     venda = db.query(Venda).filter(Venda.id == venda_id).first()
     if not venda:
         raise HTTPException(status_code=404, detail="Venda não encontrada no banco.")

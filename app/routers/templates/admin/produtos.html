@@ -11,8 +11,9 @@
     {
         "id": {{ p.id if p.id is defined and p.id is not none else loop.index }},
         "nome": {{ (p.nome if p.nome is defined else "Sem Nome") | tojson }},
-        "tamanho": {{ (p.tamanho if p.tamanho is defined else "Único") | tojson }},
+        "tamanho": {{ (p.tamanho if p.tamanho is defined and p.tamanho is not none else "") | tojson }},
         "preco": {{ p.preco if p.preco is defined and p.preco is not none else 0.00 }},
+        "quantidade": {{ p.quantidade if p.quantidade is defined and p.quantidade is not none else 0 }},
         "disponivel": {{ 1 if p.disponivel else 0 }},
         "categoria_id": {{ p.categoria_id if p.categoria_id is defined and p.categoria_id is not none else "null" }},
         "imagem_url": {{ (p.imagem_url if p.imagem_url is defined and p.imagem_url is not none else "") | tojson }}
@@ -69,17 +70,8 @@
                     <input type="number" name="preco" step="0.01" min="0" placeholder="49.90" required>
                 </div>
                 <div class="modal-campo">
-                    <label>Tamanho</label>
-                    <select name="tamanho" required>
-                        <option value="" disabled selected>Selecione</option>
-                        <option>PP</option>
-                        <option>P</option>
-                        <option>M</option>
-                        <option>G</option>
-                        <option>GG</option>
-                        <option>XGG</option>
-                        <option>Único</option>
-                    </select>
+                    <label>Quantidade</label>
+                    <input type="number" name="quantidade" min="0" placeholder="10" required>
                 </div>
             </div>
 
@@ -93,8 +85,23 @@
                         {% endfor %}
                     </select>
                 </div>
-
                 <div class="modal-campo">
+                    <label>Tamanho (Opcional)</label>
+                    <select name="tamanho">
+                        <option value="" selected>Não se aplica (Sem tamanho)</option>
+                        <option>PP</option>
+                        <option>P</option>
+                        <option>M</option>
+                        <option>G</option>
+                        <option>GG</option>
+                        <option>XGG</option>
+                        <option>Único</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo" style="flex: 1;">
                     <label>Disponibilidade</label>
                     <select name="disponivel">
                         <option value="1">Disponível</option>
@@ -139,16 +146,8 @@
                     <input type="number" name="preco" id="edit-preco" step="0.01" min="0" required>
                 </div>
                 <div class="modal-campo">
-                    <label>Tamanho</label>
-                    <select name="tamanho" id="edit-tamanho">
-                        <option>PP</option>
-                        <option>P</option>
-                        <option>M</option>
-                        <option>G</option>
-                        <option>GG</option>
-                        <option>XGG</option>
-                        <option>Único</option>
-                    </select>
+                    <label>Quantidade</label>
+                    <input type="number" name="quantidade" id="edit-quantidade" min="0" required>
                 </div>
             </div>
 
@@ -162,8 +161,23 @@
                         {% endfor %}
                     </select>
                 </div>
-
                 <div class="modal-campo">
+                    <label>Tamanho</label>
+                    <select name="tamanho" id="edit-tamanho">
+                        <option value="">Não se aplica (Sem tamanho)</option>
+                        <option>PP</option>
+                        <option>P</option>
+                        <option>M</option>
+                        <option>G</option>
+                        <option>GG</option>
+                        <option>XGG</option>
+                        <option>Único</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-linha">
+                <div class="modal-campo" style="flex: 1;">
                     <label>Disponibilidade</label>
                     <select name="disponivel" id="edit-disponivel">
                         <option value="1">Disponível</option>
@@ -226,4 +240,4 @@
 
 <script src="{{ url_for('static', path='js/script.js') }}"></script>
 
-{% endblock %}
+{% endblock %}z 
