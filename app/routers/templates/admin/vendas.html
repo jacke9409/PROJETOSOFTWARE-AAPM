@@ -1,17 +1,115 @@
 {% extends "admin/dashboard.html" %}
 
 {% block admin_content %}
-<div class="card-painel-interno" style="flex: 1; background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(20px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff;">
-    <div class="panel-header-tabela" style="margin-bottom: 25px;">
-        <h2 style="margin: 0; font-size: 1.8rem;">Histórico de Vendas</h2>
-        <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Monitore os pedidos realizados pelos alunos e associados da AAPM.</p>
+<div class="panel-vendas-wrapper" style="animation: fadeInSuave 0.4s ease forwards;">
+    
+    <div class="prod-page-header">
+        <div>
+            <h2>Histórico de Vendas</h2>
+            <p>Monitore as saídas do estoque, os pagamentos recebidos e emita os comprovantes dos alunos.</p>
+        </div>
+        <button class="btn-adicionar-prod" onclick="abrirModalVenda()">
+            <span>💰</span> Registrar Venda
+        </button>
     </div>
 
-    <div style="padding: 50px 20px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); border-radius: 12px; text-align: center;">
-        <span style="font-size: 2.5rem; display: block; margin-bottom: 15px;">💰</span>
-        <p style="color: rgba(255,255,255,0.6); font-size: 1.1rem; margin: 0;">
-            O painel flutuante de vendas está pronto para receber o design premium e o CRUD do banco de dados!
-        </p>
+    <div class="modal-linha" style="margin-bottom: 24px; gap: 20px;">
+        <div class="card-painel-interno" style="flex: 1; padding: 20px; background: rgba(22, 38, 66, 0.45);">
+            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Faturamento Total</span>
+            <h3 style="font-size: 1.8rem; margin: 8px 0 0; color: #4ade80; font-weight: 700;">
+                R$ {{ faturamento_total|default("0,00") }}
+            </h3>
+        </div>
+        <div class="card-painel-interno" style="flex: 1; padding: 20px; background: rgba(22, 38, 66, 0.45);">
+            <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Total de Pedidos</span>
+            <h3 style="font-size: 1.8rem; margin: 8px 0 0; color: #38bdf8; font-weight: 700;">
+                {{ vendas|length|default(0) }}
+            </h3>
+        </div>
+    </div>
+
+    <div class="card-painel-interno" style="padding: 24px;">
+        <table class="tabela-responsiva-admin" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.08); color: #94a3b8; font-size: 0.85rem;">
+                    <th style="padding: 12px 16px;">Comprador</th>
+                    <th style="padding: 12px 16px;">Produto / Item</th>
+                    <th style="padding: 12px 16px; text-align: center;">Qtd</th>
+                    <th style="padding: 12px 16px;">Total</th>
+                    <th style="padding: 12px 16px; text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venda in vendas %}
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.9rem;">
+                    <td style="padding: 14px 16px; font-weight: 600;">{{ venda.comprador if venda.comprador else "Cliente" }}</td>
+                    <td style="padding: 14px 16px; color: #cbd5e1;">{{ venda.produto.nome if venda.produto else "Produto Indisponível" }}</td>
+                    <td style="padding: 14px 16px; text-align: center;">{{ venda.quantidade|default(1) }}x</td>
+                    <td style="padding: 14px 16px; font-weight: 700; color: #38bdf8;">R$ {{ "%.2f"|format(venda.preco_total|default(0)) }}</td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                        <button class="btn-card-acao btn-editar" style="padding: 6px 12px; font-size: 0.75rem; max-width: 90px; display: inline-block;" 
+                                data-comprador="{{ venda.comprador if venda.comprador else 'Cliente' }}"
+                                data-produto="{{ venda.produto.nome if venda.produto else 'Produto' }}"
+                                data-quantidade="{{ venda.quantidade|default(1) }}"
+                                data-total="{{ '%.2f'|format(venda.preco_total|default(0)) }}"
+                                onclick="dispararExtrato(this)">
+                            📄 Extrato
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="prod-vazio" style="text-align: center; padding: 40px 0; color: rgba(255,255,255,0.4);">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">💰</span>
+                        Nenhum registro de venda encontrado no sistema.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-venda">
+    <div class="modal-box" style="width: 460px;">
+        <button class="modal-fechar" onclick="fecharModalVenda()">&times;</button>
+        <h3 class="modal-titulo">Nova Venda</h3>
+        
+        <form id="form-nova-venda" onsubmit="enviarVenda(event)">
+            <div class="modal-campo">
+                <label for="comprador">Nome do Comprador</label>
+                <input type="text" id="comprador" name="comprador" placeholder="Nome do aluno ou associado" required>
+            </div>
+
+            <div class="modal-campo">
+                <label for="produto_id">Produto</label>
+                <select id="produto_id" name="produto_id" onchange="atualizarTotalFormatado()" required>
+                    <option value="" disabled selected>Selecione o produto vendido...</option>
+                    {% for produto in produtos %}
+                        <option value="{{ produto.id }}" data-preco="{{ produto.preco }}">
+                            {{ produto.nome }} — R$ {{ "%.2f"|format(produto.preco) }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="modal-linha" style="display: flex; gap: 15px; align-items: center;">
+                <div class="modal-campo" style="flex: 1; margin-bottom: 0;">
+                    <label for="quantidade">Qtd</label>
+                    <input type="number" id="quantidade" name="quantidade" value="1" min="1" oninput="atualizarTotalFormatado()" required>
+                </div>
+                
+                <div style="flex: 1.5; text-align: right; padding-top: 15px;">
+                    <span style="font-size: 0.8rem; color: #94a3b8; display: block; font-weight: 600; text-transform: uppercase;">Total do Pedido</span>
+                    <span id="label-total-venda" style="font-size: 1.6rem; color: #4ade80; font-weight: 700; display: block;">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="modal-rodape" style="margin-top: 25px;">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModalVenda()">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-verde">Confirmar Venda</button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}

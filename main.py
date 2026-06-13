@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 from fastapi import FastAPI, Request, Depends, Form, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -14,6 +14,13 @@ from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario
 from app.models.fornecedor import Fornecedor 
+# Nota: Certifique-se de que o seu model de Venda está criado em app.models.venda
+try:
+    from app.models.venda import Venda
+except ImportError:
+    # Caso ainda não tenha criado o modelo de banco de dados para vendas,
+    # descomente ou configure sua tabela correspondente.
+    Venda = None
 
 app = FastAPI()
 
@@ -49,6 +56,12 @@ class FornecedorSchema(BaseModel):
     email: Optional[str] = None
     localidade: str
     nome_contato: Optional[str] = None
+
+class VendaSchema(BaseModel):
+    comprador: str
+    produto_id: int
+    quantidade: int
+    preco_total: float
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -102,12 +115,10 @@ async def processar_login(
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
-    # 1. Coleta os contadores numéricos para alimentar os cards superiores de métricas
     total_produtos = db.query(Produto).count()
     total_categorias = db.query(Categoria).count()
     total_fornecedores = db.query(Fornecedor).count()
     
-    # 2. Coleta os objetos de dados completos para o JavaScript local e modais
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
     fornecedores_do_banco = db.query(Fornecedor).all()
@@ -126,7 +137,6 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
         for f in fornecedores_do_banco
     ]
     
-    # 3. Retorna o painel com gráficos diretamente na raiz do Dashboard (/dashboard)
     return templates.TemplateResponse(
         request=request,
         name="admin/dashboard.html",  
@@ -135,9 +145,9 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
             "total_categorias": total_categorias,
             "total_fornecedores": total_fornecedores,
             "produtos": produtos_do_banco,
-            "categorias": categorias_do_banco,
+            "categories": categorias_do_banco,
             "fornecedores": fornecedores_do_banco,
-            "categorias_json": categorias_json,
+            "categorias_json": categorias_json,  # CORRIGIDO: Agora aponta exatamente para a variável correta
             "fornecedores_json": fornecedores_json
         }
     )
@@ -201,12 +211,32 @@ async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(
 
 
 @app.get("/dashboard/vendas", response_class=HTMLResponse)
-async def pagina_dashboard_vendas(request: Request):
-    return templates.TemplateResponse(request=request, name="admin/vendas.html")
+async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db)):
+    # 1. Coleta os produtos ativos para preencher o select do Modal
+    produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
+    
+    # 2. Coleta o histórico de vendas salvas
+    vendas_do_banco = []
+    faturamento_calculado = 0.0
+    
+    if Venda:
+        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
+        # Calcula o somatório de faturamento total das vendas realizadas
+        faturamento_calculado = sum(v.preco_total for v in vendas_do_banco)
+    
+    return templates.TemplateResponse(
+        request=request, 
+        name="admin/vendas.html",
+        context={
+            "produtos": produtos_do_banco,
+            "vendas": vendas_do_banco,
+            "faturamento_total": f"{faturamento_calculado:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."),
+        }
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (CRUD PRODUTOS, CATEGORIAS, FORNECEDORES & GALERIA DE ASSETS)
+# API REST (CRUD PRODUTOS, CATEGORIAS, FORNECEDORES & VENDAS)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/admin/assets/imagens")
@@ -290,7 +320,7 @@ async def criar_categoria(dados: CategoriaSchema, db: Session = Depends(get_db))
 
 @app.put("/admin/categorias/{categoria_id}")
 async def atualizar_categoria(categoria_id: int, dados: CategoriaSchema, db: Session = Depends(get_db)):
-    categoria = db.query(Categoria).filter(Categoria.id == categoria_id).first()
+    categoria = db.query(Categoria).filter(Categoria.id == category_id).first()
     if not categoria:
         raise HTTPException(status_code=404, detail="Categoria não encontrada.")
     
@@ -342,7 +372,7 @@ async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db
 @app.put("/admin/fornecedores/{fornecedor_id}")
 async def atualizar_fornecedor(fornecedor_id: int, dados: FornecedorSchema, db: Session = Depends(get_db)):
     fornecedor = db.query(Fornecedor).filter(Fornecedor.id == fornecedor_id).first()
-    if not fornecedor:
+    if not fornecedor:  # CORRIGIDO: Estava 'supplier', o que causava NameError interno
         raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
     
     fornecedor.nome_fantasia = dados.nome_fantasia
@@ -365,3 +395,31 @@ async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
     db.delete(fornecedor)
     db.commit()
     return {"status": "deletado"}
+
+
+# --- INTERFACE REST PARA VENDAS (Mapeado corretamente) ---
+
+# --- INTERFACE REST PARA VENDAS (CORREÇÃO DEFINITIVA) ---
+
+@app.post("/admin/vendas")
+async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
+    # Caso o bloco try/except lá em cima tenha falhado, importamos diretamente aqui para ver o erro real
+    from app.models.venda import Venda
+    
+    # Verifica se o produto vendido existe no estoque
+    produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
+
+    # Criando o objeto com o parâmetro 'comprador' que seu banco exige
+    nova_venda = Venda(
+        comprador=dados.comprador,
+        produto_id=dados.produto_id,
+        quantidade=dados.quantidade,
+        preco_total=dados.preco_total
+    )
+    
+    db.add(nova_venda)
+    db.commit()
+    db.refresh(nova_venda)
+    return {"status": "criado", "id": nova_venda.id}

@@ -1,228 +1,273 @@
-{% extends "base.html" %}
+{% extends "dashboard.html" %}
 
-{% block content %}
-<div class="p-6" style="background-color: #0d192d; min-height: 100vh; color: #fff; font-family: 'Inter', sans-serif;">
-    
-    <div class="flex justify-between items-center mb-6">
+{% block admin_content %}
+<div class="vg-wrapper">
+
+    <!-- CABEÇALHO DA PÁGINA -->
+    <div class="vg-page-header">
         <div>
-            <h1 class="text-2xl font-bold flex items-center gap-2">
-                Olá, Administrador! 👋
-            </h1>
-            <p class="text-sm text-gray-400 mt-1">Bem-vindo ao painel de controle interno da AAPM SENAI Brás.</p>
+            <h1 class="vg-titulo">Visão Geral</h1>
+            <p class="vg-subtitulo">Resumo operacional — atualizado em tempo real</p>
+        </div>
+        <div class="vg-data-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Junho 2026
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex items-center gap-4">
-                <div class="p-3 rounded-xl bg-blue-600/20 text-blue-400 text-2xl">
-                    🛒
-                </div>
-                <div>
-                    <span class="text-2xl font-bold block">1.248</span>
-                    <span class="text-xs text-gray-400">Vendas este mês</span>
+    <!-- CARDS DE MÉTRICAS -->
+    <div class="vg-metricas">
+
+        <div class="vg-card-metrica">
+            <div class="vg-card-topo">
+                <span class="vg-card-label">Vendas este mês</span>
+                <div class="vg-card-icone vg-icone-azul">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                 </div>
             </div>
-            <span class="text-xs text-green-400 font-medium flex items-center">↑ 12,5%</span>
+            <span class="vg-card-valor">1.248</span>
+            <span class="vg-card-delta vg-delta-positivo">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                12,5% vs mês anterior
+            </span>
         </div>
 
-        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex items-center gap-4">
-                <div class="p-3 rounded-xl bg-purple-600/20 text-purple-400 text-2xl">
-                    📦
-                </div>
-                <div>
-                    <span class="text-2xl font-bold block">{{ total_produtos }}</span>
-                    <span class="text-xs text-gray-400">Produtos cadastrados</span>
+        <div class="vg-card-metrica">
+            <div class="vg-card-topo">
+                <span class="vg-card-label">Produtos cadastrados</span>
+                <div class="vg-card-icone vg-icone-violeta">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                 </div>
             </div>
-            <span class="text-xs text-green-400 font-medium flex items-center">↑ 8,1%</span>
+            <span class="vg-card-valor">{{ total_produtos }}</span>
+            <span class="vg-card-delta vg-delta-positivo">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                8,1% vs mês anterior
+            </span>
         </div>
 
-        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex items-center gap-4">
-                <div class="p-3 rounded-xl bg-green-600/20 text-green-400 text-2xl">
-                    👥
-                </div>
-                <div>
-                    <span class="text-2xl font-bold block">{{ total_fornecedores }}</span>
-                    <span class="text-xs text-gray-400">Fornecedores ativos</span>
+        <div class="vg-card-metrica">
+            <div class="vg-card-topo">
+                <span class="vg-card-label">Fornecedores ativos</span>
+                <div class="vg-card-icone vg-icone-verde">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
             </div>
-            <span class="text-xs text-green-400 font-medium flex items-center">↑ 3,2%</span>
+            <span class="vg-card-valor">{{ total_fornecedores }}</span>
+            <span class="vg-card-delta vg-delta-positivo">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                3,2% vs mês anterior
+            </span>
         </div>
 
-        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex items-center gap-4">
-                <div class="p-3 rounded-xl bg-amber-600/20 text-amber-400 text-2xl">
-                    💲
-                </div>
-                <div>
-                    <span class="text-2xl font-bold block">R$ 45.760,00</span>
-                    <span class="text-xs text-gray-400">Faturamento mensal</span>
+        <div class="vg-card-metrica">
+            <div class="vg-card-topo">
+                <span class="vg-card-label">Faturamento mensal</span>
+                <div class="vg-card-icone vg-icone-laranja">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                 </div>
             </div>
-            <span class="text-xs text-green-400 font-medium flex items-center">↑ 15,4%</span>
+            <span class="vg-card-valor">R$ 45.760</span>
+            <span class="vg-card-delta vg-delta-positivo">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                15,4% vs mês anterior
+            </span>
         </div>
+
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div class="lg:col-span-2 p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-semibold">Vendas dos últimos 6 meses</h3>
-                <select class="bg-slate-800 text-xs text-gray-300 rounded px-2 py-1 border border-slate-700 outline-none">
-                    <option>Últimos 6 meses</option>
-                </select>
+    <!-- GRÁFICO + AÇÕES -->
+    <div class="vg-linha-meio">
+
+        <div class="vg-panel vg-panel-grafico">
+            <div class="vg-panel-header">
+                <div>
+                    <h2 class="vg-panel-titulo">Faturamento</h2>
+                    <p class="vg-panel-sub">Últimos 6 meses</p>
+                </div>
+                <div class="vg-grafico-legenda">
+                    <span class="vg-legenda-ponto"></span>
+                    <span>Receita bruta</span>
+                </div>
             </div>
-            <div class="relative w-full h-64">
+            <div class="vg-canvas-wrapper">
                 <canvas id="graficoVendas"></canvas>
             </div>
         </div>
 
-        <div class="p-5 rounded-xl flex flex-col justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div>
-                <h3 class="text-base font-semibold mb-4">Ações rápidas</h3>
-                <div class="grid grid-cols-1 gap-3">
-                    <a href="/dashboard/produtos" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
-                        <span class="text-xl">📦</span>
-                        <div>
-                            <span class="text-sm font-medium block">Novo Produto</span>
-                            <span class="text-xs text-gray-400">Cadastre um produto</span>
-                        </div>
-                    </a>
-                    <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
-                        <span class="text-xl">🛒</span>
-                        <div>
-                            <span class="text-sm font-medium block">Nova Venda</span>
-                            <span class="text-xs text-gray-400">Registrar uma venda</span>
-                        </div>
-                    </a>
-                    <a href="/dashboard/fornecedores" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
-                        <span class="text-xl">👥</span>
-                        <div>
-                            <span class="text-sm font-medium block">Novo Fornecedor</span>
-                            <span class="text-xs text-gray-400">Adicionar fornecedor</span>
-                        </div>
-                    </a>
-                    <a href="/dashboard/vendas" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
-                        <span class="text-xl">📊</span>
-                        <div>
-                            <span class="text-sm font-medium block">Ver Relatórios</span>
-                            <span class="text-xs text-gray-400">Analisar dados</span>
-                        </div>
-                    </a>
-                </div>
+        <div class="vg-panel vg-panel-acoes">
+            <div class="vg-panel-header">
+                <h2 class="vg-panel-titulo">Ações rápidas</h2>
             </div>
-            <button class="w-full mt-4 text-center text-sm font-medium text-slate-300 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 transition duration-200">
-                Ver todas as ações &gt;
-            </button>
+            <div class="vg-acoes-lista">
+                <a href="/dashboard/produtos" class="vg-acao-item">
+                    <div class="vg-acao-icone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                    </div>
+                    <div>
+                        <span class="vg-acao-titulo">Novo produto</span>
+                        <span class="vg-acao-sub">Cadastrar item no catálogo</span>
+                    </div>
+                    <svg class="vg-acao-seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="/dashboard/vendas" class="vg-acao-item">
+                    <div class="vg-acao-icone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                    </div>
+                    <div>
+                        <span class="vg-acao-titulo">Registrar venda</span>
+                        <span class="vg-acao-sub">Lançar nova transação</span>
+                    </div>
+                    <svg class="vg-acao-seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="/dashboard/fornecedores" class="vg-acao-item">
+                    <div class="vg-acao-icone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div>
+                        <span class="vg-acao-titulo">Novo fornecedor</span>
+                        <span class="vg-acao-sub">Adicionar ao cadastro</span>
+                    </div>
+                    <svg class="vg-acao-seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="/dashboard/vendas" class="vg-acao-item">
+                    <div class="vg-acao-icone">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <div>
+                        <span class="vg-acao-titulo">Ver relatórios</span>
+                        <span class="vg-acao-sub">Analisar desempenho</span>
+                    </div>
+                    <svg class="vg-acao-seta" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
         </div>
+
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-semibold">Vendas recentes</h3>
-                <a href="/dashboard/vendas" class="text-xs text-blue-400 hover:underline">Ver todas &gt;</a>
+    <!-- TABELA + ESTOQUE -->
+    <div class="vg-linha-baixo">
+
+        <div class="vg-panel vg-panel-tabela">
+            <div class="vg-panel-header">
+                <div>
+                    <h2 class="vg-panel-titulo">Vendas recentes</h2>
+                    <p class="vg-panel-sub">Últimas transações registradas</p>
+                </div>
+                <a href="/dashboard/vendas" class="vg-link-ver-todos">Ver todas</a>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm text-gray-300">
+            <div class="vg-tabela-wrapper">
+                <table class="vg-tabela">
                     <thead>
-                        <tr class="text-xs text-gray-400 border-b border-slate-700">
-                            <th class="pb-3">ID</th>
-                            <th class="pb-3">Cliente</th>
-                            <th class="pb-3">Data</th>
-                            <th class="pb-3">Valor</th>
-                            <th class="pb-3">Status</th>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Data</th>
+                            <th>Valor</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800">
+                    <tbody>
                         <tr>
-                            <td class="py-3 text-gray-400">#1258</td>
-                            <td class="py-3 font-medium">João Silva</td>
-                            <td class="py-3 text-xs text-gray-400">24/05/2024</td>
-                            <td class="py-3">R$ 1.250,00</td>
-                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                            <td class="vg-td-id">#1258</td>
+                            <td>João Silva</td>
+                            <td class="vg-td-data">24/05/2026</td>
+                            <td class="vg-td-valor">R$ 1.250,00</td>
+                            <td><span class="vg-badge vg-badge-ok">Concluída</span></td>
                         </tr>
                         <tr>
-                            <td class="py-3 text-gray-400">#1257</td>
-                            <td class="py-3 font-medium">Maria Oliveira</td>
-                            <td class="py-3 text-xs text-gray-400">24/05/2024</td>
-                            <td class="py-3">R$ 980,00</td>
-                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                            <td class="vg-td-id">#1257</td>
+                            <td>Maria Oliveira</td>
+                            <td class="vg-td-data">24/05/2026</td>
+                            <td class="vg-td-valor">R$ 980,00</td>
+                            <td><span class="vg-badge vg-badge-ok">Concluída</span></td>
                         </tr>
                         <tr>
-                            <td class="py-3 text-gray-400">#1256</td>
-                            <td class="py-3 font-medium">Pedro Santos</td>
-                            <td class="py-3 text-xs text-gray-400">23/05/2024</td>
-                            <td class="py-3">R$ 1.760,00</td>
-                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20">Pendente</span></td>
+                            <td class="vg-td-id">#1256</td>
+                            <td>Pedro Santos</td>
+                            <td class="vg-td-data">23/05/2026</td>
+                            <td class="vg-td-valor">R$ 1.760,00</td>
+                            <td><span class="vg-badge vg-badge-pendente">Pendente</span></td>
                         </tr>
                         <tr>
-                            <td class="py-3 text-gray-400">#1255</td>
-                            <td class="py-3 font-medium">Ana Costa</td>
-                            <td class="py-3 text-xs text-gray-400">23/05/2024</td>
-                            <td class="py-3">R$ 650,00</td>
-                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                            <td class="vg-td-id">#1255</td>
+                            <td>Ana Costa</td>
+                            <td class="vg-td-data">23/05/2026</td>
+                            <td class="vg-td-valor">R$ 650,00</td>
+                            <td><span class="vg-badge vg-badge-ok">Concluída</span></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-base font-semibold">Produtos com estoque baixo</h3>
-                <a href="/dashboard/produtos" class="text-xs text-blue-400 hover:underline">Ver todos</a>
+        <div class="vg-panel vg-panel-estoque">
+            <div class="vg-panel-header">
+                <div>
+                    <h2 class="vg-panel-titulo">Estoque baixo</h2>
+                    <p class="vg-panel-sub">Reposição necessária</p>
+                </div>
+                <a href="/dashboard/produtos" class="vg-link-ver-todos">Ver todos</a>
             </div>
-            <div class="flex flex-col gap-3">
-                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg">👕</span>
+            <div class="vg-estoque-lista">
+
+                <div class="vg-estoque-item">
+                    <div class="vg-estoque-info">
+                        <div class="vg-estoque-icone-produto">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/></svg>
+                        </div>
                         <div>
-                            <span class="text-xs font-medium block">Camiseta Básica</span>
-                            <span class="text-[10px] text-gray-400">Estoque: 5 unidades</span>
+                            <span class="vg-estoque-nome">Camiseta Básica</span>
+                            <span class="vg-estoque-qtd">5 unidades restantes</span>
                         </div>
                     </div>
-                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-red-500/20 text-red-400">Crítico</span>
+                    <span class="vg-badge vg-badge-critico">Crítico</span>
                 </div>
-                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg">🥛</span>
+
+                <div class="vg-estoque-item">
+                    <div class="vg-estoque-info">
+                        <div class="vg-estoque-icone-produto">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 010 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg>
+                        </div>
                         <div>
-                            <span class="text-xs font-medium block">Caneca Personalizada</span>
-                            <span class="text-[10px] text-gray-400">Estoque: 8 unidades</span>
+                            <span class="vg-estoque-nome">Caneca Personalizada</span>
+                            <span class="vg-estoque-qtd">8 unidades restantes</span>
                         </div>
                     </div>
-                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-amber-500/20 text-amber-400">Baixo</span>
+                    <span class="vg-badge vg-badge-pendente">Baixo</span>
                 </div>
-                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
-                    <div class="flex items-center gap-3">
-                        <span class="text-lg">🎒</span>
+
+                <div class="vg-estoque-item">
+                    <div class="vg-estoque-info">
+                        <div class="vg-estoque-icone-produto">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                        </div>
                         <div>
-                            <span class="text-xs font-medium block">Mochila Executiva</span>
-                            <span class="text-[10px] text-gray-400">Estoque: 12 unidades</span>
+                            <span class="vg-estoque-nome">Mochila Executiva</span>
+                            <span class="vg-estoque-qtd">12 unidades restantes</span>
                         </div>
                     </div>
-                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-amber-500/20 text-amber-400">Baixo</span>
+                    <span class="vg-badge vg-badge-pendente">Baixo</span>
                 </div>
+
             </div>
         </div>
+
     </div>
-    
-    <div class="text-center text-xs text-gray-500 mt-8">
-        © 2026 AAPM SENAI Brás. Todos os direitos reservados.
-    </div>
+
+    <!-- RODAPÉ -->
+    <p class="vg-rodape">© 2026 AAPM SENAI Brás. Todos os direitos reservados.</p>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('graficoVendas').getContext('2d');
-    
-    // Gradiente azul para preenchimento abaixo da linha igual ao seu mockup
-    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
-    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById('graficoVendas');
+    if (!ctx) return;
+
+    const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
+    gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
 
     new Chart(ctx, {
         type: 'line',
@@ -231,30 +276,53 @@
             datasets: [{
                 label: 'Faturamento',
                 data: [12000, 35000, 30000, 48000, 36000, 49000],
-                borderColor: '#3b82f6',
-                borderWidth: 3,
+                borderColor: '#818cf8',
+                borderWidth: 2,
                 backgroundColor: gradient,
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: '#3b82f6',
-                pointHoverRadius: 7
+                pointBackgroundColor: '#818cf8',
+                pointBorderColor: '#1e1e2e',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e1e2e',
+                    borderColor: 'rgba(255,255,255,0.08)',
+                    borderWidth: 1,
+                    titleColor: '#a1a1aa',
+                    bodyColor: '#ffffff',
+                    padding: 10,
+                    callbacks: {
+                        label: ctx => ' R$ ' + ctx.parsed.y.toLocaleString('pt-BR')
+                    }
+                }
+            },
             scales: {
-                x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-                y: { 
-                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
-                    ticks: { 
-                        color: '#94a3b8',
-                        callback: function(value) { return 'R$ ' + value / 1000 + 'k'; }
-                    } 
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: { color: '#52525b', font: { size: 11 } }
+                },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    border: { display: false },
+                    ticks: {
+                        color: '#52525b',
+                        font: { size: 11 },
+                        callback: v => 'R$ ' + (v / 1000) + 'k'
+                    }
                 }
             }
         }
     });
+});
 </script>
 {% endblock %}

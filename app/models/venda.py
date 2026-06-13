@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, String
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -7,14 +7,13 @@ class Venda(Base):
     __tablename__ = "vendas"
 
     id = Column(Integer, primary_key=True, index=True)
-    total = Column(Float, nullable=False, default=0.0)
+    comprador = Column(String(255), nullable=False) # <--- CORRIGIDO: Agora com tamanho máximo para o MySQL aceitar
+    produto_id = Column(Integer, ForeignKey("produtos.id"), nullable=False)
+    quantidade = Column(Integer, nullable=False, default=1)
+    preco_total = Column(Float, nullable=False, default=0.0)
     data_venda = Column(DateTime, default=datetime.utcnow)
     
-    # Chave estrangeira que diz qual funcionário realizou a venda
-    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    # Deixando opcional (nullable=True) para não bloquear seus testes iniciais
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
     
     usuario = relationship("Usuario")
-
-# DICA EXTRA PARA O FUTURO:
-# Sistemas de PDV profissionais geralmente têm uma tabela intermediária chamada 'ItemVenda' 
-# para listar quais produtos e quantas unidades foram compradas em uma mesma venda.

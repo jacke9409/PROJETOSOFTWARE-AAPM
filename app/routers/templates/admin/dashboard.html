@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM - SENAI Brás (Admin)</title>
-    
+    <title>AAPM — Painel Administrativo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="dashboard-body">
 
@@ -19,276 +19,93 @@
     </div>
 
     <div class="painel-admin-wrapper">
-        
+
+        <!-- HEADER -->
         <header class="dashboard-header-admin">
             <div class="header-titulos">
-                <h2><span>PAINEL</span> ADMINISTRATIVO</h2>
-                <p>Controle Interno — AAPM SENAI Brás</p>
+                <div class="header-logo-grupo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="header-logo-icon"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span class="header-marca">AAPM</span>
+                    <span class="header-separador">/</span>
+                    <span class="header-secao">Administrativo</span>
+                </div>
+                <p class="header-subtitulo">SENAI Brás — Controle Interno</p>
             </div>
             <div class="header-usuario">
-                <span>Olá, Administrador</span>
+                <div class="header-status-dot"></div>
+                <span class="header-usuario-nome">Administrador</span>
                 <div class="avatar-admin">AD</div>
             </div>
         </header>
 
         <div class="dashboard-corpo-admin">
-            
+
+            <!-- SIDEBAR -->
             <aside class="dashboard-sidebar-admin">
-                <div>
-                    <div class="sidebar-label-admin">MENU PRINCIPAL</div>
+                <nav>
+                    <p class="sidebar-label-admin">Navegação</p>
                     <ul class="sidebar-menu-admin">
-                        <li><a href="/dashboard" id="menu-inicio">🏠 Início</a></li>
-                        <li><a href="/dashboard/produtos" id="menu-produtos">📦 Produtos</a></li>
-                        <li><a href="/dashboard/categorias" id="menu-categorias">📂 Categorias</a></li>
-                        <li><a href="/dashboard/fornecedores" id="menu-fornecedores">🏢 Fornecedores</a></li>
-                        <li><a href="/dashboard/vendas" id="menu-vendas">🛒 Vendas</a></li>
+                        <li>
+                            <a href="/dashboard" id="menu-inicio">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                Início
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/dashboard/produtos" id="menu-produtos">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                Produtos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/dashboard/categorias" id="menu-categorias">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                                Categorias
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/dashboard/fornecedores" id="menu-fornecedores">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Fornecedores
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/dashboard/vendas" id="menu-vendas">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                                Vendas
+                            </a>
+                        </li>
                     </ul>
-                </div>
-                
+                </nav>
+
                 <div class="sidebar-footer-admin">
-                    <a href="/" class="btn-sair-admin">Sair do Painel</a>
+                    <a href="/" class="btn-sair-admin">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sair do Painel
+                    </a>
                 </div>
             </aside>
 
+            <!-- CONTEÚDO PRINCIPAL -->
             <main class="admin-conteudo-principal custom-scroll">
-                
-                {% block admin_content %}
-                <div class="p-2 font-sans">
-                    
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h1 class="text-2xl font-bold flex items-center gap-2">Olá, Administrador! 👋</h1>
-                            <p class="text-sm text-gray-400 mt-1">Bem-vindo ao painel de controle interno da AAPM SENAI Brás.</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="p-4 rounded-xl flex items-center justify-between card-painel-interno">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl bg-blue-600/20 text-blue-400 text-2xl">🛒</div>
-                                <div>
-                                    <span class="text-2xl font-bold block">1.248</span>
-                                    <span class="text-xs text-gray-400">Vendas este mês</span>
-                                </div>
-                            </div>
-                            <span class="text-xs text-green-400 font-medium flex items-center">↑ 12,5%</span>
-                        </div>
-
-                        <div class="p-4 rounded-xl flex items-center justify-between card-painel-interno">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl bg-purple-600/20 text-purple-400 text-2xl">📦</div>
-                                <div>
-                                    <span class="text-2xl font-bold block">{{ total_produtos }}</span>
-                                    <span class="text-xs text-gray-400">Produtos cadastrados</span>
-                                </div>
-                            </div>
-                            <span class="text-xs text-green-400 font-medium flex items-center">↑ 8,1%</span>
-                        </div>
-
-                        <div class="p-4 rounded-xl flex items-center justify-between card-painel-interno">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl bg-green-600/20 text-green-400 text-2xl">👥</div>
-                                <div>
-                                    <span class="text-2xl font-bold block">{{ total_fornecedores }}</span>
-                                    <span class="text-xs text-gray-400">Fornecedores ativos</span>
-                                </div>
-                            </div>
-                            <span class="text-xs text-green-400 font-medium flex items-center">↑ 3,2%</span>
-                        </div>
-
-                        <div class="p-4 rounded-xl flex items-center justify-between card-painel-interno">
-                            <div class="flex items-center gap-4">
-                                <div class="p-3 rounded-xl bg-amber-600/20 text-amber-400 text-2xl">💲</div>
-                                <div>
-                                    <span class="text-2xl font-bold block">R$ 45.760,00</span>
-                                    <span class="text-xs text-gray-400">Faturamento mensal</span>
-                                </div>
-                            </div>
-                            <span class="text-xs text-green-400 font-medium flex items-center">↑ 15,4%</span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                        <div class="lg:col-span-2 p-5 rounded-xl card-painel-interno">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-base font-semibold">Vendas dos últimos 6 meses</h3>
-                                <select class="bg-slate-800 text-xs text-gray-300 rounded px-2 py-1 border border-slate-700 outline-none">
-                                    <option>Últimos 6 meses</option>
-                                </select>
-                            </div>
-                            <div class="relative w-full h-64">
-                                <canvas id="graficoVendas"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="p-5 rounded-xl flex flex-col justify-between card-painel-interno">
-                            <div>
-                                <h3 class="text-base font-semibold mb-4">Ações rápidas</h3>
-                                <div class="grid grid-cols-1 gap-3">
-                                    <a href="/dashboard/produtos" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150 action-link-item">
-                                        <span class="text-xl">📦</span>
-                                        <div>
-                                            <span class="text-sm font-medium block text-white">Novo Produto</span>
-                                            <span class="text-xs text-gray-400">Cadastre um produto</span>
-                                        </div>
-                                    </a>
-                                    <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150 action-link-item">
-                                        <span class="text-xl">🛒</span>
-                                        <div>
-                                            <span class="text-sm font-medium block text-white">Nova Venda</span>
-                                            <span class="text-xs text-gray-400">Registrar uma venda</span>
-                                        </div>
-                                    </a>
-                                    <a href="/dashboard/fornecedores" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150 action-link-item">
-                                        <span class="text-xl">👥</span>
-                                        <div>
-                                            <span class="text-sm font-medium block text-white">Novo Fornecedor</span>
-                                            <span class="text-xs text-gray-400">Adicionar fornecedor</span>
-                                        </div>
-                                    </a>
-                                    <a href="/dashboard/vendas" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150 action-link-item">
-                                        <span class="text-xl">📊</span>
-                                        <div>
-                                            <span class="text-sm font-medium block text-white">Ver Relatórios</span>
-                                            <span class="text-xs text-gray-400">Analisar dados</span>
-                                        </div>
-                                    </a>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 text-center text-sm font-medium text-slate-300 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 transition duration-200">
-                                Ver todas as ações &gt;
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 p-5 rounded-xl card-painel-interno">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-base font-semibold">Vendas recentes</h3>
-                                <a href="/dashboard/vendas" class="text-xs text-blue-400 hover:underline">Ver todas &gt;</a>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm text-gray-300">
-                                    <thead>
-                                        <tr class="text-xs text-gray-400 border-b border-slate-700">
-                                            <th class="pb-3">ID</th>
-                                            <th class="pb-3">Cliente</th>
-                                            <th class="pb-3">Data</th>
-                                            <th class="pb-3">Valor</th>
-                                            <th class="pb-3">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-800">
-                                        <tr>
-                                            <td class="py-3 text-gray-400">#1258</td>
-                                            <td class="py-3 font-medium">João Silva</td>
-                                            <td class="py-3 text-xs text-gray-400">24/05/2026</td>
-                                            <td class="py-3">R$ 1.250,00</td>
-                                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-3 text-gray-400">#1257</td>
-                                            <td class="py-3 font-medium">Maria Oliveira</td>
-                                            <td class="py-3 text-xs text-gray-400">24/05/2026</td>
-                                            <td class="py-3">R$ 980,00</td>
-                                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-3 text-gray-400">#1256</td>
-                                            <td class="py-3 font-medium">Pedro Santos</td>
-                                            <td class="py-3 text-xs text-gray-400">23/05/2026</td>
-                                            <td class="py-3">R$ 1.760,00</td>
-                                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20">Pendente</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="p-5 rounded-xl card-painel-interno">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-base font-semibold">Produtos com estoque baixo</h3>
-                                <a href="/dashboard/produtos" class="text-xs text-blue-400 hover:underline">Ver todos</a>
-                            </div>
-                            <div class="flex flex-col gap-3">
-                                <div class="flex items-center justify-between p-2 rounded-lg bg-estoque-item">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-lg">👕</span>
-                                        <div>
-                                            <span class="text-xs font-medium block">Camiseta Básica</span>
-                                            <span class="text-[10px] text-gray-400">Estoque: 5 unidades</span>
-                                        </div>
-                                    </div>
-                                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-red-500/20 text-red-400">Crítico</span>
-                                </div>
-                                <div class="flex items-center justify-between p-2 rounded-lg bg-estoque-item">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-lg">🥛</span>
-                                        <div>
-                                            <span class="text-xs font-medium block">Caneca Personalizada</span>
-                                            <span class="text-[10px] text-gray-400">Estoque: 8 unidades</span>
-                                        </div>
-                                    </div>
-                                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-amber-500/20 text-amber-400">Baixo</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <script>
-                    const ctx = document.getElementById('graficoVendas').getContext('2d');
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-                    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
-                    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
-
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-                            datasets: [{
-                                label: 'Faturamento',
-                                data: [35000, 30000, 48000, 36000, 49000, 55000],
-                                borderColor: '#3b82f6',
-                                borderWidth: 3,
-                                backgroundColor: gradient,
-                                fill: true,
-                                tension: 0.4,
-                                pointBackgroundColor: '#3b82f6',
-                                pointHoverRadius: 7
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
-                                y: { 
-                                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
-                                    ticks: { 
-                                        color: '#94a3b8',
-                                        callback: function(value) { return 'R$ ' + value / 1000 + 'k'; }
-                                    } 
-                                }
-                            }
-                        }
-                    });
-                </script>
-                {% endblock %}
-
+                {% block admin_content %}{% endblock %}
             </main>
+
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const path = window.location.pathname;
-            if (path === "/dashboard/produtos") document.getElementById("menu-produtos")?.classList.add("active");
-            else if (path === "/dashboard/categorias") document.getElementById("menu-categorias")?.classList.add("active");
-            else if (path === "/dashboard/fornecedores") document.getElementById("menu-fornecedores")?.classList.add("active");
-            else if (path === "/dashboard/vendas") document.getElementById("menu-vendas")?.classList.add("active");
-            else if (path === "/dashboard" || path.includes("visaogeral")) document.getElementById("menu-inicio")?.classList.add("active");
+            const mapa = {
+                "/dashboard/produtos":     "menu-produtos",
+                "/dashboard/categorias":   "menu-categorias",
+                "/dashboard/fornecedores": "menu-fornecedores",
+                "/dashboard/vendas":       "menu-vendas",
+            };
+            const ativo = mapa[path] || "menu-inicio";
+            document.getElementById(ativo)?.classList.add("active");
         });
     </script>
     <script src="{{ url_for('static', path='js/script.js') }}"></script>
