@@ -689,7 +689,6 @@ body.modo-painel-ativo #universo-publico {
 /* Micro-rodapé interno dos painéis */
 .vg-rodape { font-size: 0.68rem; color: #27272a; text-align: center; padding: 8px 0 0; }
 
-
 /* ==========================================================================
    9. PRODUTOS — CARDS E GRADE (ADMINISTRATIVO)
    ========================================================================== */
@@ -705,8 +704,14 @@ body.modo-painel-ativo #universo-publico {
 
 /* Grade responsiva que quebra os cards automaticamente dependendo da largura da tela */
 .prod-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(195px, 1fr)); gap: 22px; }
+
 /* Card falso cinza piscando para efeito de carregamento (Skeleton Screen) */
 .prod-skeleton { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; height: 280px; animation: shimmer 1.4s ease-in-out infinite alternate; }
+
+@keyframes shimmer {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
 
 /* Estrutura do card de produto no painel administrativo */
 .prod-card {
@@ -719,12 +724,19 @@ body.modo-painel-ativo #universo-publico {
     color: #fff;
     display: flex;
     flex-direction: column;
-    opacity: 0; /* Entra invisível e ganha opacidade via JS/Animação */
-    transform: translateY(28px) scale(0.95);
-    transition: background 0.3s, box-shadow 0.3s, border-color 0.3s;
-    animation: flutuarEfeito 5s ease-in-out infinite alternate; /* Aplica balanço individual */
+    opacity: 1; /* Mantido em 1 para renderização imediata controlada por JS */
+    transform: translateY(0);
+    transition: background 0.3s, box-shadow 0.3s, border-color 0.3s, transform 0.3s;
+    animation: flutuarEfeito 5s ease-in-out infinite alternate;
 }
-/* Atrasos individuais na animação de flutuar para os cards não balançarem todos juntos iguais */
+
+/* Criada a animação que estava faltando e quebrava o layout */
+@keyframes flutuarEfeito {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-6px); }
+}
+
+/* Atrasos individuais na animação de flutuar */
 .prod-card:nth-child(1) { animation-delay: 0s;   }
 .prod-card:nth-child(2) { animation-delay: 0.6s; }
 .prod-card:nth-child(3) { animation-delay: 1.2s; }
@@ -733,14 +745,17 @@ body.modo-painel-ativo #universo-publico {
 .prod-card:nth-child(6) { animation-delay: 3.0s; }
 
 .prod-card:hover { background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.18); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4); }
+
 /* Bloco da foto do produto dentro do card */
 .prod-card-img { width: 100%; height: 140px; object-fit: cover; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.25); font-size: 2.2rem; }
 .prod-card-img img { width: 100%; height: 100%; object-fit: cover; }
+
 /* Corpo de textos do card */
 .prod-card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.prod-card-body h4 { font-size: 0.95rem; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Corta o texto com "..." se o nome do produto for muito longo */ }
+.prod-card-body h4 { font-size: 0.95rem; font-weight: 700; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .prod-card-tamanho { font-size: 0.72rem; color: rgba(255,255,255,0.55); }
 .prod-card-preco { font-size: 1rem; font-weight: 700; color: #818cf8; margin-top: 2px; }
+
 /* Tags de status interno (Disponível / Esgotado) */
 .prod-card-status { font-size: 0.68rem; padding: 2px 9px; border-radius: 8px; display: inline-block; margin-top: 4px; width: fit-content; }
 .status-ok  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
@@ -754,76 +769,143 @@ body.modo-painel-ativo #universo-publico {
 .btn-editar  { background: linear-gradient(135deg, #e67e22, #d35400); color: #fff; }
 .btn-deletar { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
 
-/* Mensagem amigável exibida caso nenhum produto esteja cadastrado no banco */
+/* Mensagem amigável exibida caso nenhum produto esteja cadastrado */
 .prod-vazio { grid-column: 1 / -1; text-align: center; color: rgba(255,255,255,0.40); padding: 60px 0; font-size: 0.95rem; }
 .prod-vazio span { font-size: 2.5rem; display: block; margin-bottom: 10px; }
 
 
 /* ==========================================================================
-   10. MODAIS
-   ========================================================================== */
-/* Fundo preto semi-transparente que cobre a tela inteira quando o modal abre */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.60); backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.28s; }
-/* Classe injetada pelo JavaScript para exibir o modal na tela */
-.modal-overlay.visivel { opacity: 1; pointer-events: all; }
-
-/* Caixa branca/escura interna do modal (O formulário em si) */
-.modal-box { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 24px; padding: 36px 36px 30px; width: 440px; max-width: 94vw; color: #fff; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6); transform: translateY(22px) scale(0.96); transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s; opacity: 0; position: relative; }
-/* Efeito de subir e expandir suavemente quando o modal fica ativo */
-.modal-overlay.visivel .modal-box { transform: translateY(0) scale(1); opacity: 1; }
-
-.modal-titulo { font-size: 1.2rem; font-weight: 700; margin-bottom: 22px; letter-spacing: 0.4px; }
-/* O "X" de fechar o modal no canto superior direito */
-.modal-fechar { position: absolute; top: 16px; right: 20px; background: none; border: none; color: rgba(255,255,255,0.55); font-size: 1.4rem; cursor: pointer; transition: color 0.2s; line-height: 1; }
-.modal-fechar:hover { color: #fff; }
-
-/* Blocos de inputs dentro do formulário do modal */
-.modal-campo { margin-bottom: 16px; }
-.modal-campo label { display: block; font-size: 0.78rem; color: rgba(255,255,255,0.60); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
-.modal-campo input, .modal-campo select { width: 100%; padding: 11px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; color: #fff; font-size: 0.9rem; outline: none; box-sizing: border-box; }
-
-/* ==========================================================================
-   Ajuste de Layout para Páginas Internas (Admin / Dashboard)
+   10. MODAIS & FLUXO DE GALERIA COMPLEMENTAR
    ========================================================================== */
 
-/* Quando estiver em qualquer tela interna com tabelas/listas, suaviza o fundo */
-body.modo-painel-ativo .fundo-fixo,
-body[class*="painel"] .fundo-fixo {
-    opacity: 0.15; /* Deixa as nuvens e montanhas bem discretas ao fundo */
-    filter: blur(4px);
-    transition: opacity 0.5s ease;
+/* Estrutura base invisível do Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 7, 16, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: none; /* Alterado para trabalhar em sincronia com o inline .style.display do JS */
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, display 0.25s ease allow-discrete;
 }
 
-/* Garante que o container do Dashboard não seja esmagado pelas camadas do 3D */
-.dashboard-container {
-    position: relative;
+/* Estado Ativo do Modal disparado via JS */
+.modal-overlay.active {
+    display: flex !important;
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Caixa interna estilizada do Modal */
+.modal-box {
+    background: rgba(20, 26, 46, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 32px;
     width: 100%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    transform: translateY(20px);
+    transition: transform 0.25s ease;
+    color: #fff;
+}
+
+.modal-overlay.active .modal-box {
+    transform: translateY(0);
+}
+
+/* Fechamento (X), Título e Inputs básicos dos formulários */
+.modal-fechar { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: rgba(255, 255, 255, 0.4); font-size: 1.1rem; cursor: pointer; transition: color 0.15s; }
+.modal-fechar:hover { color: #fff; }
+.modal-titulo { font-size: 1.4rem; font-weight: 700; margin-bottom: 24px; letter-spacing: -0.3px; text-align: left; }
+.modal-campo { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; text-align: left; }
+.modal-campo label { font-size: 0.8rem; font-weight: 600; color: rgba(255, 255, 255, 0.6); text-transform: uppercase; }
+.modal-campo input, .modal-campo select { width: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; font-size: 0.92rem; outline: none; box-sizing: border-box; }
+.modal-campo input:focus, .modal-campo select:focus { border-color: #6bbfff; box-shadow: 0 0 10px rgba(107, 191, 255, 0.2); }
+.modal-linha { display: flex; gap: 16px; }
+.modal-linha .modal-campo { flex: 1; }
+.modal-rodape { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; }
+
+/* Botões genéricos do Modal */
+.btn-modal { padding: 12px 20px; font-weight: 700; font-size: 0.88rem; border-radius: 12px; cursor: pointer; border: none; transition: transform 0.15s, background 0.15s; }
+.btn-modal:active { transform: scale(0.97); }
+.btn-cancelar { background: rgba(255, 255, 255, 0.06); color: rgba(255, 255, 255, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); }
+.btn-cancelar:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.btn-confirmar-verde { background: linear-gradient(135deg, #27ae60, #1e8449); color: white; }
+.btn-confirmar-laranja { background: linear-gradient(135deg, #e67e22, #d35400); color: white; }
+.btn-confirmar-vermelho { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+.modal-exclusao-icone { font-size: 2.5rem; margin-bottom: 12px; text-align: center; }
+.modal-exclusao-msg { font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); text-align: center; }
+.modal-exclusao-nome { font-size: 1.05rem; font-weight: 700; color: #f87171; margin-top: 4px; text-align: center; }
+
+/* Caixa/Botão de Preview de Imagem dentro dos Formulários */
+.container-seletor-imagem {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.22s, border-color 0.22s, transform 0.15s;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+}
+.container-seletor-imagem:hover { background: rgba(0, 0, 0, 0.4); border-color: rgba(107, 191, 255, 0.5); transform: translateY(-1px); }
+.container-seletor-imagem:active { transform: translateY(1px); }
+.container-seletor-imagem img { width: 48px; height: 48px; object-fit: contain; background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 4px; border: 1px solid rgba(255, 255, 255, 0.1); }
+.container-seletor-imagem span { font-size: 0.88rem; color: rgba(107, 191, 255, 0.9); font-weight: 600; }
+
+/* Nova Grade de Mídias dentro do Modal de Galeria (Mapeado também para ID Dinâmico usado pelo JS) */
+.galeria-imagens-grid, #galeria-grid-dinamico { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
+    gap: 12px; 
+    max-height: 360px; 
+    overflow-y: auto; 
+    padding-right: 6px; 
+    margin-bottom: 8px; 
+}
+.galeria-imagens-grid::-webkit-scrollbar, #galeria-grid-dinamico::-webkit-scrollbar { width: 6px; }
+.galeria-imagens-grid::-webkit-scrollbar-track, #galeria-grid-dinamico::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+.galeria-imagens-grid::-webkit-scrollbar-thumb, #galeria-grid-dinamico::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.25); border-radius: 10px; }
+.galeria-imagens-grid::-webkit-scrollbar-thumb:hover, #galeria-grid-dinamico::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+/* Modificação no item da galeria */
+.galeria-imagens-grid .galeria-item, #galeria-grid-dinamico .galeria-item { aspect-ratio: 1; background: rgba(0, 0, 0, 0.35); border: 2px solid transparent; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 10px; transition: transform 0.2s, border-color 0.2s, background 0.2s; box-sizing: border-box; }
+.galeria-imagens-grid .galeria-item:hover, #galeria-grid-dinamico .galeria-item:hover { transform: scale(1.05); background: rgba(255, 255, 255, 0.05); }
+.galeria-imagens-grid .galeria-item.selecionada, #galeria-grid-dinamico .galeria-item.selecionada { border-color: #6bbfff; background: rgba(107, 191, 255, 0.1); box-shadow: 0 0 12px rgba(107, 191, 255, 0.2); }
+.galeria-imagens-grid .galeria-item img, #galeria-grid-dinamico .galeria-item img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; }
+
+
+/* ==========================================================================
+   11. AJUSTES DE LAYOUT PARA PÁGINAS INTERNAS (ADMIN / DASHBOARD)
+   ========================================================================== */
+body.modo-painel-ativo .fundo-fixo { opacity: 0.15; filter: blur(6px); transition: opacity 0.5s ease, filter 0.5s ease; }
+
+.painel-admin-wrapper {
+    position: relative;
+    width: 100vw;
     height: 100vh;
     z-index: 5;
     display: flex;
     flex-direction: column;
-    background: rgba(10, 24, 48, 0.85); /* Fundo escuro elegante semi-transparente */
+    background: rgba(11, 19, 41, 0.4);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 }
 
-/* Corrige o topo do painel para os títulos não sumirem atrás das nuvens */
-.dashboard-header {
-    padding: 30px;
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Força o fundo decorativo a ignorar cliques do mouse, deixando passar para os inputs */
-.fundo-fixo, 
-.sky, 
-.camada-nuvens, 
-.camada-montanhas-fundo {
+.fundo-fixo, .sky, .camada-nuvens, .camada-montanhas-fundo, .camada-montanhas-frente, .camada-arvores {
     pointer-events: none !important;
 }
 
-/* Garante que o card de login e tudo dentro dele capture os cliques perfeitamente */
-.card-glass-login,
-.card-glass-login *,
-.container-login-centralizado {
+.card-glass-login, .painel-admin-wrapper, .modal-overlay, .container-seletor-imagem {
     pointer-events: auto !important;
 }

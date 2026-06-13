@@ -299,13 +299,18 @@ function destacarProduto(elemento) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. CONTROLE VISUAL DOS MODAIS
+// 3. CONTROLE VISUAL DOS MODAIS (Ajustado para classe .active do CSS + fallback display)
 // ─────────────────────────────────────────────────────────────────────────────
 function abrirModal(id) {
     const modal = document.getElementById(id);
-    if (!modal) return;
+    if (!modal) {
+        console.error(`Erro: O modal com id '${id}' não foi encontrado no HTML.`);
+        return;
+    }
     
-    modal.classList.add("visivel");
+    modal.classList.add("active");
+    modal.style.display = "flex"; // Força exibição independente de restrições do CSS básico
+    
     if (id !== "modal-galeria-midia") {
         document.body.style.overflow = "hidden";
     }
@@ -315,7 +320,9 @@ function fecharModal(id) {
     const modal = document.getElementById(id);
     if (!modal) return;
 
-    modal.classList.remove("visivel");
+    modal.classList.remove("active");
+    modal.style.display = "none";
+    
     if (id !== "modal-galeria-midia") {
         document.body.style.overflow = "";
     }
@@ -344,11 +351,15 @@ function renderizarCards() {
         const card = criarCard(produto, i);
         grade.appendChild(card);
 
-        gsap.to(card, {
-            opacity: 1, y: 0, scale: 1,
-            duration: 0.5, delay: i * 0.10,
-            ease: "back.out(1.4)"
-        });
+        if (typeof gsap !== "undefined") {
+            gsap.to(card, {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.5, delay: i * 0.10,
+                ease: "back.out(1.4)"
+            });
+        } else {
+            card.style.opacity = "1";
+        }
     });
 }
 
@@ -366,7 +377,7 @@ function criarCard(p, i) {
         <div class="prod-card-img">${imgHtml}</div>
         <div class="prod-card-body">
             <h4 title="${p.nome}">${p.nome}</h4>
-            <span class="prod-card-tamanho">Tamanho: ${p.tamanho}</span>
+            <span class="prod-card-tamanho">Tamanho: ${p.tamanho || "N/A"}</span>
             <span class="prod-card-preco">R$ ${precoFormatado}</span>
             <span class="prod-card-status ${p.disponivel ? 'status-ok' : 'status-off'}">
                 ${p.disponivel ? "Disponível" : "Indisponível"}
@@ -506,9 +517,11 @@ function abrirModalEditar(id) {
     if (document.getElementById("edit-id")) document.getElementById("edit-id").value = p.id;
     if (document.getElementById("edit-nome")) document.getElementById("edit-nome").value = p.nome;
     if (document.getElementById("edit-preco")) document.getElementById("edit-preco").value = p.preco;
+    if (document.getElementById("edit-quantidade")) document.getElementById("edit-quantidade").value = p.quantidade || 0;
     if (document.getElementById("edit-tamanho")) document.getElementById("edit-tamanho").value = p.tamanho;
     if (document.getElementById("edit-disponivel")) document.getElementById("edit-disponivel").value = p.disponivel ? "1" : "0";
     if (document.getElementById("edit-categoria-id")) document.getElementById("edit-categoria-id").value = p.categoria_id || "";
+    
     const inputImg = document.getElementById("img-selecionada-editar");
     if (inputImg) inputImg.value = p.imagem_url || "/static/assets/Camisa malha branca.svg";
 
@@ -567,7 +580,7 @@ async function confirmarDelecao() {
             fecharModal("modal-deletar");
 
             const card = document.querySelector(`.prod-card[data-id="${produtoDeletarId}"]`);
-            if (card) {
+            if (card && typeof gsap !== "undefined") {
                 gsap.to(card, {
                     opacity: 0, scale: 0.7, y: -20,
                     duration: 0.4,
@@ -587,6 +600,8 @@ async function confirmarDelecao() {
                         }
                     }
                 });
+            } else {
+                location.reload();
             }
         } else {
             alert("Erro ao deletar produto.");
@@ -825,7 +840,7 @@ async function confirmarDelecaoFornecedor() {
 
             const btnId = document.querySelector(`button[data-id="${fornecedorDeletarId}"]`);
             const linha = document.getElementById(`linha-fornecedor-${fornecedorDeletarId}`) || (btnId ? btnId.closest('tr') : null);
-            if (linha) {
+            if (linha && typeof gsap !== "undefined") {
                 gsap.to(linha, {
                     opacity: 0, x: -30, duration: 0.35, ease: "power2.in",
                     onComplete: () => {
@@ -898,112 +913,28 @@ async function enviarVenda(event) {
         return;
     }
 
-    const payload = {
-        comprador: document.getElementById('comprador').value,
-        produto_id: parseInt(document.getElementById('produto_id').value),
-        quantidade: parseInt(document.getElementById('quantidade').value),
-        preco_total: precoTotalCalculado
-    };
+    const form = document.getElementById('form-nova-venda');
+    if (!form) return;
+
+    const dadosForm = new FormData(form);
+    const payload = Object.fromEntries(dadosForm);
 
     try {
-        const resposta = await fetch('/admin/vendas', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        const resp = await fetch("/admin/vendas", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        if (resposta.ok) {
-            fecharModalVenda();
+        if (resp.ok) {
+            fecharModal("modal-venda");
             location.reload();
         } else {
-            const erro = await resposta.json().catch(() => ({}));
-            alert(erro.detail || "Erro ao registrar a venda no servidor.");
+            const erro = await resp.json().catch(() => ({}));
+            alert(erro.detail || "Erro ao processar a venda. Verifique se há estoque suficiente.");
         }
     } catch (e) {
-        console.error("Erro na conexão: ", e);
+        console.error("Erro ao registrar venda:", e);
         alert("Erro de conexão com o servidor.");
-    }
-}
-
-function dispararExtrato(botao) {
-    const comprador = botao.getAttribute('data-comprador');
-    const produto = botao.getAttribute('data-produto');
-    const qtd = botao.getAttribute('data-quantidade');
-    const total = botao.getAttribute('data-total');
-    
-    gerarExtrato(comprador, produto, qtd, total);
-}
-
-function gerarExtrato(comprador, produto, qtd, total) {
-    const dataEmissao = new Date().toLocaleString('pt-BR');
-    const conteudoCupom = `
-========================================
-         COMPROVANTE DE VENDA
-                AAPM                   
-========================================
-Emissão: ${dataEmissao}
-Comprador: ${comprador}
-----------------------------------------
-Item Pago:
-> ${produto}
-Quantidade: ${qtd}x
-
-Valor Pago: R$ ${total}
-----------------------------------------
-Obrigado por colaborar com a AAPM!
-Guarde este extrato como comprovante.
-========================================
-    `;
-
-    const blob = new Blob([conteudoCupom], { type: 'text/plain;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Extrato_Venda_${comprador.replace(/\s+/g, '_')}.txt`;
-    link.click();
-}
-
-function abrirModalEditarVenda(id, comprador, quantidade, precoTotal, produtoId) {
-    if (document.getElementById('edit-venda-id')) document.getElementById('edit-venda-id').value = id;
-    if (document.getElementById('edit-comprador')) document.getElementById('edit-comprador').value = comprador;
-    if (document.getElementById('edit-quantidade')) document.getElementById('edit-quantidade').value = quantidade;
-    if (document.getElementById('edit-total')) document.getElementById('edit-total').value = parseFloat(precoTotal).toFixed(2);
-    if (document.getElementById('edit-produto-id')) document.getElementById('edit-produto-id').value = produtoId || "";
-
-    abrirModal('modal-editar-venda');
-}
-
-function fecharModalEditarVenda() {
-    fecharModal('modal-editar-venda');
-}
-
-async function enviarAtualizacaoVenda(event) {
-    event.preventDefault();
-    
-    const id = document.getElementById('edit-venda-id').value;
-    const produtoIdInput = document.getElementById('edit-produto-id');
-    
-    const payload = {
-        comprador: document.getElementById('edit-comprador').value,
-        quantidade: parseInt(document.getElementById('edit-quantidade').value),
-        preco_total: parseFloat(document.getElementById('edit-total').value),
-        produto_id: produtoIdInput ? parseInt(produtoIdInput.value) : 1 
-    };
-
-    try {
-        const resposta = await fetch(`/admin/vendas/${id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (resposta.ok) {
-            fecharModalEditarVenda();
-            location.reload(); 
-        } else {
-            const erro = await resposta.json().catch(() => ({}));
-            alert(erro.detail || "Erro ao atualizar registro de venda.");
-        }
-    } catch (e) {
-        console.error("Erro na atualização da venda: ", e);
     }
 }
