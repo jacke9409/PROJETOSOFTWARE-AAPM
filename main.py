@@ -13,7 +13,7 @@ from app.database import get_db
 from app.models.produto import Produto
 from app.models.categoria import Categoria
 from app.models.usuario import Usuario
-from app.models.fornecedor import Fornecedor  # 👈 1. IMPORTAÇÃO DO MODELO DE FORNECEDOR
+from app.models.fornecedor import Fornecedor 
 
 app = FastAPI()
 
@@ -42,7 +42,6 @@ class ProdutoSchema(BaseModel):
 class CategoriaSchema(BaseModel):
     nome: str
 
-# 🌟 2. SCHEMA DE FORNECEDORES (Garante o contrato de dados perfeito com o JS)
 class FornecedorSchema(BaseModel):
     nome_fantasia: str
     cnpj: str
@@ -103,18 +102,43 @@ async def processar_login(
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
+    # 1. Coleta os contadores numéricos para alimentar os cards superiores de métricas
+    total_produtos = db.query(Produto).count()
+    total_categorias = db.query(Categoria).count()
+    total_fornecedores = db.query(Fornecedor).count()
+    
+    # 2. Coleta os objetos de dados completos para o JavaScript local e modais
     produtos_do_banco = db.query(Produto).all()
     categorias_do_banco = db.query(Categoria).all()
+    fornecedores_do_banco = db.query(Fornecedor).all()
     
     categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
+    fornecedores_json = [
+        {
+            "id": f.id,
+            "nome_fantasia": f.nome_fantasia,
+            "cnpj": f.cnpj,
+            "telefone": f.telefone,
+            "email": f.email,
+            "localidade": f.localidade,
+            "nome_contato": f.nome_contato
+        }
+        for f in fornecedores_do_banco
+    ]
     
+    # 3. Retorna o painel com gráficos diretamente na raiz do Dashboard (/dashboard)
     return templates.TemplateResponse(
         request=request,
         name="admin/dashboard.html",  
         context={
+            "total_produtos": total_produtos,
+            "total_categorias": total_categorias,
+            "total_fornecedores": total_fornecedores,
             "produtos": produtos_do_banco,
             "categorias": categorias_do_banco,
-            "categorias_json": categorias_json
+            "fornecedores": fornecedores_do_banco,
+            "categorias_json": categorias_json,
+            "fornecedores_json": fornecedores_json
         }
     )
 
@@ -149,12 +173,10 @@ async def pagina_dashboard_categorias(request: Request, db: Session = Depends(ge
     )
 
 
-# 🌟 3. ROTA DE FORNECEDORES ATUALIZADA (Puxa os dados do MySQL e injeta no HTML/JS)
 @app.get("/dashboard/fornecedores", response_class=HTMLResponse)
 async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(get_db)):
     fornecedores_do_banco = db.query(Fornecedor).all()
     
-    # Cria o array JSON idêntico ao padrão de categorias para abastecer o FORNECEDORES_DB do front
     fornecedores_serializados = [
         {
             "id": f.id,
@@ -201,7 +223,7 @@ async def listar_imagens_galeria():
         imagens = [
             f"/static/assets/{arq}" 
             for arq in arquivos 
-            for arq in [arq] if arq.lower().endswith(extensoes_permitidas)
+            if arq.lower().endswith(extensoes_permitidas)
         ]
         return {"imagens": sorted(imagens)}
         
@@ -295,11 +317,10 @@ async def deletar_categoria(categoria_id: int, db: Session = Depends(get_db)):
         )
 
 
-# 🌟 4. CRUD FORNECEDORES (ENDPOINTS DA API REST)
+# --- CRUD FORNECEDORES ---
 
 @app.post("/admin/fornecedores")
 async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db)):
-    # Tratamento de erro caso tentem cadastrar um CNPJ repetido
     cnpj_existente = db.query(Fornecedor).filter(Fornecedor.cnpj == dados.cnpj).first()
     if cnpj_existente:
         raise HTTPException(status_code=400, detail="Já existe um fornecedor cadastrado com este CNPJ.")
@@ -320,11 +341,10 @@ async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db
 
 @app.put("/admin/fornecedores/{fornecedor_id}")
 async def atualizar_fornecedor(fornecedor_id: int, dados: FornecedorSchema, db: Session = Depends(get_db)):
-    fornecedor = db.query(Fornecedor).filter(Fornecedor.id == proveedor_id if False else Fornecedor.id == fornecedor_id).first()
+    fornecedor = db.query(Fornecedor).filter(Fornecedor.id == fornecedor_id).first()
     if not fornecedor:
         raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
     
-    # Atualiza cada propriedade enviada no formulário
     fornecedor.nome_fantasia = dados.nome_fantasia
     fornecedor.cnpj          = dados.cnpj
     fornecedor.telefone      = dados.telefone

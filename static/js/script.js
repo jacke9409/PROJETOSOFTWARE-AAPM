@@ -16,12 +16,21 @@ let imagemTemporariaSelecionada = null;
 // Bancos de dados em memória populados pelo backend (FastAPI/Jinja2)
 let PRODUTOS_DB = [];
 let CATEGORIAS_DB = []; 
-let FORNECEDORES_DB = []; // 🌟 Variável global de fornecedores mapeada
+let FORNECEDORES_DB = []; 
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. INICIALIZAÇÃO DA APLICAÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+    
+    // 📊 RECONHECIMENTO DA PÁGINA DE VISÃO GERAL
+    // Ajustado para mapear o ID 'chartVendas' definido no CSS/HTML de Visão Geral
+    const graficoCanvas = document.getElementById("chartVendas");
+    if (graficoCanvas) {
+        console.log("📊 Painel de Visão Geral detectado. Inicializando gráficos...");
+        inicializarGraficoVisaoGeral(graficoCanvas);
+    }
+
     // Captura os dados de PRODUTOS injetados pelo backend
     const dadosElemento = document.getElementById("dados-produtos-backend");
     if (dadosElemento && dadosElemento.dataset.produtos) {
@@ -43,7 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 🌟 CAPTURA OS DADOS DE FORNECEDORES: Mapeia do container oculto do HTML
+    // CAPTURA OS DADOS DE FORNECEDORES
     const dadosFornElemento = document.getElementById("dados-fornecedores-backend");
     if (dadosFornElemento && dadosFornElemento.dataset.fornecedores) {
         try {
@@ -88,8 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Efeito de loading na grade de produtos: skeletons somem após 900ms
-    setTimeout(renderizarCards, 900);
+    // Efeito de loading na grade de produtos: só executa se a grade existir na página atual
+    if (document.getElementById("prod-grade")) {
+        setTimeout(renderizarCards, 900);
+    }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -453,7 +464,6 @@ async function confirmarDelecao() {
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. GERENCIAMENTO EXCLUSIVO DE CATEGORIAS (AAPM SENAI BRÁS)
 // ─────────────────────────────────────────────────────────────────────────────
-
 let categoriaDeletarId = null;
 
 function abrirModalCatAdicionar() {
@@ -570,14 +580,13 @@ async function confirmarDelecaoCategoria() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 🌟 8. GERENCIAMENTO EXCLUSIVO DE FORNECEDORES (NOVO)
+// 8. GERENCIAMENTO EXCLUSIVO DE FORNECEDORES
 // ─────────────────────────────────────────────────────────────────────────────
-
 let fornecedorDeletarId = null;
 
 function abrirModalFornAdicionar() {
     const form = document.getElementById("form-forn-adicionar");
-    if (form) form.reset(); // Limpa dados antigos antes de abrir
+    if (form) form.reset(); 
     abrirModal("modal-forn-adicionar");
 }
 
@@ -618,7 +627,6 @@ function abrirModalFornEditar(id) {
         return;
     }
 
-    // Preenche cirurgicamente os inputs do modal usando a base de dados em memória
     if (document.getElementById("edit-forn-id")) document.getElementById("edit-forn-id").value = forn.id;
     if (document.getElementById("edit-forn-nome")) document.getElementById("edit-forn-nome").value = forn.nome_fantasia;
     if (document.getElementById("edit-forn-cnpj")) document.getElementById("edit-forn-cnpj").value = forn.cnpj;
@@ -679,8 +687,9 @@ async function confirmarDelecaoFornecedor() {
         if (resp.ok) {
             fecharModal("modal-forn-deletar");
 
-            // Efeito visual GSAP na linha da tabela antes de forçar o recarregamento ou remoção
-            const linha = document.getElementById(`linha-fornecedor-{{ fornecedorDeletarId }}`) || document.querySelector(`button[data-id="${fornecedorDeletarId}"]`).closest('tr');
+            const linha = document.getElementById(`linha-fornecedor-${fornecedorDeletarId}`) || 
+                          document.querySelector(`tr[data-id="${fornecedorDeletarId}"]`);
+            
             if (linha) {
                 gsap.to(linha, {
                     opacity: 0,
@@ -689,7 +698,7 @@ async function confirmarDelecaoFornecedor() {
                     ease: "power2.in",
                     onComplete: () => {
                         linha.remove();
-                        location.reload(); // Recarrega para sincronizar totalmente o banco local
+                        location.reload();
                     }
                 });
             } else {
@@ -705,4 +714,53 @@ async function confirmarDelecaoFornecedor() {
     } finally {
         fornecedorDeletarId = null;
     }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 📈 9. GERENCIAMENTO EXCLUSIVO DA VISÃO GERAL (CHART.JS CORRIGIDO)
+// ─────────────────────────────────────────────────────────────────────────────
+function inicializarGraficoVisaoGeral(canvasElement) {
+    const ctx = canvasElement.getContext('2d');
+    
+    // Gradiente azul para acompanhar perfeitamente o background dark glassmorphism
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+            datasets: [{
+                label: 'Vendas (R$)',
+                data: [12000, 28000, 23000, 41000, 31000, 45000],
+                borderColor: '#3b82f6',
+                borderWidth: 3,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { 
+                    grid: { display: false }, 
+                    ticks: { color: 'rgba(255,255,255,0.45)', font: { size: 10 } } 
+                },
+                y: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    ticks: { 
+                        color: 'rgba(255,255,255,0.45)', 
+                        font: { size: 10 }, 
+                        callback: function(value) { return 'R$ ' + value / 1000 + 'k'; } 
+                    } 
+                }
+            }
+        }
+    });
 }

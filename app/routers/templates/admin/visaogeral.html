@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="p-6" style="background-color: #0d192d; min-height: 100vh; color: #fff; font-family: 'Inter', sans-serif;">
+    
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold flex items-center gap-2">
+                Olá, Administrador! 👋
+            </h1>
+            <p class="text-sm text-gray-400 mt-1">Bem-vindo ao painel de controle interno da AAPM SENAI Brás.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex items-center gap-4">
+                <div class="p-3 rounded-xl bg-blue-600/20 text-blue-400 text-2xl">
+                    🛒
+                </div>
+                <div>
+                    <span class="text-2xl font-bold block">1.248</span>
+                    <span class="text-xs text-gray-400">Vendas este mês</span>
+                </div>
+            </div>
+            <span class="text-xs text-green-400 font-medium flex items-center">↑ 12,5%</span>
+        </div>
+
+        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex items-center gap-4">
+                <div class="p-3 rounded-xl bg-purple-600/20 text-purple-400 text-2xl">
+                    📦
+                </div>
+                <div>
+                    <span class="text-2xl font-bold block">{{ total_produtos }}</span>
+                    <span class="text-xs text-gray-400">Produtos cadastrados</span>
+                </div>
+            </div>
+            <span class="text-xs text-green-400 font-medium flex items-center">↑ 8,1%</span>
+        </div>
+
+        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex items-center gap-4">
+                <div class="p-3 rounded-xl bg-green-600/20 text-green-400 text-2xl">
+                    👥
+                </div>
+                <div>
+                    <span class="text-2xl font-bold block">{{ total_fornecedores }}</span>
+                    <span class="text-xs text-gray-400">Fornecedores ativos</span>
+                </div>
+            </div>
+            <span class="text-xs text-green-400 font-medium flex items-center">↑ 3,2%</span>
+        </div>
+
+        <div class="p-4 rounded-xl flex items-center justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex items-center gap-4">
+                <div class="p-3 rounded-xl bg-amber-600/20 text-amber-400 text-2xl">
+                    💲
+                </div>
+                <div>
+                    <span class="text-2xl font-bold block">R$ 45.760,00</span>
+                    <span class="text-xs text-gray-400">Faturamento mensal</span>
+                </div>
+            </div>
+            <span class="text-xs text-green-400 font-medium flex items-center">↑ 15,4%</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-2 p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-semibold">Vendas dos últimos 6 meses</h3>
+                <select class="bg-slate-800 text-xs text-gray-300 rounded px-2 py-1 border border-slate-700 outline-none">
+                    <option>Últimos 6 meses</option>
+                </select>
+            </div>
+            <div class="relative w-full h-64">
+                <canvas id="graficoVendas"></canvas>
+            </div>
+        </div>
+
+        <div class="p-5 rounded-xl flex flex-col justify-between" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div>
+                <h3 class="text-base font-semibold mb-4">Ações rápidas</h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <a href="/dashboard/produtos" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
+                        <span class="text-xl">📦</span>
+                        <div>
+                            <span class="text-sm font-medium block">Novo Produto</span>
+                            <span class="text-xs text-gray-400">Cadastre um produto</span>
+                        </div>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
+                        <span class="text-xl">🛒</span>
+                        <div>
+                            <span class="text-sm font-medium block">Nova Venda</span>
+                            <span class="text-xs text-gray-400">Registrar uma venda</span>
+                        </div>
+                    </a>
+                    <a href="/dashboard/fornecedores" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
+                        <span class="text-xl">👥</span>
+                        <div>
+                            <span class="text-sm font-medium block">Novo Fornecedor</span>
+                            <span class="text-xs text-gray-400">Adicionar fornecedor</span>
+                        </div>
+                    </a>
+                    <a href="/dashboard/vendas" class="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/40 transition duration-150" style="background-color: #1c2b4e;">
+                        <span class="text-xl">📊</span>
+                        <div>
+                            <span class="text-sm font-medium block">Ver Relatórios</span>
+                            <span class="text-xs text-gray-400">Analisar dados</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <button class="w-full mt-4 text-center text-sm font-medium text-slate-300 py-2 border border-slate-700 rounded-lg hover:bg-slate-800 transition duration-200">
+                Ver todas as ações &gt;
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-semibold">Vendas recentes</h3>
+                <a href="/dashboard/vendas" class="text-xs text-blue-400 hover:underline">Ver todas &gt;</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-300">
+                    <thead>
+                        <tr class="text-xs text-gray-400 border-b border-slate-700">
+                            <th class="pb-3">ID</th>
+                            <th class="pb-3">Cliente</th>
+                            <th class="pb-3">Data</th>
+                            <th class="pb-3">Valor</th>
+                            <th class="pb-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        <tr>
+                            <td class="py-3 text-gray-400">#1258</td>
+                            <td class="py-3 font-medium">João Silva</td>
+                            <td class="py-3 text-xs text-gray-400">24/05/2024</td>
+                            <td class="py-3">R$ 1.250,00</td>
+                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-gray-400">#1257</td>
+                            <td class="py-3 font-medium">Maria Oliveira</td>
+                            <td class="py-3 text-xs text-gray-400">24/05/2024</td>
+                            <td class="py-3">R$ 980,00</td>
+                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-gray-400">#1256</td>
+                            <td class="py-3 font-medium">Pedro Santos</td>
+                            <td class="py-3 text-xs text-gray-400">23/05/2024</td>
+                            <td class="py-3">R$ 1.760,00</td>
+                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20">Pendente</span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-3 text-gray-400">#1255</td>
+                            <td class="py-3 font-medium">Ana Costa</td>
+                            <td class="py-3 text-xs text-gray-400">23/05/2024</td>
+                            <td class="py-3">R$ 650,00</td>
+                            <td class="py-3"><span class="px-2 py-0.5 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/20">Concluída</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="p-5 rounded-xl" style="background-color: #16223f; border: 1px solid #1e2d4a;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-semibold">Produtos com estoque baixo</h3>
+                <a href="/dashboard/produtos" class="text-xs text-blue-400 hover:underline">Ver todos</a>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg">👕</span>
+                        <div>
+                            <span class="text-xs font-medium block">Camiseta Básica</span>
+                            <span class="text-[10px] text-gray-400">Estoque: 5 unidades</span>
+                        </div>
+                    </div>
+                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-red-500/20 text-red-400">Crítico</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg">🥛</span>
+                        <div>
+                            <span class="text-xs font-medium block">Caneca Personalizada</span>
+                            <span class="text-[10px] text-gray-400">Estoque: 8 unidades</span>
+                        </div>
+                    </div>
+                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-amber-500/20 text-amber-400">Baixo</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: #1a2748;">
+                    <div class="flex items-center gap-3">
+                        <span class="text-lg">🎒</span>
+                        <div>
+                            <span class="text-xs font-medium block">Mochila Executiva</span>
+                            <span class="text-[10px] text-gray-400">Estoque: 12 unidades</span>
+                        </div>
+                    </div>
+                    <span class="px-1.5 py-0.5 text-[10px] rounded font-semibold bg-amber-500/20 text-amber-400">Baixo</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center text-xs text-gray-500 mt-8">
+        © 2026 AAPM SENAI Brás. Todos os direitos reservados.
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('graficoVendas').getContext('2d');
+    
+    // Gradiente azul para preenchimento abaixo da linha igual ao seu mockup
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.4)');
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+            datasets: [{
+                label: 'Faturamento',
+                data: [12000, 35000, 30000, 48000, 36000, 49000],
+                borderColor: '#3b82f6',
+                borderWidth: 3,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointHoverRadius: 7
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+                y: { 
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' }, 
+                    ticks: { 
+                        color: '#94a3b8',
+                        callback: function(value) { return 'R$ ' + value / 1000 + 'k'; }
+                    } 
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
