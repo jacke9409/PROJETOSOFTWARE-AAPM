@@ -909,3 +909,490 @@ body.modo-painel-ativo .fundo-fixo { opacity: 0.15; filter: blur(6px); transitio
 .card-glass-login, .painel-admin-wrapper, .modal-overlay, .container-seletor-imagem {
     pointer-events: auto !important;
 }
+/* ==========================================================================
+   12. UNIVERSO PÚBLICO — Scroll único com seções animadas
+   Cole este bloco substituindo a seção 12 atual no style.css
+   ========================================================================== */
+
+/* ── Container raiz ────────────────────────────────────────────────────── */
+#universo-publico {
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── NAVBAR ─────────────────────────────────────────────────────────────── */
+.pub-navbar {
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    background: rgba(10, 15, 30, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    z-index: 20;
+    position: relative;
+}
+
+.pub-navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pub-navbar-logo-icone {
+    width: 28px;
+    height: 28px;
+    background: rgba(201,155,70,0.18);
+    border: 1px solid rgba(201,155,70,0.38);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c99b46;
+}
+
+.pub-navbar-titulo {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.pub-navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pub-navbar-links li a,
+.pub-nav-link {
+    display: block;
+    padding: 6px 14px;
+    font-size: 0.80rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: color 0.18s, background 0.18s;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+}
+
+.pub-nav-link:hover {
+    color: rgba(255,255,255,0.95);
+    background: rgba(255,255,255,0.06);
+}
+
+.pub-nav-link.pub-ativo {
+    color: #c99b46;
+    background: rgba(201,155,70,0.12);
+}
+
+.pub-navbar-sair {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.50);
+    cursor: pointer;
+    transition: color 0.18s, border-color 0.18s, background 0.18s;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.pub-navbar-sair:hover {
+    color: rgba(255,255,255,0.90);
+    border-color: rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.05);
+}
+
+/* ── CORPO SCROLLÁVEL ────────────────────────────────────────────────────── */
+.pub-corpo {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+.pub-corpo::-webkit-scrollbar { width: 5px; }
+.pub-corpo::-webkit-scrollbar-track { background: transparent; }
+.pub-corpo::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+.pub-corpo::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
+
+/* ── HERO ────────────────────────────────────────────────────────────────── */
+.pub-hero {
+    width: 100%;
+    height: calc(100vh - 52px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+.pub-hero-titulo {
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    font-weight: 900;
+    color: #c99b46;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    text-shadow:
+        0 2px 0 rgba(100,60,0,0.5),
+        0 4px 24px rgba(0,0,0,0.5);
+    margin-bottom: 12px;
+    user-select: none;
+}
+
+.pub-hero-sub {
+    font-size: 0.98rem;
+    color: rgba(255,255,255,0.78);
+    letter-spacing: 0.4px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+}
+
+/* Seta pulsante de scroll */
+.pub-scroll-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.38);
+    cursor: pointer;
+    animation: pubBounce 2s ease-in-out infinite;
+    transition: color 0.2s;
+}
+
+.pub-scroll-hint:hover { color: rgba(255,255,255,0.70); }
+
+@keyframes pubBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0);   }
+    50%       { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ── SEÇÕES DE CONTEÚDO ──────────────────────────────────────────────────── */
+.pub-secao-conteudo {
+    /* Cada seção tem um fundo semi-escuro sobre o céu */
+    background: rgba(8, 14, 30, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 80px 0;
+}
+
+/* Animação de entrada — estado inicial (invisível, caído) */
+.pub-secao-animada {
+    opacity: 0;
+    transform: translateY(48px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+/* Estado visível disparado pelo IntersectionObserver */
+.pub-secao-animada.pub-visivel {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Delay escalonado para cada seção */
+#sec-catalogo { transition-delay: 0s;    }
+#sec-horarios { transition-delay: 0.08s; }
+#sec-servicos { transition-delay: 0.08s; }
+#sec-duvidas  { transition-delay: 0.08s; }
+
+.pub-secao-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+.pub-secao-inner-estreito {
+    max-width: 760px;
+}
+
+/* Cabeçalho de seção */
+.pub-secao-header {
+    margin-bottom: 40px;
+}
+
+.pub-secao-eyebrow {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #c99b46;
+    margin-bottom: 10px;
+}
+
+.pub-secao-titulo {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+}
+
+.pub-secao-desc {
+    font-size: 0.90rem;
+    color: rgba(255,255,255,0.48);
+    line-height: 1.6;
+}
+
+/* ── DIVISOR DECORATIVO ──────────────────────────────────────────────────── */
+.pub-divisor {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(201,155,70,0.20) 30%,
+        rgba(201,155,70,0.20) 70%,
+        transparent 100%
+    );
+}
+
+/* ── GRADE DE PRODUTOS ───────────────────────────────────────────────────── */
+.pub-grade {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
+    gap: 20px;
+}
+
+.pub-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.22s, border-color 0.22s, background 0.22s, box-shadow 0.22s;
+    cursor: pointer;
+    animation: pubFlutuarCard 5s ease-in-out infinite alternate;
+}
+
+.pub-card:nth-child(even) { animation-delay: 0.8s; }
+.pub-card:nth-child(3n)   { animation-delay: 1.6s; }
+
+@keyframes pubFlutuarCard {
+    0%   { transform: translateY(0px);  }
+    100% { transform: translateY(-6px); }
+}
+
+.pub-card:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(201,155,70,0.35);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.35);
+}
+
+.pub-card-img {
+    width: 100%;
+    height: 140px;
+    background: rgba(0,0,0,0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pub-card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.pub-card-emoji { font-size: 2.6rem; }
+
+.pub-card-body  { padding: 14px 16px; }
+
+.pub-card-nome {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.pub-card-tamanho { font-size: 0.72rem; color: rgba(255,255,255,0.42); margin-bottom: 6px; }
+.pub-card-preco   { font-size: 1rem; font-weight: 700; color: #c99b46; margin-bottom: 6px; }
+
+.pub-card-status {
+    font-size: 0.67rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.pub-status-ok  { background: rgba(34,197,94,0.10); color: #4ade80; border: 1px solid rgba(34,197,94,0.18); }
+.pub-status-off { background: rgba(239,68,68,0.10); color: #f87171; border: 1px solid rgba(239,68,68,0.18); }
+
+/* ── HORÁRIOS ────────────────────────────────────────────────────────────── */
+.pub-horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.pub-horario-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.pub-horario-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(201,155,70,0.25);
+}
+
+.pub-horario-icone {
+    width: 40px;
+    height: 40px;
+    background: rgba(201,155,70,0.12);
+    border: 1px solid rgba(201,155,70,0.22);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c99b46;
+    flex-shrink: 0;
+}
+
+.pub-horario-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.pub-horario-dia  { font-size: 0.82rem; font-weight: 600; color: #e4e4e7; }
+.pub-horario-hora { font-size: 0.75rem; color: rgba(255,255,255,0.45); }
+
+.pub-horario-badge {
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+}
+
+.pub-badge-aberto  { background: rgba(34,197,94,0.10);  color: #4ade80; border: 1px solid rgba(34,197,94,0.20); }
+.pub-badge-parcial { background: rgba(251,191,36,0.10); color: #fbbf24; border: 1px solid rgba(251,191,36,0.20); }
+.pub-badge-fechado { background: rgba(239,68,68,0.10);  color: #f87171; border: 1px solid rgba(239,68,68,0.18); }
+
+/* ── SERVIÇOS ────────────────────────────────────────────────────────────── */
+.pub-servicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+}
+
+.pub-servico-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 26px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+
+.pub-servico-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(201,155,70,0.28);
+    transform: translateY(-3px);
+}
+
+.pub-servico-icone {
+    width: 44px;
+    height: 44px;
+    background: rgba(201,155,70,0.12);
+    border: 1px solid rgba(201,155,70,0.22);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #c99b46;
+}
+
+.pub-servico-titulo { font-size: 0.92rem; font-weight: 700; color: #ffffff; }
+.pub-servico-desc   { font-size: 0.80rem; color: rgba(255,255,255,0.45); line-height: 1.6; }
+
+/* ── FAQ ─────────────────────────────────────────────────────────────────── */
+.pub-faq { display: flex; flex-direction: column; gap: 2px; }
+
+.pub-faq-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.pub-faq-item[open] {
+    background: rgba(201,155,70,0.06);
+    border-color: rgba(201,155,70,0.22);
+}
+
+.pub-faq-pergunta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 22px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.82);
+    cursor: pointer;
+    list-style: none;
+    transition: color 0.15s;
+    user-select: none;
+}
+
+.pub-faq-pergunta::-webkit-details-marker { display: none; }
+
+.pub-faq-pergunta::before {
+    content: '+';
+    width: 22px;
+    height: 22px;
+    background: rgba(201,155,70,0.12);
+    border: 1px solid rgba(201,155,70,0.28);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    color: #c99b46;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.pub-faq-item[open] .pub-faq-pergunta::before { content: '−'; background: rgba(201,155,70,0.20); }
+.pub-faq-pergunta:hover { color: #ffffff; }
+
+.pub-faq-resposta {
+    padding: 0 22px 18px 58px;
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.48);
+    line-height: 1.68;
+}
+
+/* ── RODAPÉ ──────────────────────────────────────────────────────────────── */
+.pub-rodape {
+    text-align: center;
+    padding: 28px 0;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.20);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.30);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
