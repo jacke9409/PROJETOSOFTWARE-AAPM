@@ -45,3 +45,4 @@ Rodar o script para popular o banco de dados (Seed):
 
 Bash
 python seed.py
+python -m uvicorn main:app --reload

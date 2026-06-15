@@ -4,14 +4,8 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Descobre a pasta raiz do projeto de forma dinâmica e aponta para o .env
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(dotenv_path=BASE_DIR / ".env")
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-# ... (o resto do código do seu database.py continua igual abaixo)
-if not DATABASE_URL:
-    raise ValueError("A variável DATABASE_URL não foi definida no arquivo .env")
+# 1. Forçamos a string de conexão correta com a senha 'root' que você alterou no Workbench
+DATABASE_URL = "mysql+pymysql://root:root@localhost:3307/aapm"
 
 # Configura o motor de conexão para o MySQL
 engine = create_engine(
@@ -22,7 +16,7 @@ engine = create_engine(
 # Cria a fábrica de sessões com o banco
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Classe base que todos os seus modelos (usuario, produto, etc.) vão herdar
+# Classe base que todos os seus modelos vão herdar
 Base = declarative_base()
 
 # Dependência que o FastAPI vai usar nas rotas para abrir e fechar a conexão
