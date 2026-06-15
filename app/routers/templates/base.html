@@ -11,26 +11,7 @@
 
     <div class="fundo-fixo" style="pointer-events: none; z-index: 1;">
         <div class="sky"></div>
-        <div class="camada-nuvens">
-            <svg width="100%" height="100%" viewBox="0 0 1400 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="160"  cy="100" rx="130" ry="55"  fill="white" opacity=".92"/>
-                <ellipse cx="240"  cy="80"  rx="90"  ry="48"  fill="white" opacity=".97"/>
-                <ellipse cx="80"   cy="110" rx="80"  ry="38"  fill="white" opacity=".85"/>
-                <ellipse cx="480"  cy="70"  rx="110" ry="45"  fill="white" opacity=".88"/>
-                <ellipse cx="570"  cy="52"  rx="80"  ry="38"  fill="white" opacity=".93"/>
-                <ellipse cx="390"  cy="80"  rx="75"  ry="33"  fill="white" opacity=".80"/>
-                <ellipse cx="750"  cy="90"  rx="120" ry="48"  fill="white" opacity=".78"/>
-                <ellipse cx="850"  cy="70"  rx="85"  ry="38"  fill="white" opacity=".70"/>
-                <ellipse cx="1050" cy="75"  rx="105" ry="44"  fill="white" opacity=".87"/>
-                <ellipse cx="1140" cy="55"  rx="78"  ry="36"  fill="white" opacity=".91"/>
-                <ellipse cx="960"  cy="85"  rx="68"  ry="30"  fill="white" opacity=".75"/>
-                <ellipse cx="1290" cy="95"  rx="95"  ry="42"  fill="white" opacity=".84"/>
-                <ellipse cx="1360" cy="78"  rx="65"  ry="32"  fill="white" opacity=".88"/>
-                <ellipse cx="300"  cy="170" rx="90"  ry="32"  fill="white" opacity=".50"/>
-                <ellipse cx="900"  cy="180" rx="100" ry="36"  fill="white" opacity=".45"/>
-                <ellipse cx="1200" cy="165" rx="80"  ry="28"  fill="white" opacity=".48"/>
-            </svg>
-        </div>
+        
         <div class="camada-montanhas-fundo">
             <svg width="100%" height="100%" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="0,340 0,180 100,100 200,160 340,70 480,140 620,50 760,130 900,60 1050,120 1200,55 1350,100 1400,80 1400,340" fill="#2a5080"/>
@@ -136,18 +117,10 @@
                     </div>
 
                     <ul class="pub-navbar-links">
-                        <li>
-                            <a href="#" class="pub-ativo" onclick="pubTrocarAba(this, 'pub-aba-home'); return false;">Catálogos</a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="pubTrocarAba(this, 'pub-aba-horarios'); return false;">Horários</a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="pubTrocarAba(this, 'pub-aba-servicos'); return false;">Serviços disponíveis</a>
-                        </li>
-                        <li>
-                            <a href="#" onclick="pubTrocarAba(this, 'pub-aba-duvidas'); return false;">Dúvidas</a>
-                        </li>
+                        <li><a href="#sec-catalogo" class="pub-nav-link pub-ativo">Catálogos</a></li>
+                        <li><a href="#sec-horarios" class="pub-nav-link">Horários</a></li>
+                        <li><a href="#sec-servicos" class="pub-nav-link">Serviços disponíveis</a></li>
+                        <li><a href="#sec-duvidas"  class="pub-nav-link">Dúvidas</a></li>
                     </ul>
 
                     <a class="pub-navbar-sair" onclick="voltarAoInicio(); return false;" href="#">
@@ -160,40 +133,223 @@
                     </a>
                 </nav>
 
-                <div class="pub-corpo">
-                    
-                    <div class="pub-aba pub-aba-ativa" id="pub-aba-home">
-                        </div>
+                <div class="pub-corpo" id="pub-corpo-scroll">
 
-                    <div class="pub-aba" id="pub-aba-horarios">
-                        <div class="pub-aba-conteudo">
-                            <h3>Horários de Atendimento</h3>
-                            <p>Segunda a Sexta: 08:00 às 17:00</p>
+                    <section class="pub-hero" id="sec-hero">
+                        <h2 class="pub-hero-titulo">BEM VINDO</h2>
+                        <p class="pub-hero-sub">Conheça nossos serviços e catálogos</p>
+                        <div class="pub-scroll-hint" onclick="var el = document.getElementById('sec-catalogo'); if(el) el.scrollIntoView({behavior:'smooth'})">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="pub-aba" id="pub-aba-servicos">
-                        <div class="pub-aba-conteudo">
-                            <h3>Serviços Disponíveis</h3>
-                            <p>Agendamentos, withdrawal de uniformes e materiais da AAPM.</p>
+                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-catalogo">
+                        <div class="pub-secao-inner">
+                            <div class="pub-secao-header">
+                                <span class="pub-secao-eyebrow">Produtos</span>
+                                <h3 class="pub-secao-titulo">Catálogos</h3>
+                                <p class="pub-secao-desc">Confira todos os itens disponíveis na AAPM.</p>
+                            </div>
+                            <div class="pub-grade">
+                                {% for produto in produtos %}
+                                <div class="pub-card">
+                                    <div class="pub-card-img">
+                                        {% if produto.imagem_url %}
+                                        <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
+                                        {% else %}
+                                        <span class="pub-card-emoji">🛍️</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="pub-card-body">
+                                        <div class="pub-card-nome">{{ produto.nome }}</div>
+                                        <div class="pub-card-tamanho">Tamanho: {{ produto.tamanho }}</div>
+                                        <div class="pub-card-preco">R$ {{ "%.2f"|format(produto.preco) }}</div>
+                                        <span class="pub-card-status {% if produto.disponivel %}pub-status-ok{% else %}pub-status-off{% endif %}">
+                                            {{ 'Disponível' if produto.disponivel else 'Indisponível' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="pub-card">
+                                    <div class="pub-card-img"><span class="pub-card-emoji">👕</span></div>
+                                    <div class="pub-card-body">
+                                        <div class="pub-card-nome">Camiseta SENAI</div>
+                                        <div class="pub-card-tamanho">Tamanho: G</div>
+                                        <div class="pub-card-preco">R$ 49,90</div>
+                                        <span class="pub-card-status pub-status-ok">Disponível</span>
+                                    </div>
+                                </div>
+                                <div class="pub-card">
+                                    <div class="pub-card-img"><span class="pub-card-emoji">📚</span></div>
+                                    <div class="pub-card-body">
+                                        <div class="pub-card-nome">Apostila Têxtil</div>
+                                        <div class="pub-card-tamanho">Tamanho: Único</div>
+                                        <div class="pub-card-preco">R$ 29,90</div>
+                                        <span class="pub-card-status pub-status-ok">Disponível</span>
+                                    </div>
+                                </div>
+                                <div class="pub-card">
+                                    <div class="pub-card-img"><span class="pub-card-emoji">🎽</span></div>
+                                    <div class="pub-card-body">
+                                        <div class="pub-card-nome">Uniforme Completo</div>
+                                        <div class="pub-card-tamanho">Tamanho: M</div>
+                                        <div class="pub-card-preco">R$ 89,90</div>
+                                        <span class="pub-card-status pub-status-off">Indisponível</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="pub-aba" id="pub-aba-duvidas">
-                        <div class="pub-aba-conteudo">
-                            <div class="pub-card-duvidas">
-                                <h3>Perguntas Frequentes</h3>
-                                <details>
-                                    <summary>Como faço meu pedido?</summary>
-                                    <p>Selecione o produto no catálogo e compareça presencialmente à secretaria da AAPM.</p>
+                    <div class="pub-divisor"></div>
+
+                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-horarios">
+                        <div class="pub-secao-inner">
+                            <div class="pub-secao-header">
+                                <span class="pub-secao-eyebrow">Atendimento</span>
+                                <h3 class="pub-secao-titulo">Horários</h3>
+                                <p class="pub-secao-desc">Nossos horários de funcionamento presencial.</p>
+                            </div>
+                            <div class="pub-horarios-grid">
+                                <div class="pub-horario-card">
+                                    <div class="pub-horario-icone">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="pub-horario-info">
+                                        <span class="pub-horario-dia">Segunda a Sexta</span>
+                                        <span class="pub-horario-hora">08:00 — 17:00</span>
+                                    </div>
+                                    <span class="pub-horario-badge pub-badge-aberto">Funcionando</span>
+                                </div>
+                                <div class="pub-horario-card">
+                                    <div class="pub-horario-icone">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="pub-horario-info">
+                                        <span class="pub-horario-dia">Sábado</span>
+                                        <span class="pub-horario-hora">08:00 — 12:00</span>
+                                    </div>
+                                    <span class="pub-horario-badge pub-badge-parcial">Meio período</span>
+                                </div>
+                                <div class="pub-horario-card">
+                                    <div class="pub-horario-icone">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="pub-horario-info">
+                                        <span class="pub-horario-dia">Domingo</span>
+                                        <span class="pub-horario-hora">Fechado</span>
+                                    </div>
+                                    <span class="pub-horario-badge pub-badge-fechado">Fechado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="pub-divisor"></div>
+
+                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-servicos">
+                        <div class="pub-secao-inner">
+                            <div class="pub-secao-header">
+                                <span class="pub-secao-eyebrow">O que oferecemos</span>
+                                <h3 class="pub-secao-titulo">Serviços disponíveis</h3>
+                                <p class="pub-secao-desc">Tudo que a AAPM pode fazer por você.</p>
+                            </div>
+                            <div class="pub-servicos-grid">
+                                <div class="pub-servico-card">
+                                    <div class="pub-servico-icone">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="pub-servico-titulo">Agendamentos</h4>
+                                    <p class="pub-servico-desc">Agende horários para retirada de materiais e uniformes com antecedência.</p>
+                                </div>
+                                <div class="pub-servico-card">
+                                    <div class="pub-servico-icone">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="pub-servico-titulo">Retirada de Uniformes</h4>
+                                    <p class="pub-servico-desc">Retire seu uniforme escolar diretamente na secretaria da AAPM.</p>
+                                </div>
+                                <div class="pub-servico-card">
+                                    <div class="pub-servico-icone">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                            <polyline points="14 2 14 8 20 8"/>
+                                            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="pub-servico-titulo">Materiais Didáticos</h4>
+                                    <p class="pub-servico-desc">Apostilas, kits e materiais do curso disponíveis para retirada.</p>
+                                </div>
+                                <div class="pub-servico-card">
+                                    <div class="pub-servico-icone">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="12" cy="7" r="4"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="pub-servico-titulo">Atendimento Pessoal</h4>
+                                    <p class="pub-servico-desc">Nossa equipe está disponível para tirar dúvidas e auxiliar no que precisar.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="pub-divisor"></div>
+
+                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-duvidas">
+                        <div class="pub-secao-inner pub-secao-inner-estreito">
+                            <div class="pub-secao-header">
+                                <span class="pub-secao-eyebrow">Suporte</span>
+                                <h3 class="pub-secao-titulo">Dúvidas frequentes</h3>
+                                <p class="pub-secao-desc">Respostas para as perguntas mais comuns.</p>
+                            </div>
+                            <div class="pub-faq">
+                                <details class="pub-faq-item">
+                                    <summary class="pub-faq-pergunta">Como faço meu pedido?</summary>
+                                    <p class="pub-faq-resposta">Selecione o produto no catálogo e compareça presencialmente à secretaria da AAPM dentro do horário de atendimento.</p>
                                 </details>
-                                <details>
-                                    <summary>Quais as formas de pagamento?</summary>
-                                    <p>Aceitamos dinheiro, cartões de débito/crédito e Pix.</p>
+                                <details class="pub-faq-item">
+                                    <summary class="pub-faq-pergunta">Quais as formas de pagamento?</summary>
+                                    <p class="pub-faq-resposta">Aceitamos dinheiro, cartões de débito e crédito, e Pix. O pagamento é realizado no ato da retirada.</p>
+                                </details>
+                                <details class="pub-faq-item">
+                                    <summary class="pub-faq-pergunta">Preciso agendar para retirar meu uniforme?</summary>
+                                    <p class="pub-faq-resposta">Não é obrigatório, mas recomendamos o agendamento para evitar filas e garantir que o produto esteja reservado.</p>
+                                </details>
+                                <details class="pub-faq-item">
+                                    <summary class="pub-faq-pergunta">Posso devolver ou trocar um produto?</summary>
+                                    <p class="pub-faq-resposta">Sim, trocas são aceitas em até 7 dias corridos após a retirada, desde que o produto esteja sem uso e com a etiqueta.</p>
+                                </details>
+                                <details class="pub-faq-item">
+                                    <summary class="pub-faq-pergunta">Como entro em contato com a AAPM?</summary>
+                                    <p class="pub-faq-resposta">Você pode comparecer presencialmente na secretaria ou entrar em contato pelo e-mail da escola durante o horário de atendimento.</p>
                                 </details>
                             </div>
                         </div>
-                    </div>
+                    </section>
+
+                    <footer class="pub-rodape">
+                        <span>AAPM · SENAI Brás · Francisco Matarazzo</span>
+                    </footer>
 
                 </div>
             </div>
@@ -202,19 +358,46 @@
     </div>
 
     <script>
-        function pubTrocarAba(link, abaId) {
-            document.querySelectorAll('.pub-navbar-links a').forEach(function (a) {
-                a.classList.remove('pub-ativo');
+        document.addEventListener('DOMContentLoaded', function () {
+            /* Scroll suave ao clicar nos links internos da navbar */
+            document.querySelectorAll('.pub-nav-link').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var alvo = document.querySelector(this.getAttribute('href'));
+                    if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
+                    this.classList.add('pub-ativo');
+                });
             });
-            link.classList.add('pub-ativo');
 
-            document.querySelectorAll('.pub-aba').forEach(function (el) {
-                el.classList.remove('pub-aba-ativa');
+            /* Intersection Observer — Revela seções com animação CSS ao entrar na tela */
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) entry.target.classList.add('pub-visivel');
+                });
+            }, { threshold: 0.10 });
+
+            document.querySelectorAll('.pub-secao-animada').forEach(function (el) {
+                observer.observe(el);
             });
 
-            var alvo = document.getElementById(abaId);
-            if (alvo) alvo.classList.add('pub-aba-ativa');
-        }
+            /* Sincronização Dinâmica: Marca link ativo na navbar conforme scroll interno */
+            var corpo = document.getElementById('pub-corpo-scroll');
+            if (corpo) {
+                corpo.addEventListener('scroll', function () {
+                    document.querySelectorAll('.pub-nav-link').forEach(function (link) {
+                        var alvo = document.querySelector(link.getAttribute('href'));
+                        if (!alvo) return;
+                        var topo = alvo.offsetTop - corpo.scrollTop - 80;
+                        var fim  = topo + alvo.offsetHeight;
+                        if (topo <= 0 && fim > 0) {
+                            document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
+                            link.classList.add('pub-ativo');
+                        }
+                    });
+                }, { passive: true });
+            }
+        });
     </script>
 
     {% block content %}{% endblock %}

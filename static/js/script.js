@@ -77,7 +77,7 @@ function criarParticula() {
         velocidade:  Math.random() * (CONFIG_PARTICULAS.velocidadeMax - CONFIG_PARTICULAS.velocidadeMin) + CONFIG_PARTICULAS.velocidadeMin,
         tamanho:     Math.random() * (CONFIG_PARTICULAS.tamanhoMax - CONFIG_PARTICULAS.tamanhoMin) + CONFIG_PARTICULAS.tamanhoMin,
         cor:         corBase.replace('OP', op),
-        comprimento: Math.random() * 18 + 8, 
+        comprimento: Math.random() * 20 + 8, 
         oscilacao:   Math.random() * 0.5 - 0.25, 
     };
 }
@@ -155,6 +155,82 @@ window.addEventListener('resize', () => {
 // 1. INICIALIZAÇÃO DA APLICAÇÃO
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
+    
+    // === AJUSTE DE ESTADO INICIAL DOS UNIVERSOS ===
+    const home  = document.getElementById('universo-home');
+    const admin = document.getElementById('universo-admin');
+    const pub   = document.getElementById('universo-publico');
+
+    if (home) {
+        home.style.opacity = '1';
+        home.style.visibility = 'visible';
+        home.style.pointerEvents = 'all';
+        home.style.zIndex = '10';
+        home.style.transform = 'translateX(0) scale(1)';
+    }
+    if (admin) {
+        admin.style.opacity = '0';
+        admin.style.visibility = 'hidden';
+        admin.style.pointerEvents = 'none';
+        admin.style.transform = 'translateX(-100vw) scale(0.5)';
+    }
+    if (pub) {
+        pub.style.opacity = '0';
+        pub.style.visibility = 'hidden';
+        pub.style.pointerEvents = 'none';
+        pub.style.transform = 'translateX(100vw) scale(0.5)';
+    }
+
+    // === ADICIONADO: CONFIGURAÇÕES DA NAVBAR DO CATÁLOGO PÚBLICO ===
+    /* Scroll suave ao clicar nos links internos da navbar */
+    document.querySelectorAll('.pub-nav-link').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            const scrollContainer = document.getElementById('pub-corpo-scroll');
+
+            if (targetElement && scrollContainer) {
+                scrollContainer.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+            document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
+            this.classList.add('pub-ativo');
+        });
+    });
+
+    /* Intersection Observer — Revela seções com animação CSS ao entrar na tela */
+    const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (entry.isIntersecting) entry.target.classList.add('pub-visivel');
+        });
+    }, { threshold: 0.10 });
+
+    document.querySelectorAll('.pub-secao-animada').forEach(function (el) {
+        observer.observe(el);
+    });
+
+    /* Sincronização Dinâmica: Marca link ativo na navbar conforme scroll interno */
+    // Altere de 'pub-corpo-scroll' para o ID da div que realmente deve rolar no seu HTML
+    const corpoScroll = document.getElementById('universo-publico');
+    if (corpoScroll) {
+        corpoScroll.addEventListener('scroll', function () {
+            document.querySelectorAll('.pub-nav-link').forEach(function (link) {
+                const alvo = document.querySelector(link.getAttribute('href'));
+                if (!alvo) return;
+                const topo = alvo.offsetTop - corpoScroll.scrollTop - 100;
+                const fim  = topo + alvo.offsetHeight;
+                if (topo <= 0 && fim > 0) {
+                    document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
+                    link.classList.add('pub-ativo');
+                }
+            });
+        }, { passive: true });
+    }
+    // =========================================================
+
     const dadosElemento = document.getElementById("dados-produtos-backend");
     if (dadosElemento && dadosElemento.dataset.produtos) {
         try {
@@ -226,8 +302,10 @@ function viajarPara(destino) {
     if (universoAtual !== 'home') return;
     universoAtual = destino;
 
+    const adminEnv = document.getElementById("universo-admin");
+    const pubEnv = document.getElementById("universo-publico");
+
     if (destino === 'admin') {
-        const adminEnv = document.getElementById("universo-admin");
         if (adminEnv) adminEnv.style.display = "flex";
 
         if (document.getElementById("universo-home")) {
@@ -235,7 +313,7 @@ function viajarPara(destino) {
         }
         if (adminEnv) {
             gsap.to("#universo-admin", { 
-                scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut",
+                scale: 1, x: "0vw", opacity: 1, visibility: "visible", pointerEvents: "all", duration: 1.2, ease: "power2.inOut",
                 onComplete: () => {
                     particulasLogin.iniciar();
                 }
@@ -243,11 +321,13 @@ function viajarPara(destino) {
         }
     } 
     else if (destino === 'publico') {
+        if (pubEnv) pubEnv.style.display = "block"; // Ajuste para garantir exibição do catálogo público
+
         if (document.getElementById("universo-home")) {
             gsap.to("#universo-home", { scale: 2, x: "-100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
         }
-        if (document.getElementById("universo-publico")) {
-            gsap.to("#universo-publico", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
+        if (pubEnv) {
+            gsap.to("#universo-publico", { scale: 1, x: "0vw", opacity: 1, visibility: "visible", pointerEvents: "all", duration: 1.2, ease: "power2.inOut" });
         }
     }
 }
@@ -256,16 +336,16 @@ function voltarAoInicio() {
     if (universoAtual === 'home') return;
 
     const adminEnv = document.getElementById("universo-admin");
-    if (adminEnv) adminEnv.style.display = "flex";
+    const pubEnv = document.getElementById("universo-publico");
 
     if (universoAtual === 'admin') {
         particulasLogin.parar();
-        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
-        gsap.to("#universo-admin", { scale: 0.5, x: "-100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
+        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, visibility: "visible", pointerEvents: "all", duration: 1.2, ease: "power2.inOut" });
+        gsap.to("#universo-admin", { scale: 0.5, x: "-100vw", opacity: 0, visibility: "hidden", pointerEvents: "none", duration: 1.2, ease: "power2.inOut" });
     } 
     else if (universoAtual === 'publico') {
-        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, duration: 1.2, ease: "power2.inOut" });
-        gsap.to("#universo-publico", { scale: 0.5, x: "100vw", opacity: 0, duration: 1.2, ease: "power2.inOut" });
+        gsap.to("#universo-home", { scale: 1, x: "0vw", opacity: 1, visibility: "visible", pointerEvents: "all", duration: 1.2, ease: "power2.inOut" });
+        gsap.to("#universo-publico", { scale: 0.5, x: "100vw", opacity: 0, visibility: "hidden", pointerEvents: "none", duration: 1.2, ease: "power2.inOut" });
     }
     
     universoAtual = 'home';
@@ -298,6 +378,25 @@ function destacarProduto(elemento) {
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. CONTROLE VISUAL DOS MODAIS (Ajustado para classe .active do CSS + fallback display)
+// ─────────────────────────────────────────────────────────────────────────────
+function abrirModal(id) {
+    const modal = document.getElementById(id);
+    if (!modal) {
+        console.error(`Erro: O modal com id '${id}' não foi encontrado no HTML.`);
+        return;
+    }
+    
+    modal.classList.add("active");
+    modal.style.display = "flex"; // Força exibição independente de restrições do CSS básico
+    
+    if (id !== "modal-galeria-midia") {
+        document.body.style.overflow = "hidden";
+    }
+}
+
+// ... Resto do seu código original (daqui para baixo continua exatamente igual) ...
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. CONTROLE VISUAL DOS MODAIS (Ajustado para classe .active do CSS + fallback display)
 // ─────────────────────────────────────────────────────────────────────────────

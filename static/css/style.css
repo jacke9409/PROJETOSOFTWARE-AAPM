@@ -1,171 +1,244 @@
+
 /* ==========================================================================
-   AAPM — style.css
-   Estrutura:
+   AAPM — style.css  (REDESIGN COMPLETO)
    1.  Reset & Base
-   2.  Fundo (céu + camadas)
+   2.  Fundo (céu estrelado + camadas)
    3.  Palco 3D e Universos
    4.  Zonas de clique e setas
    5.  Universo Home
-   6.  Universo Admin — Login Glassmorphism (COM PARTÍCULAS INTEGRADAS)
+   6.  Universo Admin — Login Glassmorphism
    7.  Dashboard — Layout (header, sidebar, conteúdo)
-   8.  Dashboard — Visão Geral (cards, gráfico, tabela, estoque)
+   8.  Dashboard — Visão Geral
    9.  Produtos — Cards e Grade
-   10. Modais (base, formulários, galeria, exclusão)
-   11. Fornecedores
-   12. Universo Público (Ajustes de Grid & Layout do Canva)
-   13. Animações
+   10. Modais
+   11. Ajustes de layout para páginas internas
+   12. Universo Público — Scroll único
+   13. Animações globais
    ========================================================================== */
 
 
 /* ==========================================================================
    1. RESET & BASE
    ========================================================================== */
-/* Zera as margens, espaçamentos e força o box-sizing correto em todos os elementos */
-*, *::before, *::after {
+    ::before, ::after {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Garante que padding e border não aumentem o tamanho do elemento */
+    box-sizing: border-box;
 }
 
-/* Configurações globais da página/tela principal */
 html, body {
     width: 100%;
     height: 100%;
-    overflow: hidden; /* Remove as barras de rolagem globais para criar o efeito de app/cenário */
-    font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* Fontes do projeto */
+    overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
 
 /* ==========================================================================
-   2. FUNDO
+   2. FUNDO — CÉU ESTRELADO PROFUNDO
    ========================================================================== */
-/* Container fixo que segura todas as camadas de cenário atrás dos conteúdos */
 .fundo-fixo {
     position: fixed;
-    inset: 0; /* Ocupa 100% da tela (top, right, bottom, left = 0) */
-    z-index: 0; /* Fica na camada mais baixa de todas */
-    pointer-events: none; /* Cliques do mouse passam direto por ele, sem bloquear a interface */
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
 }
 
-/* O degradê do céu ao fundo */
+/* Céu noturno com gradiente profundo azul-escuro */
 .sky {
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        180deg,
-        #0d1f3c 0%,
-        #163657 25%,
-        #2a5fa8 55%,
-        #5a9fd4 78%,
-        #9ecfe8 100%
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        #0a1628 0%,
+        #0d1f3c 30%,
+        #071020 60%,
+        #050c18 100%
     );
 }
 
-/* Camada das nuvens posicionada na metade superior da tela */
+/* Estrelas geradas via box-shadow em pseudo-elementos */
+.sky::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 10%  8%,  rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25%  15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40%  5%,  rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 55%  12%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 70%  7%,  rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(1px 1px at 85%  18%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 15%  30%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30%  22%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60%  28%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80%  35%, rgba(255,255,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%   45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 45%  40%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92%  12%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20%  55%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75%  48%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 35%  3%,  rgba(255,255,255,0.9) 0%, transparent 100%),
+        radial-gradient(2px 2px at 65%  20%, rgba(255,255,255,0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 88%  42%, rgba(180,200,255,0.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50%  2%,  rgba(255,255,255,0.95) 0%, transparent 100%),
+        radial-gradient(1px 1px at 3%   20%, rgba(255,255,255,0.6)  0%, transparent 100%),
+        radial-gradient(1px 1px at 97%  30%, rgba(255,255,255,0.5)  0%, transparent 100%);
+}
+
+/* Via Láctea sutil no centro */
+.sky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 60% 40% at 50% 20%,
+        rgba(70, 100, 200, 0.18) 0%,
+        rgba(40, 60, 160, 0.08) 50%,
+        transparent 100%
+    );
+}
+
+/* Meteoro decorativo 1 */
 .camada-nuvens {
     position: absolute;
     top: 0; left: 0;
-    width: 100%; height: 55%;
+    width: 100%; height: 60%;
+    overflow: hidden;
+    pointer-events: none;
 }
 
-/* Camada das montanhas distantes (fundo) alinhadas na base */
+.camada-nuvens::before {
+    content: '';
+    position: absolute;
+    top: 18%;
+    left: -5%;
+    width: 25%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, rgba(150,200,255,0.85), transparent);
+    transform: rotate(-30deg);
+    animation: meteoroA 8s linear infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(150,200,255,0.6);
+}
+
+.camada-nuvens::after {
+    content: '';
+    position: absolute;
+    top: 35%;
+    right: -5%;
+    width: 18%;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(150,200,255,0.8), transparent);
+    transform: rotate(-25deg);
+    animation: meteoroB 12s linear infinite 4s;
+    border-radius: 2px;
+    box-shadow: 0 0 4px rgba(150,200,255,0.5);
+}
+
+/* Montanhas fotorrealistas — fundo (roxo-azul distante) */
 .camada-montanhas-fundo {
     position: absolute;
     bottom: 0; left: 0;
-    width: 100%; height: 55%;
+    width: 100%; height: 65%;
 }
 
-/* Camada das montanhas mais próximas (frente) alinhadas na base */
+/* Montanhas do meio */
 .camada-montanhas-frente {
     position: absolute;
     bottom: 0; left: 0;
-    width: 100%; height: 40%;
+    width: 100%; height: 50%;
 }
 
-/* Camada da silhueta das árvores bem na base da tela */
+/* Floresta e lago na base */
 .camada-arvores {
     position: absolute;
     bottom: 0; left: 0;
-    width: 100%; height: 14%;
+    width: 100%; height: 22%;
 }
 
-/* ==========================================================================
-   3. PALCO 3D E UNIVERSOS (CORRIGIDO)
-   ========================================================================== */
+/* Brilho azul central (reflexo no lago) */
+.camada-arvores::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    height: 60%;
+    background: radial-gradient(
+        ellipse at center bottom,
+        rgba(56, 130, 255, 0.35) 0%,
+        rgba(30, 80, 200, 0.12) 50%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
 
-/* Reset global para evitar que paddings quebrem o tamanho de 100vw/100vh */
+
+/* ==========================================================================
+   3. PALCO 3D E UNIVERSOS
+   ========================================================================== */
 .palco-zoom, .camada-universo, .camada-universo * {
     box-sizing: border-box;
 }
 
-/* Container do palco que habilita o efeito de profundidade 3D */
 .palco-zoom {
     position: relative;
     width: 100vw;
     height: 100vh;
-    perspective: 1200px; /* Cria a distância de perspectiva para os elementos 3D */
-    overflow: hidden;    /* Corta absolutamente qualquer coisa que saia da tela */
+    perspective: 1200px;
+    overflow: hidden;
     z-index: 1;
 }
 
-/* O container interno que preserva o ambiente 3D para as transições */
 .universo-3d {
     width: 100%;
     height: 100%;
     position: relative;
-    transform-style: preserve-3d; /* Permite que os filhos herdem a perspectiva 3D */
+    transform-style: preserve-3d;
 }
 
-/* Classe base para cada tela/cenário (Home, Admin, Público) */
 .camada-universo {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     padding: 50px;
-    overflow: hidden; /* Proteção extra para não criar barras de rolagem na página */
+    overflow: hidden;
 }
 
-/* Configuração inicial da Tela Inicial (Home) */
 #universo-home {
     z-index: 3;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transform: translateZ(0px); /* Profundidade padrão */
+    transform: translateZ(0px);
     opacity: 1;
     visibility: visible;
 }
 
-/* Configuração inicial da Tela de Login/Admin */
 #universo-admin {
     z-index: 2;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    opacity: 0; 
-    transform: translateX(-110vw) scale(0.5); /* Fora da tela à esquerda */
-    pointer-events: none; /* Evita clicar em botões invisíveis enquanto estiver escondido */
+    opacity: 0;
+    transform: translateX(-110vw) scale(0.5);
+    pointer-events: none;
 }
 
-/* Configuração inicial da Tela do Catálogo Público */
 #universo-publico {
     z-index: 2;
-    display: block; /* Mantido block para sua estrutura interna */
-    opacity: 0; 
-    transform: translateX(110vw) scale(0.5); /* Fora da tela à direita */
+    display: block;
+    opacity: 0;
+    transform: translateX(110vw) scale(0.5);
     padding: 0;
-    pointer-events: none; /* Evita interações enquanto invisível */
+    pointer-events: none;
 }
 
-/* ==========================================================================
-   CORREÇÃO PARA TRAVAMENTO DE ROTAS BACKEND (DASHBOARD)
-   ========================================================================== */
-
-/* Quando estivermos fisicamente na rota /dashboard, limpamos as telas anteriores */
+/* Correção para rotas backend */
 body.modo-painel-ativo #universo-home {
     display: none !important;
     opacity: 0 !important;
@@ -178,7 +251,6 @@ body.modo-painel-ativo #universo-admin {
     pointer-events: none !important;
 }
 
-/* Força o painel do catálogo a ficar aberto, centralizado e clicável */
 body.modo-painel-ativo #universo-publico {
     opacity: 1 !important;
     visibility: visible !important;
@@ -186,49 +258,72 @@ body.modo-painel-ativo #universo-publico {
     pointer-events: all !important;
     z-index: 10 !important;
 }
+
+
 /* ==========================================================================
    4. ZONAS DE CLIQUE E SETAS
    ========================================================================== */
-/* Laterais invisíveis da Home que servem para navegar entre as telas */
 .zona-clique {
     position: absolute;
     top: 0;
     height: 100%;
-    width: 14vw; /* Ocupa 14% da largura da tela */
+    width: 13vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.3s;
+}
+
+.zona-esquerda { left: 0; }
+.zona-direita  { right: 0; }
+
+.zona-clique:hover {
+    background: rgba(30, 80, 200, 0.06);
+}
+
+/* Ícone circular nas zonas (igual à imagem) */
+.zona-clique-icone {
+    width: 46px;
+    height: 46px;
+    border: 1.5px solid rgba(100, 160, 255, 0.35);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    z-index: 10;
-    transition: background 0.3s; /* Transição suave ao passar o mouse */
+    background: rgba(20, 50, 120, 0.25);
+    backdrop-filter: blur(8px);
+    color: rgba(150, 200, 255, 0.70);
+    transition: border-color 0.3s, background 0.3s, color 0.3s;
 }
 
-.zona-esquerda { left: 0; }  /* Alinha na esquerda */
-.zona-direita  { right: 0; } /* Alinha na direita */
-
-/* Efeito de iluminação sutil nas laterais ao dar hover */
-.zona-clique:hover {
-    background: rgba(255,255,255,0.04);
+.zona-clique:hover .zona-clique-icone {
+    border-color: rgba(100, 160, 255, 0.65);
+    background: rgba(30, 70, 180, 0.35);
+    color: rgba(180, 220, 255, 0.95);
+    box-shadow: 0 0 18px rgba(80, 140, 255, 0.3);
 }
 
-/* Os textos verticais das setas nas laterais */
 .seta-suave {
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 2px;
-    font-size: 0.82rem;
+    color: rgba(150, 200, 255, 0.50);
+    letter-spacing: 3px;
+    font-size: 0.68rem;
+    font-weight: 600;
     text-transform: uppercase;
-    writing-mode: vertical-rl; /* Gira o texto para ficar vertical */
+    writing-mode: vertical-rl;
     text-orientation: mixed;
-    user-select: none; /* Impede que o usuário selecione o texto acidentalmente */
+    user-select: none;
     transition: color 0.3s;
 }
 
-/* Destaca o texto da seta ao passar o mouse na zona */
 .zona-clique:hover .seta-suave {
-    color: rgba(255,255,255,0.8);
+    color: rgba(180, 220, 255, 0.90);
 }
 
-/* Botão flutuante para voltar à tela Home */
+/* Botão flutuante voltar */
 .btn-voltar {
     position: absolute;
     top: 22px; left: 22px;
@@ -236,25 +331,24 @@ body.modo-painel-ativo #universo-publico {
     cursor: pointer;
     opacity: 0.75;
     font-size: 0.85rem;
-    background: rgba(255,255,255,0.10); /* Fundo translúcido */
+    background: rgba(255,255,255,0.08);
     padding: 7px 16px;
     border-radius: 22px;
-    backdrop-filter: blur(10px); /* Efeito de vidro borrado */
-    border: 1px solid rgba(255,255,255,0.20);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
     transition: opacity 0.2s, background 0.2s;
     z-index: 20;
 }
 
 .btn-voltar:hover {
     opacity: 1;
-    background: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.14);
 }
 
 
 /* ==========================================================================
    5. UNIVERSO HOME
    ========================================================================== */
-/* Identificador da escola (SENAI) no canto superior direito */
 .badge-senai {
     position: absolute;
     top: 20px; right: 24px;
@@ -267,76 +361,112 @@ body.modo-painel-ativo #universo-publico {
     color: white;
     letter-spacing: 2px;
     line-height: 1.1;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.45); /* Sombra para dar leitura sobre as nuvens */
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 .badge-sub {
-    font-size: 0.52rem;
-    color: rgba(255,255,255,0.72);
+    font-size: 0.50rem;
+    color: rgba(255,255,255,0.65);
     letter-spacing: 0.8px;
     margin-top: 4px;
 }
 
 .badge-rua {
-    font-size: 0.48rem;
-    color: rgba(255,255,255,0.58);
+    font-size: 0.46rem;
+    color: rgba(255,255,255,0.50);
     letter-spacing: 0.5px;
 }
 
-/* Alinhamento do bloco central da Home */
 .conteudo-centro {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    position: relative;
+    z-index: 2;
 }
 
-/* Pequeno texto explicativo acima do logo principal */
 .label-senai {
-    color: rgba(255,255,255,0.65);
-    font-size: 0.65rem;
-    letter-spacing: 4px;
+    color: rgba(180, 210, 255, 0.60);
+    font-size: 0.62rem;
+    letter-spacing: 5px;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
-/* O título gigante "AAPM" com efeito de sombra 3D e brilho */
+/* AAPM — letras brancas com glow azul intenso (igual à imagem) */
 .logo-aapm-3d {
-    font-size: clamp(3.5rem, 9vw, 6.5rem); /* Tamanho responsivo automático */
+    font-size: clamp(4rem, 11vw, 8rem);
     font-weight: 900;
-    color: white;
-    letter-spacing: 8px;
+    color: #ffffff;
+    letter-spacing: 10px;
     font-style: italic;
-    /* Múltiplas sombras empilhadas para simular profundidade extrudada */
     text-shadow:
-        0  4px 0   rgba(0,60,130,0.6),
-        0  8px 0   rgba(0,40,100,0.4),
-        0 12px 30px rgba(0,0,0,0.5),
-        0  0   60px rgba(100,180,255,0.25);
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+        0 0  20px rgba(80, 140, 255, 0.90),
+        0 0  50px rgba(60, 110, 255, 0.65),
+        0 0 100px rgba(40,  90, 220, 0.40),
+        0  4px 0   rgba(0, 30, 100, 0.50),
+        0  8px 30px rgba(0,  0,   0, 0.60);
+    filter: drop-shadow(0 0 30px rgba(80, 150, 255, 0.55));
     user-select: none;
+    animation: aapmGlow 4s ease-in-out infinite alternate;
 }
 
-/* Descrição curta da AAPM logo abaixo do título */
+/* Pequeno ícone de montanhas abaixo do logo (decorativo) */
+.logo-aapm-3d::after {
+    content: '';
+}
+
 .descricao-aapm {
-    color: rgba(255,255,255,0.88);
-    max-width: 480px;
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin-top: 14px;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.5);
+    color: rgba(255,255,255,0.82);
+    max-width: 500px;
+    font-size: 1rem;
+    line-height: 1.65;
+    margin-top: 20px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.6);
 }
 
-.descricao-aapm strong { color: white; }
+.descricao-aapm strong {
+    color: #5ba4ff;
+    font-weight: 700;
+}
 
-/* Texto de direitos/versão fixado no rodapé da Home */
+/* Linha separadora dourada fina abaixo do logo */
+.home-separador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 10px;
+    opacity: 0.55;
+}
+
+.home-separador-linha {
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(120, 170, 255, 0.7));
+}
+
+.home-separador-linha:last-child {
+    background: linear-gradient(90deg, rgba(120, 170, 255, 0.7), transparent);
+}
+
+.home-separador-icone {
+    color: rgba(120, 170, 255, 0.80);
+    font-size: 0.9rem;
+}
+
 .rodape-aapm {
     position: absolute;
     bottom: 16px;
-    font-size: 0.58rem;
-    color: rgba(255,255,255,0.35);
+    font-size: 0.56rem;
+    color: rgba(255,255,255,0.28);
     letter-spacing: 3px;
+    text-transform: uppercase;
 }
+
+/* ==========================================================================
+   6. UNIVERSO ADMIN — LOGIN GLASSMORPHISM
+   ========================================================================== */
 
 
 /* ==========================================================================

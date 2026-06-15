@@ -16,10 +16,10 @@
 
     <div class="vg-metricas">
 
-        <a href="/dashboard/produtos" class="vg-card-metrica" style="text-decoration: none; color: inherit; display: block;">
+        <a href="/dashboard/produtos" class="vg-card-metrica vg-card-produtos" style="text-decoration: none; color: inherit; display: block;">
             <div class="vg-card-topo">
                 <span class="vg-card-label">Produtos Cadastrados</span>
-                <div class="vg-card-icone vg-icone-violeta">
+                <div class="vg-card-icone vg-icone-azul">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                 </div>
             </div>
@@ -30,10 +30,10 @@
             </span>
         </a>
 
-        <a href="/dashboard/categorias" class="vg-card-metrica" style="text-decoration: none; color: inherit; display: block;">
+        <a href="/dashboard/categorias" class="vg-card-metrica vg-card-categorias" style="text-decoration: none; color: inherit; display: block;">
             <div class="vg-card-topo">
                 <span class="vg-card-label">Categorias</span>
-                <div class="vg-card-icone vg-icone-laranja">
+                <div class="vg-card-icone vg-icone-violeta">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
                 </div>
             </div>
@@ -44,10 +44,10 @@
             </span>
         </a>
 
-        <a href="/dashboard/vendas" class="vg-card-metrica" style="text-decoration: none; color: inherit; display: block;">
+        <a href="/dashboard/vendas" class="vg-card-metrica vg-card-vendas" style="text-decoration: none; color: inherit; display: block;">
             <div class="vg-card-topo">
                 <span class="vg-card-label">Vendas Realizadas</span>
-                <div class="vg-card-icone vg-icone-azul">
+                <div class="vg-card-icone vg-icone-verde">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
                 </div>
             </div>
@@ -58,10 +58,10 @@
             </span>
         </a>
 
-        <a href="/dashboard/fornecedores" class="vg-card-metrica" style="text-decoration: none; color: inherit; display: block;">
+        <a href="/dashboard/fornecedores" class="vg-card-metrica vg-card-fornecedores" style="text-decoration: none; color: inherit; display: block;">
             <div class="vg-card-topo">
                 <span class="vg-card-label">Fornecedores Ativos</span>
-                <div class="vg-card-icone vg-icone-verde">
+                <div class="vg-card-icone vg-icone-laranja">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
             </div>
@@ -72,6 +72,30 @@
             </span>
         </a>
 
+    </div>
+
+    <div class="vg-quickstats">
+        <div class="vg-quickstat-card">
+            <div class="vg-quickstat-detalhe">
+                <span class="vg-quickstat-label">Receita total</span>
+                <span class="vg-quickstat-valor">R$ 68.400</span>
+            </div>
+            <span class="vg-quickstat-badge">+12%</span>
+        </div>
+        <div class="vg-quickstat-card">
+            <div class="vg-quickstat-detalhe">
+                <span class="vg-quickstat-label">Crescimento</span>
+                <span class="vg-quickstat-valor">+8,3%</span>
+            </div>
+            <span class="vg-quickstat-badge">Mês</span>
+        </div>
+        <div class="vg-quickstat-card">
+            <div class="vg-quickstat-detalhe">
+                <span class="vg-quickstat-label">Ticket médio</span>
+                <span class="vg-quickstat-valor">R$ 1.720</span>
+            </div>
+            <span class="vg-quickstat-badge">Últimos 30 dias</span>
+        </div>
     </div>
 
     <div class="vg-linha-meio">
@@ -276,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+    gsap.from('#graficoVendas', { opacity: 0, y: 24, duration: 0.8, ease: 'power3.out', delay: 0.25 });
 });
 </script>
 {% endblock %}
