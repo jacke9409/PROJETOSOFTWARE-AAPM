@@ -15,15 +15,12 @@ from app.models.categoria import Categoria
 from app.models.usuario import Usuario
 from app.models.fornecedor import Fornecedor 
 
-# Importação automática dos roteadores para expansões futuras
-from app.routers import auth_router, produto_router, categoria_router, fornecedor, venda_router
-
 try:
     from app.models.venda import Venda
 except ImportError:
     Venda = None
 
-app = FastAPI(title="AAPM - Sistema de Gestão")
+app = FastAPI()
 
 # Contexto para checar a senha criptografada em BCrypt vinda do seed.py
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -43,23 +40,12 @@ app.mount("/static", StaticFiles(directory=caminho_static_correto), name="static
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# INCLUSÃO DOS ROUTERS (ACESSA AS ESTRUTURAS EXTRAÍDAS DA PASTA ROUTERS)
-# ─────────────────────────────────────────────────────────────────────────────
-
-app.include_router(auth_router.router)
-app.include_router(produto_router.router)
-app.include_router(categoria_router.router)
-app.include_router(fornecedor.router)
-app.include_router(venda_router.router)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
 # HANDLERS DE EXCEÇÃO PERSONALIZADOS (ERRO 404 - NOT FOUND)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.exception_handler(404)
 async def custom_404_handler(request: Request, exc: Exception):
-    if request.url.path.startswith("/admin") or request.url.path.startswith("/dashboard"):
+    if request.url.path.startswith("/admin"):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
@@ -159,14 +145,21 @@ async def processar_login(
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="E-mail ou senha incorretos."
     )
-
+@app.get("/auth/logout")
+async def processar_logout():
+    # Redireciona o usuário de volta para a vitrine pública inicial
+    return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ROTAS DO PAINEL ADMINISTRATIVO (VIEWS DE RENDERIZAÇÃO HTML)
+# ROTAS DO PAINEL ADMINISTRATIVO (VIEWS DE RENDERIZAÇÃO)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
+    """
+    Rota principal do painel. Carrega o template de Visão Geral diretamente
+    e alimenta todos os cards dinâmicos com dados reais do banco de dados.
+    """
     total_produtos = 0
     total_categorias = 0
     total_fornecedores = 0
@@ -181,6 +174,8 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
         if Venda:
             vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
             total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
+            
+            # Pega as 5 últimas vendas para alimentar a tabela de atividade/vendas recentes
             vendas_recentes = vendas_do_banco[:5]
             for v in vendas_recentes:
                 prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
@@ -197,11 +192,12 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"⚠️ Alerta: Erro ao carregar Visão Geral: {e}")
 
+    # Formatação do faturamento para o padrão de moeda brasileiro
     faturamento_pt_br = f"{total_vendas_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     return templates.TemplateResponse(
         request=request,
-        name="admin/visaogeral.html",
+        name="admin/visaogeral.html",  # Agora a rota mãe chama diretamente a visão geral!
         context={
             "total_produtos": total_produtos,
             "total_categorias": total_categorias,
@@ -214,6 +210,7 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/dashboard/visaogeral")
 async def redirecionar_visaogeral():
+    """Redireciona para evitar caminhos duplicados desnecessários."""
     return RedirectResponse(url="/dashboard")
 
 
