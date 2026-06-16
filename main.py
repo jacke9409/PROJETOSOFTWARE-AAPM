@@ -77,7 +77,8 @@ class CategoriaSchema(BaseModel):
     nome: str
 
 class FornecedorSchema(BaseModel):
-    nome_fantasia: str
+    nome_fantasia: Optional[str] = None
+    nome: Optional[str] = None
     cnpj: str
     telefone: str
     email: Optional[str] = None
@@ -86,7 +87,7 @@ class FornecedorSchema(BaseModel):
 
 class VendaSchema(BaseModel):
     comprador: str
-    produto_id: int
+    produto_id: Optional[int] = None
     quantidade: int
     preco_total: float
 
@@ -145,10 +146,12 @@ async def processar_login(
         status_code=status.HTTP_401_UNAUTHORIZED, 
         detail="E-mail ou senha incorretos."
     )
+
+
 @app.get("/auth/logout")
 async def processar_logout():
-    # Redireciona o usuário de volta para a vitrine pública inicial
     return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ROTAS DO PAINEL ADMINISTRATIVO (VIEWS DE RENDERIZAÇÃO)
@@ -156,10 +159,6 @@ async def processar_logout():
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
-    """
-    Rota principal do painel. Carrega o template de Visão Geral diretamente
-    e alimenta todos os cards dinâmicos com dados reais do banco de dados.
-    """
     total_produtos = 0
     total_categorias = 0
     total_fornecedores = 0
@@ -175,7 +174,6 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
             vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
             total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
             
-            # Pega as 5 últimas vendas para alimentar a tabela de atividade/vendas recentes
             vendas_recentes = vendas_do_banco[:5]
             for v in vendas_recentes:
                 prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
@@ -192,12 +190,11 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"⚠️ Alerta: Erro ao carregar Visão Geral: {e}")
 
-    # Formatação do faturamento para o padrão de moeda brasileiro
     faturamento_pt_br = f"{total_vendas_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     return templates.TemplateResponse(
         request=request,
-        name="admin/visaogeral.html",  # Agora a rota mãe chama diretamente a visão geral!
+        name="admin/visaogeral.html",
         context={
             "total_produtos": total_produtos,
             "total_categorias": total_categorias,
@@ -210,7 +207,6 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/dashboard/visaogeral")
 async def redirecionar_visaogeral():
-    """Redireciona para evitar caminhos duplicados desnecessários."""
     return RedirectResponse(url="/dashboard")
 
 
@@ -264,7 +260,7 @@ async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(
         fornecedores_serializados = [
             {
                 "id": f.id,
-                "nome_fantasia": f.nome_fantasia,
+                "nome_fantasia": getattr(f, "nome_fantasia", getattr(f, "nome", "")),
                 "cnpj": f.cnpj,
                 "telefone": f.telefone,
                 "email": f.email,
@@ -304,7 +300,7 @@ async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db
                 vendas_formatadas.append({
                     "id": v.id,
                     "comprador": v.comprador,
-                    "produto_nome": nome_produto,
+                    "produto_name": nome_produto,
                     "quantidade": v.quantidade,
                     "preco_total": v.preco_total,
                     "data_venda": v.data_venda
@@ -324,7 +320,7 @@ async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (ENDPOINTS CRUD ACESSADOS VIA AJAX/FETCH - PREFIXO /ADMIN)
+# API REST (ENDPOINTS CRUD ACESSADOS VIA AJAX/FETCH)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/admin/assets/imagens")
@@ -434,7 +430,7 @@ async def deletar_categoria(categoria_id: int, db: Session = Depends(get_db)):
         )
 
 
-# --- CRUD FORNECEDORES ---
+# --- CRUD FORNECEDORES (MAPEADO COM NOME_EMPRESA) ---
 
 @app.post("/admin/fornecedores")
 async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db)):
@@ -442,14 +438,42 @@ async def criar_fornecedor(dados: FornecedorSchema, db: Session = Depends(get_db
     if cnpj_existente:
         raise HTTPException(status_code=400, detail="Já existe um fornecedor cadastrado com este CNPJ.")
 
-    novo = Fornecedor(
-        nome_fantasia = dados.nome_fantasia,
-        cnpj          = dados.cnpj,
-        telefone      = dados.telefone,
-        email         = dados.email,
-        localidade    = dados.localidade,
-        nome_contato  = dados.nome_contato
-    )
+    # Captura o nome enviado pelo formulário
+    nome_final = dados.nome_fantasia if dados.nome_fantasia else dados.nome
+    if not nome_final:
+        raise HTTPException(status_code=422, detail="O nome do fornecedor é obrigatório.")
+
+    # Dicionário mapeando absolutamente todas as colunas possíveis
+    dados_mapeados = {
+        "cnpj": dados.cnpj,
+        "telefone": dados.telefone,
+        "email": dados.email,
+        "nome_contato": dados.nome_contato,
+        "contato": dados.nome_contato,
+        "localidade": dados.localidade,
+        "endereco": dados.localidade,
+        "cidade": dados.localidade
+    }
+
+    # Preenche a variação correta do nome baseado no que existir na classe Fornecedor
+    if hasattr(Fornecedor, "nome_empresa"):
+        dados_mapeados["nome_empresa"] = nome_final
+    if hasattr(Fornecedor, "nome_fantasia"):
+        dados_mapeados["nome_fantasia"] = nome_final
+    if hasattr(Fornecedor, "nome"):
+        dados_mapeados["nome"] = nome_final
+
+    # Filtra mantendo apenas o que realmente é uma coluna do banco
+    campos_validos = {}
+    for chave, valor in dados_mapeados.items():
+        if hasattr(Fornecedor, chave) and valor is not None:
+            campos_validos[chave] = valor
+
+    # Garante que o campo obrigatório foi mapeado com sucesso antes de salvar
+    if "nome_empresa" in campos_validos and campos_validos["nome_empresa"] is None:
+         raise HTTPException(status_code=422, detail="Erro de mapeamento interno: 'nome_empresa' nulo.")
+
+    novo = Fornecedor(**campos_validos)
     db.add(novo)
     db.commit()
     db.refresh(novo)
@@ -462,28 +486,62 @@ async def atualizar_fornecedor(fornecedor_id: int, dados: FornecedorSchema, db: 
     if not fornecedor: 
         raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
     
-    fornecedor.nome_fantasia = dados.nome_fantasia
-    fornecedor.cnpj          = dados.cnpj
-    fornecedor.telefone      = dados.telefone
-    fornecedor.email         = dados.email
-    fornecedor.localidade    = dados.localidade
-    fornecedor.nome_contato  = dados.nome_contato
+    nome_final = dados.nome_fantasia if dados.nome_fantasia else dados.nome
+
+    dados_mapeados = {
+        "cnpj": dados.cnpj,
+        "telefone": dados.telefone,
+        "email": dados.email,
+        "nome_contato": dados.nome_contato,
+        "contato": dados.nome_contato,
+        "localidade": dados.localidade,
+        "endereco": dados.localidade,
+        "cidade": dados.localidade
+    }
+
+    if nome_final:
+        dados_mapeados["nome_empresa"] = nome_final
+        dados_mapeados["nome_fantasia"] = nome_final
+        dados_mapeados["nome"] = nome_final
+
+    # Atualiza dinamicamente as colunas existentes
+    for chave, valor in dados_mapeados.items():
+        if hasattr(fornecedor, chave) and valor is not None:
+            setattr(fornecedor, chave, valor)
     
     db.commit()
     return {"status": "atualizado"}
 
 
 @app.delete("/admin/fornecedores/{fornecedor_id}")
+@app.post("/admin/fornecedores/{fornecedor_id}/deletar")
 async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
+    # 1. Busca o fornecedor
     fornecedor = db.query(Fornecedor).filter(Fornecedor.id == fornecedor_id).first()
     if not fornecedor:
         raise HTTPException(status_code=404, detail="Fornecedor não encontrado.")
     
-    db.delete(fornecedor)
-    db.commit()
-    return {"status": "deletado"}
-
-
+    try:
+        # 2. Desvincula produtos dinamicamente se a coluna existir no model Produto
+        if 'Produto' in globals() or 'Produto' in locals():
+            if hasattr(Produto, 'fornecedor_id'):
+                # Executa o filtro de query limpo e aceito pelo SQLAlchemy
+                produtos_vinculados = db.query(Produto).filter(Produto.fornecedor_id == fornecedor_id).all()
+                for prod in produtos_vinculados:
+                    prod.fornecedor_id = None 
+        
+        # 3. Executa a deleção do fornecedor
+        db.delete(fornecedor)
+        db.commit()
+        return {"status": "deletado"}
+        
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Erro crítico ao deletar fornecedor: {e}")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Não foi possível deletar o fornecedor devido a restrições no banco de dados. Erro: {str(e)}"
+        )
 # --- CRUD VENDAS ---
 
 @app.post("/admin/vendas")
@@ -491,9 +549,10 @@ async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
     if not Venda:
         raise HTTPException(status_code=501, detail="Módulo de vendas não está ativo no sistema.")
 
-    produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
-    if not produto:
-        raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
+    if dados.produto_id:
+        produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
+        if not produto:
+            raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
 
     nova_venda = Venda(
         comprador=dados.comprador,
@@ -506,6 +565,26 @@ async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(nova_venda)
     return {"status": "criado", "id": nova_venda.id}
+
+
+@app.put("/admin/vendas/{venda_id}")
+async def atualizar_venda(venda_id: int, dados: VendaSchema, db: Session = Depends(get_db)):
+    if not Venda:
+        raise HTTPException(status_code=501, detail="Módulo de vendas não está ativo no sistema.")
+
+    venda = db.query(Venda).filter(Venda.id == venda_id).first()
+    if not venda:
+        raise HTTPException(status_code=404, detail="Registro de venda não encontrado.")
+    
+    venda.comprador = dados.comprador
+    venda.quantidade = dados.quantidade
+    venda.preco_total = dados.preco_total
+    
+    if dados.produto_id:
+        venda.produto_id = dados.produto_id
+
+    db.commit()
+    return {"status": "atualizado"}
 
 
 @app.delete("/admin/vendas/{venda_id}")

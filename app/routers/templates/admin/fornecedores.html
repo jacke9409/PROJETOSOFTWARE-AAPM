@@ -58,11 +58,13 @@
             </thead>
             <tbody>
                 {% for forn in fornecedores %}
+                {% set nome_exibicao = forn.nome_fantasia if forn.nome_fantasia is defined else (forn.nome if forn.nome is defined else 'Sem Nome') %}
+                {% set localidade_exibicao = forn.localidade if forn.localidade is defined else (forn.endereco if forn.endereco is defined else (forn.cidade if forn.cidade is defined else 'Não informada')) %}
                 <tr id="linha-fornecedor-{{ forn.id }}" style="border-bottom: 1px solid rgba(255,255,255,0.1); height: 50px; background: rgba(255,255,255,0.02); transition: 0.3s;">
-                    <td style="padding: 12px;"><strong>{{ forn.nome_fantasia }}</strong></td>
+                    <td style="padding: 12px;"><strong>{{ nome_exibicao }}</strong></td>
                     <td>{{ forn.cnpj }}</td>
                     <td>{{ forn.telefone }}</td>
-                    <td>{{ forn.localidade }}</td>
+                    <td>{{ localidade_exibicao }}</td>
                     <td style="text-align: center;">
                         <button type="button" 
                                 onclick="abrirModalFornEditar(this.getAttribute('data-id'))" 
@@ -74,7 +76,7 @@
                         <button type="button" 
                                 onclick="abrirModalFornDeletar(this.getAttribute('data-id'), this.getAttribute('data-nome'))" 
                                 data-id="{{ forn.id }}"
-                                data-nome="{{ forn.nome }}" 
+                                data-nome="{{ nome_exibicao }}" 
                                 style="background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; color: white; padding: 6px 12px; cursor: pointer; border-radius: 6px; font-weight: bold; transition: 0.15s;">
                             Excluir
                         </button>
@@ -139,7 +141,7 @@
 <div class="modal-overlay" id="modal-forn-editar">
     <div class="modal-box">
         <button class="modal-fechar" onclick="fecharModal('modal-forn-editar')">✕</button>
-        <div class="modal-titulo"> Editar Fornecedor</div>
+        <div class="modal-titulo">📝 Editar Fornecedor</div>
         <form id="form-forn-editar" onsubmit="atualizarFornecedor(event)">
             <input type="hidden" name="id" id="edit-forn-id">
             
@@ -199,6 +201,139 @@
         </div>
     </div>
 </div>
+
+<script>
+    function abrirModalFornAdicionar() {
+        document.getElementById('form-forn-adicionar').reset();
+        document.getElementById('modal-forn-adicionar').style.display = 'flex';
+    }
+
+    function fecharModal(idModal) {
+        document.getElementById(idModal).style.display = 'none';
+    }
+
+    let idFornecedorParaDeletar = null;
+    function abrirModalFornDeletar(id, nome) {
+        idFornecedorParaDeletar = id;
+        document.getElementById('deletar-nome-fornecedor').innerText = nome || "Este fornecedor";
+        document.getElementById('modal-forn-deletar').style.display = 'flex';
+    }
+
+    function abrirModalFornEditar(id) {
+        const fornecedor = window.FORNECEDORES_DB.find(f => String(f.id) === String(id));
+        if (!fornecedor) {
+            alert("Erro: Dados do fornecedor não encontrados localmente.");
+            return;
+        }
+
+        // Fallbacks para renderizar no formulário independentemente das colunas reais do banco
+        const localidadeValor = fornecedor.localidade || fornecedor.endereco || fornecedor.cidade || '';
+
+        document.getElementById('edit-forn-id').value = fornecedor.id;
+        document.getElementById('edit-forn-nome').value = fornecedor.nome_fantasia || fornecedor.nome || '';
+        document.getElementById('edit-forn-cnpj').value = fornecedor.cnpj || '';
+        document.getElementById('edit-forn-telefone').value = fornecedor.telefone || '';
+        document.getElementById('edit-forn-email').value = fornecedor.email || '';
+        document.getElementById('edit-forn-localidade').value = localidadeValor;
+        document.getElementById('edit-forn-contato').value = fornecedor.nome_contato || '';
+
+        document.getElementById('modal-forn-editar').style.display = 'flex';
+    }
+
+    async function salvarFornecedor(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const nomeValor = formData.get('nome');
+
+        const dadosJSON = {
+            nome: nomeValor,
+            nome_fantasia: nomeValor,
+            cnpj: formData.get('cnpj'),
+            telefone: formData.get('telefone'),
+            email: formData.get('email') || null,
+            localidade: formData.get('localidade'),
+            nome_contato: formData.get('nome_contato') || null
+        };
+
+        try {
+            const resposta = await fetch('/admin/fornecedores', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosJSON)
+            });
+
+            if (resposta.ok) {
+                window.location.reload();
+            } else {
+                const erro = await resposta.json();
+                alert("Erro ao salvar: " + (erro.detail || "Verifique os dados enviados."));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro crítico de conexão com o servidor.");
+        }
+    }
+
+    async function atualizarFornecedor(event) {
+        event.preventDefault();
+        const form = event.target;
+        const formData = new FormData(form);
+        const id = formData.get('id');
+
+        const nomeValor = formData.get('nome');
+
+        const dadosJSON = {
+            nome: nomeValor,
+            nome_fantasia: nomeValor,
+            cnpj: formData.get('cnpj'),
+            telefone: formData.get('telefone'),
+            email: formData.get('email') || null,
+            localidade: formData.get('localidade'),
+            nome_contato: formData.get('nome_contato') || null
+        };
+
+        try {
+            const resposta = await fetch(`/admin/fornecedores/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dadosJSON)
+            });
+
+            if (resposta.ok) {
+                window.location.reload();
+            } else {
+                const erro = await resposta.json();
+                alert("Erro ao atualizar: " + (erro.detail || "Erro desconhecido."));
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro crítico ao tentar conectar ao servidor.");
+        }
+    }
+
+    async function confirmarDelecaoFornecedor() {
+        if (!idFornecedorParaDeletar) return;
+
+        try {
+            const resposta = await fetch(`/admin/fornecedores/${idFornecedorParaDeletar}`, {
+                method: 'DELETE'
+            });
+
+            if (resposta.ok) {
+                window.location.reload();
+            } else {
+                alert("Erro ao excluir o fornecedor.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erro de rede ao tentar deletar.");
+        } finally {
+            fecharModal('modal-forn-deletar');
+        }
+    }
+</script>
 
 <script src="{{ url_for('static', path='js/script.js') }}"></script>
 

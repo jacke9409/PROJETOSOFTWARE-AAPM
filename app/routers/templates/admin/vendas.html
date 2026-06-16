@@ -54,17 +54,17 @@
                                     data-quantidade="{{ venda.quantidade }}"
                                     data-total="{{ '%.2f'|format(venda.preco_total) }}"
                                     onclick="dispararExtrato(this)">
-                                📄 Extrato
+                                Extrato
                             </button>
                             
                             <button class="btn-card-acao btn-editar" style="padding: 6px 10px; font-size: 0.75rem; background: #0284c7;" 
-                                    onclick="abrirModalEditarVenda('{{ venda.id }}', '{{ venda.comprador }}', '{{ venda.quantidade }}', '{{ venda.preco_total }}')">
-                                ✏️ Editar
+                                  onclick="abrirModalEditarVenda('{{ venda.id }}', '{{ venda.comprador }}', '{{ venda.quantidade }}', '{{ venda.preco_total }}')">
+                                 Editar
                             </button>
 
                             <button class="btn-card-acao" style="padding: 6px 10px; font-size: 0.75rem; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;" 
                                     onclick="deletarVenda('{{ venda.id }}')">
-                                🗑️ Apagar
+                                 Apagar
                             </button>
                         </div>
                     </td>
@@ -72,7 +72,7 @@
                 {% else %}
                 <tr>
                     <td colspan="5" class="prod-vazio" style="text-align: center; padding: 40px 0; color: rgba(255,255,255,0.4);">
-                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;">💰</span>
+                        <span style="font-size: 2rem; display: block; margin-bottom: 10px;"></span>
                         Nenhum registro de venda encontrado no sistema.
                     </td>
                 </tr>
@@ -82,20 +82,20 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="modal-venda">
-    <div class="modal-box" style="width: 460px;">
-        <button class="modal-fechar" onclick="fecharModalVenda()">&times;</button>
-        <h3 class="modal-titulo">Nova Venda</h3>
+<div class="modal-overlay" id="modal-venda" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; justify-content: center; align-items: center;">
+    <div class="modal-box" style="width: 460px; background: #1e293b; padding: 24px; border-radius: 8px; position: relative;">
+        <button class="modal-fechar" onclick="fecharModalVenda()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 class="modal-titulo" style="margin-top: 0; margin-bottom: 20px;">Nova Venda</h3>
         
         <form id="form-nova-venda" onsubmit="enviarVenda(event)">
-            <div class="modal-campo">
-                <label for="comprador">Nome do Comprador</label>
-                <input type="text" id="comprador" name="comprador" placeholder="Nome do aluno ou associado" required>
+            <div class="modal-campo" style="margin-bottom: 16px;">
+                <label for="comprador" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Nome do Comprador</label>
+                <input type="text" id="comprador" name="comprador" placeholder="Nome do aluno ou associado" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #fff; box-sizing: border-box;">
             </div>
 
-            <div class="modal-campo">
-                <label for="produto_id">Produto</label>
-                <select id="produto_id" name="produto_id" onchange="atualizarTotalFormatado()" required>
+            <div class="modal-campo" style="margin-bottom: 16px;">
+                <label for="produto_id" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Produto</label>
+                <select id="produto_id" name="produto_id" onchange="atualizarTotalFormatado()" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #fff; box-sizing: border-box;">
                     <option value="" disabled selected>Selecione o produto vendido...</option>
                     {% for produto in produtos %}
                         <option value="{{ produto.id }}" data-preco="{{ produto.preco }}">
@@ -105,10 +105,10 @@
                 </select>
             </div>
 
-            <div class="modal-linha" style="display: flex; gap: 15px; align-items: center;">
+            <div class="modal-linha" style="display: flex; gap: 15px; align-items: center; margin-bottom: 16px;">
                 <div class="modal-campo" style="flex: 1; margin-bottom: 0;">
-                    <label for="quantidade">Qtd</label>
-                    <input type="number" id="quantidade" name="quantidade" value="1" min="1" oninput="atualizarTotalFormatado()" required>
+                    <label for="quantidade" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Qtd</label>
+                    <input type="number" id="quantidade" name="quantidade" value="1" min="1" oninput="atualizarTotalFormatado()" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #fff; box-sizing: border-box;">
                 </div>
                 
                 <div style="flex: 1.5; text-align: right; padding-top: 15px;">
@@ -117,42 +117,215 @@
                 </div>
             </div>
 
-            <div class="modal-rodape" style="margin-top: 25px;">
-                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModalVenda()">Cancelar</button>
-                <button type="submit" class="btn-modal btn-confirmar-verde">Confirmar Venda</button>
+            <div class="modal-rodape" style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModalVenda()" style="padding: 10px 16px; background: #475569; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-verde" style="padding: 10px 16px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">Confirmar Venda</button>
             </div>
         </form>
     </div>
 </div>
 
-<div class="modal-overlay" id="modal-editar-venda">
-    <div class="modal-box" style="width: 460px;">
-        <button class="modal-fechar" onclick="fecharModalEditarVenda()">&times;</button>
-        <h3 class="modal-titulo">Editar Registro de Venda</h3>
+<div class="modal-overlay" id="modal-editar-venda" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; justify-content: center; align-items: center;">
+    <div class="modal-box" style="width: 460px; background: #1e293b; padding: 24px; border-radius: 8px; position: relative;">
+        <button class="modal-fechar" onclick="fecharModalEditarVenda()" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <h3 class="modal-titulo" style="margin-top: 0; margin-bottom: 20px;">Editar Registro de Venda</h3>
         
         <form id="form-editar-venda" onsubmit="enviarAtualizacaoVenda(event)">
-            <input type="hidden" id="edit-venda-id"> <div class="modal-campo">
-                <label for="edit-comprador">Nome do Comprador</label>
-                <input type="text" id="edit-comprador" name="comprador" required>
+            <input type="hidden" id="edit-venda-id"> 
+            <div class="modal-campo" style="margin-bottom: 16px;">
+                <label for="edit-comprador" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Nome do Comprador</label>
+                <input type="text" id="edit-comprador" name="comprador" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #fff; box-sizing: border-box;">
             </div>
 
-            <div class="modal-linha" style="display: flex; gap: 15px; align-items: center;">
+            <div class="modal-linha" style="display: flex; gap: 15px; align-items: center; margin-bottom: 16px;">
                 <div class="modal-campo" style="flex: 1; margin-bottom: 0;">
-                    <label for="edit-quantidade">Qtd Vendida</label>
-                    <input type="number" id="edit-quantidade" name="quantidade" min="1" required>
+                    <label for="edit-quantidade" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Qtd Vendida</label>
+                    <input type="number" id="edit-quantidade" name="quantidade" min="1" required style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 4px; color: #fff; box-sizing: border-box;">
                 </div>
                 
                 <div class="modal-campo" style="flex: 1.5; margin-bottom: 0;">
-                    <label for="edit-total">Valor Total Atualizado (R$)</label>
-                    <input type="number" id="edit-total" name="preco_total" step="0.01" required style="background: rgba(30, 41, 59, 0.5); color: #4ade80; font-weight: bold; font-size: 1.1rem;">
+                    <label for="edit-total" style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: #94a3b8;">Valor Total Atualizado (R$)</label>
+                    <input type="number" id="edit-total" name="preco_total" step="0.01" required style="width: 100%; padding: 10px; background: rgba(30, 41, 59, 0.5); color: #4ade80; font-weight: bold; font-size: 1.1rem; border: 1px solid #334155; border-radius: 4px; box-sizing: border-box;">
                 </div>
             </div>
 
-            <div class="modal-rodape" style="margin-top: 25px;">
-                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModalEditarVenda()">Cancelar</button>
-                <button type="submit" class="btn-modal btn-confirmar-verde" style="background: #0284c7;">Salvar Alterações</button>
+            <div class="modal-rodape" style="margin-top: 25px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-modal btn-cancelar" onclick="fecharModalEditarVenda()" style="padding: 10px 16px; background: #475569; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancelar</button>
+                <button type="submit" class="btn-modal btn-confirmar-verde" style="padding: 10px 16px; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">Salvar Alterações</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+function abrirModalVenda() {
+    const modal = document.getElementById('modal-venda');
+    modal.style.display = 'flex';
+    document.getElementById('form-nova-venda').reset();
+    document.getElementById('label-total-venda').innerText = "R$ 0,00";
+}
+
+function fecharModalVenda() {
+    document.getElementById('modal-venda').style.display = 'none';
+}
+
+function abrirModalEditarVenda(id, comprador, quantidade, total) {
+    document.getElementById('edit-venda-id').value = id;
+    document.getElementById('edit-comprador').value = comprador;
+    document.getElementById('edit-quantidade').value = quantidade;
+    document.getElementById('edit-total').value = parseFloat(total).toFixed(2);
+    document.getElementById('modal-editar-venda').style.display = 'flex';
+}
+
+function fecharModalEditarVenda() {
+    document.getElementById('modal-editar-venda').style.display = 'none';
+}
+
+function atualizarTotalFormatado() {
+    const selectProd = document.getElementById('produto_id');
+    const qtdInput = document.getElementById('quantidade');
+    const labelTotal = document.getElementById('label-total-venda');
+    
+    if(selectProd.selectedIndex > 0) {
+        const opcaoSelecionada = selectProd.options[selectProd.selectedIndex];
+        const precoUnitario = parseFloat(opcaoSelecionada.getAttribute('data-preco') || 0);
+        const qtd = parseInt(qtdInput.value || 1);
+        const total = precoUnitario * qtd;
+        labelTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+}
+
+async function enviarVenda(event) {
+    event.preventDefault();
+    
+    const inputComprador = document.getElementById('comprador');
+    const selectProduto = document.getElementById('produto_id');
+    const inputQuantidade = document.getElementById('quantidade');
+
+    if (!selectProduto || selectProduto.value === "") {
+        alert("Por favor, selecione um produto válido.");
+        return;
+    }
+
+    // Pega o valor unitário direto do atributo do option selecionado
+    const opcaoSelecionada = selectProduto.options[selectProduto.selectedIndex];
+    const precoUnitario = parseFloat(opcaoSelecionada.getAttribute('data-preco')) || 0;
+    
+    const quantidadeValida = parseInt(inputQuantidade.value) || 1;
+    const totalCalculado = precoUnitario * quantidadeValida;
+
+    // Monta o payload tipado estritamente para corresponder ao VendaSchema do Pydantic
+    const payload = {
+        comprador: inputComprador.value.trim(),
+        produto_id: parseInt(selectProduto.value),
+        quantidade: quantidadeValida,
+        preco_total: totalCalculado
+    };
+    
+    try {
+        const response = await fetch('/admin/vendas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            fecharModalVenda();
+            window.location.reload();
+        } else {
+            const errData = await response.json();
+            alert("Erro ao registrar venda: " + (JSON.stringify(errData.detail) || "Erro desconhecido"));
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Falha de rede ao registrar venda.");
+    }
+}
+
+async function enviarAtualizacaoVenda(event) {
+    event.preventDefault();
+    const id = document.getElementById('edit-venda-id').value;
+    const comprador = document.getElementById('edit-comprador').value;
+    const quantidade = document.getElementById('edit-quantidade').value;
+    const preco_total = document.getElementById('edit-total').value;
+    
+    try {
+        const response = await fetch(`/admin/vendas/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comprador, quantidade, preco_total })
+        });
+        
+        if (response.ok) {
+            fecharModalEditarVenda();
+            window.location.reload();
+        } else {
+            alert("Erro ao atualizar a venda.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Falha de conexão ao atualizar.");
+    }
+}
+
+async function deletarVenda(id) {
+    if (!confirm("Tem certeza que deseja apagar permanentemente este registro de venda?")) return;
+    
+    try {
+        const response = await fetch(`/admin/vendas/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            const linha = document.getElementById(`venda-row-${id}`);
+            if (linha) linha.remove();
+            window.location.reload();
+        } else {
+            alert("Erro ao deletar venda no servidor.");
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Erro na requisição.");
+    }
+}
+
+function dispararExtrato(botao) {
+    const comprador = botao.getAttribute('data-comprador') || "Cliente";
+    const produto = botao.getAttribute('data-produto');
+    const quantidade = botao.getAttribute('data-quantidade');
+    const total = botao.getAttribute('data-total');
+    
+    const janelaImpressao = window.open('', '_blank', 'width=550,height=600');
+    janelaImpressao.document.write(`
+        <html>
+        <head>
+            <title>Comprovante de Venda — AAPM</title>
+            <style>
+                body { font-family: monospace; padding: 20px; background: #fff; color: #000; }
+                .recibo { border: 1px dashed #000; padding: 15px; max-width: 360px; margin: 0 auto; }
+                .topo { text-align: center; font-weight: bold; font-size: 1.2rem; margin-bottom: 5px; }
+                .sub { text-align: center; font-size: 0.8rem; margin-bottom: 20px; }
+                .linha { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9rem; }
+                .total { font-weight: bold; border-top: 1px dashed #000; padding-top: 10px; margin-top: 10px; font-size: 1.05rem; }
+                .btn-print { display: block; width: 100%; text-align: center; margin-top: 25px; padding: 10px; background: #000; color: #fff; cursor: pointer; font-weight: bold; border: none; text-transform: uppercase; }
+                @media print { .btn-print { display: none; } }
+            </style>
+        </head>
+        <body>
+            <div class="recibo">
+                <div class="topo">AAPM — SENAI BRÁS</div>
+                <div class="sub">COMPROVANTE DE PAGAMENTO</div>
+                <hr style="border: 1px dashed #000;">
+                <div class="linha"><span>CLIENTE:</span> <span>${comprador}</span></div>
+                <div class="linha"><span>PRODUTO:</span> <span>${produto}</span></div>
+                <div class="linha"><span>QUANTIDADE:</span> <span>${quantidade}x</span></div>
+                <div class="linha total"><span>TOTAL PAGO:</span> <span>R$ ${parseFloat(total).toFixed(2).replace('.', ',')}</span></div>
+                <button class="btn-print" onclick="window.print()">Imprimir Extrato</button>
+            </div>
+        </body>
+        </html>
+    `);
+    janelaImpressao.document.close();
+}
+</script>
 {% endblock %}

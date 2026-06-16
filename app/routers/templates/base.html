@@ -27,7 +27,7 @@
         <span>AAPM</span>
       </div>
       <span class="header-location">SENAI BRÁS &mdash; SP</span>
-      <a href="/login" class="header-login" style="margin-left: auto; padding: 8px 16px; border: 1px solid white; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500;">PAINEL ADMIN</a>
+      <a href="/login" class="header-login">PAINEL ADMIN</a>
     </header>
 
     <main>
@@ -54,6 +54,8 @@
       </section>
 
       <div class="bg-dark-section">
+
+        <!-- SEÇÃO PRODUTOS -->
         <section class="secao-produtos">
           <div class="titulo-secao">
             <h2>NOSSOS PRODUTOS</h2>
@@ -64,7 +66,7 @@
               </svg>
             </a>
           </div>
-          
+
           <div class="cards">
             {% if produtos %}
               {% for produto in produtos %}
@@ -89,30 +91,90 @@
               </div>
             {% endif %}
           </div>
-         
         </section>
 
-        <section class="secao-sobre">
-          <div class="sobre-logos">
-            <span class="tag">SENAI</span>
-            <span class="tag">BRÁS</span>
-            <span class="tag">SP</span>
+        <!-- SEÇÃO HORÁRIOS E DÚVIDAS -->
+        <section class="secao-info">
+
+          <!-- HORÁRIOS -->
+          <div class="info-bloco info-bloco--horarios">
+            <div class="info-bloco-header">
+              <span class="info-tag">FUNCIONAMENTO</span>
+              <h2>HORÁRIOS<br>DE ATENDIMENTO</h2>
+            </div>
+            <div class="horarios-lista">
+              <div class="horario-item">
+                <span class="horario-dia">Segunda — Sexta</span>
+                <span class="horario-divisor"></span>
+                <span class="horario-hora">07h30 — 17h00</span>
+              </div>
+              <div class="horario-item">
+                <span class="horario-dia">Sábado</span>
+                <span class="horario-divisor"></span>
+                <span class="horario-hora">08h00 — 12h00</span>
+              </div>
+              <div class="horario-item horario-item--fechado">
+                <span class="horario-dia">Domingo</span>
+                <span class="horario-divisor"></span>
+                <span class="horario-hora">Fechado</span>
+              </div>
+              <div class="horario-aviso">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Horários sujeitos a alteração em feriados e recessos escolares.
+              </div>
+            </div>
           </div>
-          <div class="sobre-texto">
-            <div class="sobre-item">
-              <p class="sobre-numero">+200</p>
-              <p class="sobre-desc">alunos formados anualmente em cursos técnicos industriais de alta demanda.</p>
+
+          <!-- DÚVIDAS -->
+          <div class="info-bloco info-bloco--duvidas">
+            <div class="info-bloco-header">
+              <span class="info-tag">FAQ</span>
+              <h2>DÚVIDAS<br>FREQUENTES</h2>
             </div>
-            <div class="sobre-item">
-              <p class="sobre-numero">15+</p>
-              <p class="sobre-desc">anos de excelência em formação profissional e serviços industriais no coração de SP.</p>
-            </div>
-            <div class="sobre-item">
-              <p class="sobre-numero">100%</p>
-              <p class="sobre-desc">dos serviços realizados por alunos supervisionados por instrutores especializados.</p>
+            <div class="faq-lista">
+              <details class="faq-item">
+                <summary class="faq-pergunta">
+                  Como faço para agendar um serviço?
+                  <svg class="faq-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </summary>
+                <p class="faq-resposta">Acesse a página de visualização, escolha o produto desejado e siga as instruções para agendar seu horário de atendimento.</p>
+              </details>
+              <details class="faq-item">
+                <summary class="faq-pergunta">
+                  Os serviços são realizados por quem?
+                  <svg class="faq-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </summary>
+                <p class="faq-resposta">Todos os serviços são executados por alunos do SENAI Brás, supervisionados por instrutores especializados com anos de experiência na área.</p>
+              </details>
+              <details class="faq-item">
+                <summary class="faq-pergunta">
+                  Preciso ser aluno do SENAI para usar?
+                  <svg class="faq-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </summary>
+                <p class="faq-resposta">Não. Os serviços da AAPM estão disponíveis para toda a comunidade, independente de vínculo com o SENAI.</p>
+              </details>
+              <details class="faq-item">
+                <summary class="faq-pergunta">
+                  Como posso entrar em contato?
+                  <svg class="faq-icone" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </summary>
+                <p class="faq-resposta">Visite-nos na Rua Correia de Andrade, 232, Brás — SP. Também é possível entrar em contato pelo painel de visualização do site.</p>
+              </details>
             </div>
           </div>
+
         </section>
+
       </div>
 
       <section class="secao-agende">
@@ -133,7 +195,7 @@
           <p class="footer-eyebrow">THE EXPERIENCE</p>
           <h2>AAPM</h2>
         </div>
-        
+
         <div class="footer-secoes">
           <div class="footer-col">
             <h3>Rua Correia de Andrade, 232, no bairro do Brás, em São Paulo/SP.</h3>
