@@ -14,7 +14,6 @@
 <div id="smooth-wrapper">
   <div id="smooth-content">
 
-    <!-- CABEÇALHO -->
     <header>
       <div class="logo">
         <div class="logo-icon">
@@ -33,7 +32,6 @@
 
     <main>
 
-      <!-- HERO -->
       <section class="hero">
         <div class="hero-bg" data-speed=".6"></div>
         <div class="hero-overlay"></div>
@@ -55,7 +53,6 @@
         </div>
       </section>
 
-      <!-- PRODUTOS -->
       <div class="bg-dark-section">
         <section class="secao-produtos">
           <div class="titulo-secao">
@@ -67,32 +64,34 @@
               </svg>
             </a>
           </div>
+          
           <div class="cards">
-            <div class="card">
-              <div class="card-bg card-bg-1"></div>
-              <div class="card-info">
-                <h3>Manutenção</h3>
-                <p>SERVIÇOS DISPONÍVEIS</p>
+            {% if produtos %}
+              {% for produto in produtos %}
+                <div class="card">
+                  <div class="card-bg" style="position: relative; overflow: hidden;">
+                    {% if produto.imagem_url %}
+                      <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                      <img src="/static/images/default-product.jpg" alt="Sem foto" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
+                  </div>
+                  <div class="card-info">
+                    <h3>{{ produto.nome }}</h3>
+                    <p>R$ {{ "%.2f"|format(produto.preco) }}</p>
+                    <span style="font-size: 11px; opacity: 0.7; letter-spacing: 1px;">TAMANHO: {{ produto.tamanho }}</span>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">
+                <p>Nenhum produto cadastrado no painel admin no momento.</p>
               </div>
-            </div>
-            <div class="card">
-              <div class="card-bg card-bg-2"></div>
-              <div class="card-info">
-                <h3>Usinagem</h3>
-                <p>SERVIÇOS DISPONÍVEIS</p>
-              </div>
-            </div>
-            <div class="card">
-              <div class="card-bg card-bg-3"></div>
-              <div class="card-info">
-                <h3>Automação</h3>
-                <p>SERVIÇOS DISPONÍVEIS</p>
-              </div>
-            </div>
+            {% endif %}
           </div>
+         
         </section>
 
-        <!-- SOBRE / NÚMEROS -->
         <section class="secao-sobre">
           <div class="sobre-logos">
             <span class="tag">SENAI</span>
@@ -116,7 +115,6 @@
         </section>
       </div>
 
-      <!-- AGENDE -->
       <section class="secao-agende">
         <h2>PRONTO PARA AGENDAR SEU SERVIÇO?</h2>
         <a href="/visualizacao" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
@@ -129,24 +127,16 @@
 
     </main>
 
-    <!-- FOOTER -->
     <footer>
       <div class="footer-conteudo">
         <div class="footer-logo">
           <p class="footer-eyebrow">THE EXPERIENCE</p>
           <h2>AAPM</h2>
         </div>
+        
         <div class="footer-secoes">
           <div class="footer-col">
-            <h3>REDES SOCIAIS</h3>
-            <ul>
-              <li>Instagram</li>
-              <li>LinkedIn</li>
-              <li>Facebook</li>
-            </ul>
-          </div>
-          <div class="footer-col">
-            <h3>UNIDADE</h3>
+            <h3>Rua Correia de Andrade, 232, no bairro do Brás, em São Paulo/SP.</h3>
             <p>SENAI Brás<br>São Paulo — SP</p>
           </div>
           <div class="footer-col">
@@ -164,8 +154,8 @@
         <span>AAPM</span>
       </div>
       <div class="texto-infinito">
-        <h3>AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp;</h3>
-        <h3 aria-hidden="true">AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp;</h3>
+        <h3>AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp; AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp; AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp;</h3>
+        <h3 aria-hidden="true">AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp; AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp; AAPM &nbsp;&nbsp; SENAI &nbsp;&nbsp;</h3>
       </div>
     </footer>
 
