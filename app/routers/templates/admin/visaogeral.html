@@ -1,0 +1,165 @@
+{% extends 'admin/base_admin.html' %}
+
+{% block admin_content %}
+    <div class="page-header">
+      <div>
+        <p class="page-title-label">Painel Administrativo</p>
+        <h2 class="page-title">VISÃO GERAL</h2>
+        <p class="page-subtitle">Resumo das operações da AAPM</p>
+      </div>
+      <div class="header-date" id="current-date"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V10"/></svg>
+        </div>
+        <div class="stat-value">{{ total_produtos }}</div>
+        <div class="stat-label">Produtos</div>
+        <div class="stat-change up">↑ Cadastrados</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+        </div>
+        <div class="stat-value">{{ total_categorias }}</div>
+        <div class="stat-label">Catálogos</div>
+        <div class="stat-change up">↑ Categorias</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <div class="stat-value">{{ total_fornecedores }}</div>
+        <div class="stat-label">Fornecedores</div>
+        <div class="stat-change up">↑ Ativos</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div class="stat-value">R$ {{ faturamento_total }}</div>
+        <div class="stat-label">Vendas</div>
+        <div class="stat-change up">↑ Total Acumulado</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Últimas vendas registradas</span>
+          <a href="/dashboard/vendas" class="panel-action" style="text-decoration: none;">Ver todas →</a>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>ID Venda</th>
+              <th>Comprador</th>
+              <th>Produto</th>
+              <th>Valor Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if vendas_recentes %}
+              {% for venda in vendas_recentes %}
+              <tr>
+                <td style="font-weight: 600;">#{{ venda.id }}</td>
+                <td style="color: var(--text-dim);">{{ venda.comprador }}</td>
+                <td><strong>{{ venda.produto_nome }}</strong> (x{{ venda.quantidade }})</td>
+                <td><span class="badge badge-green">R$ {{ "%.2f"|format(venda.preco_total) }}</span></td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-dim); padding: 20px;">
+                  Nenhuma venda registrada no sistema até o momento.
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Status do Sistema</span>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text">Banco de dados conectado com sucesso.</div>
+              <div class="activity-time">Agora mesmo</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text">Sincronização de tabelas efetuada.</div>
+              <div class="activity-time">Operacional</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top: 8px;">Acesso rápido</p>
+
+    <div class="bottom-grid">
+      <a class="quick-link" href="/dashboard/produtos">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V10"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Produtos</div>
+            <div class="quick-link-count">Gerenciar estoque</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/dashboard/categorias">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Catálogos</div>
+            <div class="quick-link-count">Categorias ativas</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/dashboard/fornecedores">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Fornecedores</div>
+            <div class="quick-link-count">Parceiros cadastrados</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/dashboard/vendas">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Vendas</div>
+            <div class="quick-link-count">Histórico financeiro</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+    </div>
+{% endblock %}

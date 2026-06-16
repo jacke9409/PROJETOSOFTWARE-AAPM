@@ -1,5 +1,4 @@
-/* ─── REGISTRO SEGURO DE PLUGINS ──────────────────────── */
-// Verifica se os plugins existem antes de registrá-los para não travar o script
+/* ─── REGISTRO SEGURO DE PLUGINS (GSAP) ──────────────────────── */
 const pluginsToRegister = [];
 if (typeof ScrollTrigger !== "undefined") pluginsToRegister.push(ScrollTrigger);
 if (typeof ScrollSmoother !== "undefined") pluginsToRegister.push(ScrollSmoother);
@@ -10,7 +9,6 @@ if (pluginsToRegister.length > 0) {
 }
 
 /* ─── SCROLL SUAVE SEGURO ─────────────────────────────── */
-// Só cria o scroll suave se o plugin pago estiver carregado e o container existir
 if (typeof ScrollSmoother !== "undefined" && document.getElementById("smooth-wrapper")) {
   const smoother = ScrollSmoother.create({
     smooth: 1.2,
@@ -18,14 +16,9 @@ if (typeof ScrollSmoother !== "undefined" && document.getElementById("smooth-wra
   });
 }
 
-/* ─── ANIMAÇÕES HERO ─────────────────────────────────── */
-// Garante que as animações rodem se os elementos existirem na tela atual
+/* ─── ANIMAÇÕES INSTITUCIONAIS / HOME (GSAP) ──────────────── */
 if (document.querySelector(".hero")) {
-  gsap.from(".hero", {
-    opacity: 0,
-    duration: 1.2,
-    ease: "power2.out",
-  });
+  gsap.from(".hero", { opacity: 0, duration: 1.2, ease: "power2.out" });
 
   gsap.from(".hero-esquerda h1", {
     y: 80,
@@ -34,174 +27,117 @@ if (document.querySelector(".hero")) {
     delay: 0.2,
     ease: "power3.out",
   });
+
+  gsap.from(".eyebrow", {
+    y: 30,
+    opacity: 0,
+    duration: 0.8,
+    delay: 0.15,
+    ease: "power3.out",
+  });
+
+  gsap.from(".hero-direita", {
+    y: 50,
+    opacity: 0,
+    duration: 0.9,
+    delay: 0.4,
+    ease: "power3.out",
+  });
+
+  gsap.to(".hero-bg", {
+    yPercent: 25,
+    ease: "none",
+    scrollTrigger: {
+      trigger: ".hero",
+      start: "top top",
+      end: "bottom top",
+      scrub: true,
+    },
+  });
 }
-/* ─── ANIMAÇÕES HERO ─────────────────────────────────── */
-// entrada do hero inteiro
-gsap.from(".hero", {
-  opacity: 0,
-  duration: 1.2,
-  ease: "power2.out",
-});
 
-// titulo entra de baixo
-gsap.from(".hero-esquerda h1", {
-  y: 80,
-  opacity: 0,
-  duration: 1,
-  delay: 0.2,
-  ease: "power3.out",
-});
+/* ─── ANIMAÇÕES INSTITUCIONAIS / HOME (GSAP) ──────────────── */
+// Só anima se estiver na página pública que contém o container original de cards
+if (document.querySelector(".cards-institucionais-container")) {
+  gsap.from(".cards-institucionais-container .card", {
+    opacity: 0,
+    y: 60,
+    filter: "blur(8px)",
+    stagger: 0.2,
+    duration: 0.8,
+    ease: "power3.out",
+    scrollTrigger: {
+      trigger: ".cards-institucionais-container",
+      start: "top 80%",
+      end: "top 40%",
+      scrub: false,
+    },
+  });
+}
 
-gsap.from(".eyebrow", {
-  y: 30,
-  opacity: 0,
-  duration: 0.8,
-  delay: 0.15,
-  ease: "power3.out",
-});
+if (document.querySelector(".secao-sobre")) {
+  gsap.from(".sobre-item", {
+    opacity: 0,
+    y: 40,
+    stagger: 0.15,
+    duration: 0.7,
+    ease: "power2.out",
+    scrollTrigger: { trigger: ".secao-sobre", start: "top 75%" },
+  });
+}
 
-// lado direito entra de baixo
-gsap.from(".hero-direita", {
-  y: 50,
-  opacity: 0,
-  duration: 0.9,
-  delay: 0.4,
-  ease: "power3.out",
-});
+if (document.querySelector(".secao-agende")) {
+  gsap.from(".secao-agende h2", {
+    opacity: 0,
+    y: 50,
+    duration: 0.9,
+    ease: "power3.out",
+    scrollTrigger: { trigger: ".secao-agende", start: "top 75%" },
+  });
 
-// parallax no fundo do hero (data-speed já cuida via ScrollSmoother)
-gsap.to(".hero-bg", {
-  yPercent: 25,
-  ease: "none",
-  scrollTrigger: {
-    trigger: ".hero",
-    start: "top top",
-    end: "bottom top",
-    scrub: true,
-  },
-});
+  gsap.from(".secao-agende .btn-primary", {
+    opacity: 0,
+    y: 30,
+    duration: 0.7,
+    delay: 0.2,
+    ease: "power3.out",
+    scrollTrigger: { trigger: ".secao-agende", start: "top 70%" },
+  });
+}
 
-/* ─── ANIMAÇÕES CARDS ────────────────────────────────── */
-gsap.from(".card", {
-  opacity: 0,
-  y: 60,
-  filter: "blur(8px)",
-  stagger: 0.2,
-  duration: 0.8,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: ".cards",
-    start: "top 80%",
-    end: "top 40%",
-    scrub: false,
-  },
-});
+if (document.querySelector(".titulo-secao")) {
+  gsap.from(".titulo-secao h2", {
+    opacity: 0,
+    x: -40,
+    duration: 0.8,
+    ease: "power3.out",
+    scrollTrigger: { trigger: ".titulo-secao", start: "top 80%" },
+  });
+}
 
-/* ─── ANIMAÇÕES NÚMEROS ──────────────────────────────── */
-gsap.from(".sobre-item", {
-  opacity: 0,
-  y: 40,
-  stagger: 0.15,
-  duration: 0.7,
-  ease: "power2.out",
-  scrollTrigger: {
-    trigger: ".secao-sobre",
-    start: "top 75%",
-  },
-});
+if (document.querySelector("footer")) {
+  gsap.from(".footer-logo h2", {
+    opacity: 0,
+    y: 40,
+    duration: 1,
+    ease: "power3.out",
+    scrollTrigger: { trigger: "footer", start: "top 85%" },
+  });
+}
 
-/* ─── SEÇÃO AGENDAR ──────────────────────────────────── */
-gsap.from(".secao-agende h2", {
-  opacity: 0,
-  y: 50,
-  duration: 0.9,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: ".secao-agende",
-    start: "top 75%",
-  },
-});
+if (document.querySelector("header")) {
+  gsap.from("header", { y: -30, opacity: 0, duration: 0.7, ease: "power3.out" });
+}
 
-gsap.from(".secao-agende .btn-primary", {
-  opacity: 0,
-  y: 30,
-  duration: 0.7,
-  delay: 0.2,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: ".secao-agende",
-    start: "top 70%",
-  },
-});
+/* ─── ANIMAÇÕES DA TELA DE LOGIN ─────────────────────────── */
+if (document.querySelector(".card-login")) {
+  gsap.from(".login-left .eyebrow", { y: 30, opacity: 0, duration: 0.7, delay: 0.1, ease: "power3.out" });
+  gsap.from(".login-left h1", { y: 60, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
+  gsap.from(".login-desc, .divider, .login-bullets", { y: 30, opacity: 0, duration: 0.7, delay: 0.4, stagger: 0.12, ease: "power3.out" });
+  gsap.from(".card-login", { x: 60, opacity: 0, duration: 0.9, delay: 0.3, ease: "power3.out" });
+}
 
-/* ─── TÍTULO SECAO PRODUTOS ─────────────────────────── */
-gsap.from(".titulo-secao h2", {
-  opacity: 0,
-  x: -40,
-  duration: 0.8,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: ".titulo-secao",
-    start: "top 80%",
-  },
-});
-
-/* ─── FOOTER LOGO ────────────────────────────────────── */
-gsap.from(".footer-logo h2", {
-  opacity: 0,
-  y: 40,
-  duration: 1,
-  ease: "power3.out",
-  scrollTrigger: {
-    trigger: "footer",
-    start: "top 85%",
-  },
-});
-
-/* ─── ANIMAÇÕES DE ENTRADA ───────────────────────────── */
-gsap.from("header", {
-  y: -30,
-  opacity: 0,
-  duration: 0.7,
-  ease: "power3.out",
-});
-
-gsap.from(".login-left .eyebrow", {
-  y: 30,
-  opacity: 0,
-  duration: 0.7,
-  delay: 0.1,
-  ease: "power3.out",
-});
-
-gsap.from(".login-left h1", {
-  y: 60,
-  opacity: 0,
-  duration: 0.8,
-  delay: 0.2,
-  ease: "power3.out",
-});
-
-gsap.from(".login-desc, .divider, .login-bullets", {
-  y: 30,
-  opacity: 0,
-  duration: 0.7,
-  delay: 0.4,
-  stagger: 0.12,
-  ease: "power3.out",
-});
-
-gsap.from(".card-login", {
-  x: 60,
-  opacity: 0,
-  duration: 0.9,
-  delay: 0.3,
-  ease: "power3.out",
-});
-
-
-/* ─── TOGGLE SENHA ───────────────────────────────────── */
-// Usamos uma função autoinvocável para garantir o escopo isolado
+/* ─── TOGGLE SENHA (TELA DE LOGIN) ───────────────────────── */
 (function() {
   const toggleBtn  = document.getElementById("toggle-senha");
   const senhaInput = document.getElementById("senha");
@@ -210,11 +146,9 @@ gsap.from(".card-login", {
 
   if (toggleBtn && senhaInput) {
     toggleBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // Evita qualquer comportamento de submit indesejado
-      
+      e.preventDefault();
       const isHidden = senhaInput.type === "password";
-      senhaInput.type   = isHidden ? "text" : "password";
-      
+      senhaInput.type = isHidden ? "text" : "password";
       if (iconEye && iconEyeOff) {
         iconEye.style.display    = isHidden ? "none"  : "block";
         iconEyeOff.style.display = isHidden ? "block" : "none";
@@ -223,80 +157,69 @@ gsap.from(".card-login", {
   }
 })();
 
-/* ─── VALIDAÇÃO ──────────────────────────────────────── */
+/* ─── VALIDAÇÃO & SUBMIT DO LOGIN ────────────────────────── */
 function setError(groupId, show) {
   const group = document.getElementById(groupId);
-  if (show) {
-    group.classList.add("has-error");
-  } else {
-    group.classList.remove("has-error");
+  if (group) {
+    if (show) group.classList.add("has-error");
+    else group.classList.remove("has-error");
   }
 }
 
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
-/* ─── SUBMIT CORRIGIDO ───────────────────────────────── */
-const loginRoute = "/auth/login";
-const dashboardRoute = "/dashboard";
-const btnLogin = document.getElementById("btn-login");
-const btnText   = document.getElementById("btn-text");
-const btnLoader = document.getElementById("btn-loader");
-const btnArrow  = document.getElementById("btn-arrow");
-const emailField = document.getElementById("email");
-const senhaField = document.getElementById("senha");
 
-if (btnLogin && emailField && senhaField) {
-  // O (e) foi adicionado aqui para capturar o evento de clique
+const btnLogin = document.getElementById("btn-login");
+if (btnLogin) {
+  const emailField = document.getElementById("email");
+  const senhaField = document.getElementById("senha");
+  const btnText   = document.getElementById("btn-text");
+  const btnLoader = document.getElementById("btn-loader");
+  const btnArrow  = document.getElementById("btn-arrow");
+
   btnLogin.addEventListener("click", async (e) => {
-    e.preventDefault(); // <-- Bloqueia o navegador de recarregar a página bruto e dar erro
+    e.preventDefault();
 
     const email = emailField.value.trim();
     const senha = senhaField.value;
-
     let ok = true;
 
-    // Validação do E-mail
     if (!validarEmail(email)) {
       setError("group-email", true);
       ok = false;
-      gsap.fromTo("#group-email", { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
+      if (typeof gsap !== "undefined") gsap.fromTo("#group-email", { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
     } else {
       setError("group-email", false);
     }
 
-    // Validação da Senha
     if (senha.length < 1) {
       setError("group-senha", true);
       ok = false;
-      gsap.fromTo("#group-senha", { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
+      if (typeof gsap !== "undefined") gsap.fromTo("#group-senha", { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
     } else {
       setError("group-senha", false);
     }
 
-    // Se houver erro de validação, para a execução aqui
     if (!ok) return;
 
-    // Ativa o estado de carregamento visual no botão
     btnLogin.classList.add("loading");
-    btnText.style.display   = "none";
-    btnArrow.style.display  = "none";
-    btnLoader.style.display = "flex";
+    if (btnText) btnText.style.display = "none";
+    if (btnArrow) btnArrow.style.display = "none";
+    if (btnLoader) btnLoader.style.display = "flex";
 
     try {
       const formData = new FormData();
-      // Chaves alteradas para corresponder exatamente ao que o seu main.py espera
       formData.append("email", email); 
       formData.append("senha", senha); 
 
-      const response = await fetch(loginRoute, {
+      const response = await fetch("/auth/login", {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        // Redireciona para o painel administrativo caso o login seja válido
-        window.location.href = dashboardRoute;
+        window.location.href = "/dashboard";
         return;
       }
 
@@ -305,25 +228,245 @@ if (btnLogin && emailField && senhaField) {
     } catch (error) {
       alert("Erro de conexão. Tente novamente mais tarde.");
     } finally {
-      // Restaura o botão ao estado original caso falhe
       btnLogin.classList.remove("loading");
-      btnText.style.display   = "inline";
-      btnArrow.style.display  = "block";
-      btnLoader.style.display = "none";
+      if (btnText) btnText.style.display = "inline";
+      if (btnArrow) btnArrow.style.display = "block";
+      if (btnLoader) btnLoader.style.display = "none";
     }
   });
 
-  /* ─── LIMPA ERRO AO DIGITAR ──────────────────────────── */
-  emailField.addEventListener("input", () => setError("group-email", false));
-  senhaField.addEventListener("input", () => setError("group-senha", false));
+  if (emailField) emailField.addEventListener("input", () => setError("group-email", false));
+  if (senhaField) senhaField.addEventListener("input", () => setError("group-senha", false));
 }
 
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ─── CORE DO PAINEL ADMINISTRATIVO (PRODUTOS & ASSISTENTES) ─────────────────
+   ───────────────────────────────────────────────────────────────────────────── */
+
+let escopoGaleriaAtivo = 'adicionar'; 
+let produtoIdParaDeletar = null;
+
 document.addEventListener("DOMContentLoaded", () => {
-    // Inicializa a data atual no cabeçalho
+    // 1. Data Atual Dinâmica no Painel
     const currentDateElement = document.getElementById('current-date');
     if (currentDateElement) {
         const d = new Date();
         const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         currentDateElement.textContent = d.toLocaleDateString('pt-BR', opts);
     }
+
+    // 2. Dispara a renderização local de produtos
+    carregarProdutosDoBackend();
 });
+
+// Renderiza a grade de produtos baseada no bloco de dados injetado pelo Jinja2
+function carregarProdutosDoBackend() {
+    const divDados = document.getElementById('dados-produtos-backend');
+    const grade = document.getElementById('prod-grade');
+    
+    if (!divDados || !grade) return; // Evita rodar no site institucional externo
+
+    try {
+        const produtos = JSON.parse(divDados.getAttribute('data-produtos') || "[]");
+        grade.innerHTML = ""; 
+
+        if (produtos.length === 0) {
+            grade.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                    Nenhum produto cadastrado no momento. ＋ Adicione o primeiro!
+                </div>`;
+            return;
+        }
+
+        produtos.forEach(prod => {
+            const statusBadge = prod.disponivel 
+                ? '<span class="status-tag disponivel">Disponível</span>' 
+                : '<span class="status-tag indisponivel">Indisponível</span>';
+
+            const card = document.createElement('div');
+            card.className = 'prod-card';
+            card.innerHTML = `
+                <div class="prod-card-capa">
+                    <img src="${prod.imagem_url || '/static/assets/Camisa malha branca.svg'}" alt="${prod.nome}">
+                    ${statusBadge}
+                </div>
+                <div class="prod-card-corpo">
+                    <h3 class="prod-card-titulo">${prod.nome}</h3>
+                    <div class="prod-card-detalhes">
+                        <span class="prod-card-preco">R$ ${Number(prod.preco).toFixed(2).replace('.', ',')}</span>
+                        ${prod.tamanho ? `<span class="prod-card-tamanho">Tam: ${prod.tamanho}</span>` : ''}
+                    </div>
+                    <div class="prod-card-acoes">
+                        <button class="btn-acao-editar" onclick="abrirModalEditar(${JSON.stringify(prod).replace(/"/g, '&quot;')})">✏️ Editar</button>
+                        <button class="btn-acao-deletar" onclick="abrirModalDeletar(${prod.id}, '${prod.nome}')">🗑️ Excluir</button>
+                    </div>
+                </div>
+            `;
+            grade.appendChild(card);
+        });
+    } catch (e) {
+        console.error("Erro no processamento dos produtos:", e);
+        grade.innerHTML = `<div style="grid-column: 1/-1; color: #ff5555;">Erro ao renderizar dados locais.</div>`;
+    }
+}
+
+/* ─── CONTROLE DE JANELAS MODAIS ────────────────────────── */
+function abrirModalAdicionar() {
+    document.getElementById('modal-adicionar').classList.add('active');
+}
+
+function abrirModalEditar(prod) {
+    document.getElementById('edit-id').value = prod.id;
+    document.getElementById('edit-nome').value = prod.nome;
+    document.getElementById('edit-preco').value = prod.preco;
+    
+    if (document.getElementById('edit-quantidade')) {
+        document.getElementById('edit-quantidade').value = prod.quantidade || 0;
+    }
+    
+    document.getElementById('edit-categoria-id').value = prod.categoria_id || "";
+    document.getElementById('edit-tamanho').value = prod.tamanho || "";
+    document.getElementById('edit-disponivel').value = prod.disponivel ? "1" : "0";
+    
+    document.getElementById('img-selecionada-editar').value = prod.imagem_url;
+    document.getElementById('preview-img-editar').src = prod.imagem_url || '/static/assets/Camisa malha branca.svg';
+
+    document.getElementById('modal-editar').classList.add('active');
+}
+
+function abrirModalDeletar(id, nome) {
+    produtoIdParaDeletar = id;
+    document.getElementById('deletar-nome-produto').textContent = `"${nome}"`;
+    document.getElementById('modal-deletar').classList.add('active');
+}
+
+function fecharModal(id) {
+    document.getElementById(id).classList.remove('active');
+}
+
+/* ─── ENVIOS PARA A API DO FASTAPI (/ADMIN/PRODUTOS) ─────── */
+async function salvarProduto(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    
+    const payload = {
+        nome: formData.get('nome'),
+        preco: parseFloat(formData.get('preco')),
+        tamanho: formData.get('tamanho') || "",
+        disponivel: parseInt(formData.get('disponivel')),
+        categoria_id: formData.get('categoria_id') ? parseInt(formData.get('categoria_id')) : null,
+        imagem_url: formData.get('imagem_url')
+    };
+
+    try {
+        const response = await fetch('/admin/produtos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) window.location.reload();
+        else alert("Erro ao criar produto.");
+    } catch (err) {
+        alert("Erro na conexão com o servidor.");
+    }
+}
+
+async function atualizarProduto(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const id = formData.get('id');
+
+    const payload = {
+        nome: formData.get('nome'),
+        preco: parseFloat(formData.get('preco')),
+        tamanho: formData.get('tamanho') || "",
+        disponivel: parseInt(formData.get('disponivel')),
+        categoria_id: formData.get('categoria_id') ? parseInt(formData.get('categoria_id')) : null,
+        imagem_url: formData.get('imagem_url')
+    };
+
+    try {
+        const response = await fetch(`/admin/produtos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) window.location.reload();
+        else alert("Erro ao atualizar dados.");
+    } catch (err) {
+        alert("Erro na requisição.");
+    }
+}
+
+async function confirmarDelecao() {
+    if (!produtoIdParaDeletar) return;
+
+    try {
+        const response = await fetch(`/admin/produtos/${produtoIdParaDeletar}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) window.location.reload();
+        else alert("Não foi possível remover o produto.");
+    } catch (err) {
+        alert("Erro de conexão.");
+    }
+}
+
+/* ─── SELETOR DE IMAGENS DA GALERIA DO CATÁLOGO ──────────── */
+async function abrirGaleriaGlobal(escopo) {
+    escopoGaleriaAtivo = escopo; 
+    const grid = document.getElementById('galeria-grid-dinamico');
+    if (!grid) return;
+
+    grid.innerHTML = "<p style='color:rgba(255,255,255,0.5); text-align:center;'>Buscando mídias...</p>";
+    document.getElementById('modal-galeria-midia').classList.add('active');
+
+    try {
+        const response = await fetch('/admin/assets/imagens'); // Rota GET permitida no backend
+        const dados = await response.json();
+
+        grid.innerHTML = "";
+        if (!dados.imagens || dados.imagens.length === 0) {
+            grid.innerHTML = "<p style='color:rgba(255,255,255,0.4); text-align:center; grid-column:1/-1;'>Nenhum asset encontrado.</p>";
+            return;
+        }
+
+        dados.imagens.forEach(url => {
+            const item = document.createElement('div');
+            item.className = 'galeria-item-opcao';
+            item.innerHTML = `<img src="${url}" alt="Asset"><div class="check-overlay">✓</div>`;
+            item.onclick = () => selecionarItemGaleria(item, url);
+            grid.appendChild(item);
+        });
+    } catch (e) {
+        grid.innerHTML = "<p style='color:#ff5555; text-align:center;'>Erro ao abrir galeria.</p>";
+    }
+}
+
+let urlImagemSelecionadaTemporaria = null;
+function selecionarItemGaleria(elemento, url) {
+    document.querySelectorAll('.galeria-item-opcao').forEach(el => el.classList.remove('selected'));
+    elemento.classList.add('selected');
+    urlImagemSelecionadaTemporaria = url;
+}
+
+function confirmarEscolhaGaleria() {
+    if (!urlImagemSelecionadaTemporaria) {
+        fecharModal('modal-galeria-midia');
+        return;
+    }
+
+    if (escopoGaleriaAtivo === 'adicionar') {
+        document.getElementById('img-selecionada-adicionar').value = urlImagemSelecionadaTemporaria;
+        document.getElementById('preview-img-adicionar').src = urlImagemSelecionadaTemporaria;
+    } else if (escopoGaleriaAtivo === 'editar') {
+        document.getElementById('img-selecionada-editar').value = urlImagemSelecionadaTemporaria;
+        document.getElementById('preview-img-editar').src = urlImagemSelecionadaTemporaria;
+    }
+
+    fecharModal('modal-galeria-midia');
+}

@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import FastAPI, Request, Depends, Form, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -29,7 +29,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # CONFIGURAÇÃO DE CAMINHOS CORRIGIDA (MAIN NA RAIZ PRINCIPAL DO PROJETO)
 # ─────────────────────────────────────────────────────────────────────────────
 
-# Pega o caminho absoluto de onde o main.py está rodando (/PROJETOSOFTWARE-AAPM)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Aponta para a pasta templates que está dentro de app/routers/templates
@@ -149,64 +148,15 @@ async def processar_login(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ROTAS DO PAINEL ADMINISTRATIVO (VIEWS)
+# ROTAS DO PAINEL ADMINISTRATIVO (VIEWS DE RENDERIZAÇÃO)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
-    total_produtos = 0
-    total_categorias = 0
-    total_fornecedores = 0
-    produtos_do_banco = []
-    categorias_do_banco = []
-    fornecedores_do_banco = []
-    categorias_json = []
-    fornecedores_json = []
-
-    try:
-        total_produtos = db.query(Produto).count()
-        total_categorias = db.query(Categoria).count()
-        total_fornecedores = db.query(Fornecedor).count()
-        
-        produtos_do_banco = db.query(Produto).all()
-        categorias_do_banco = db.query(Categoria).all()
-        fornecedores_do_banco = db.query(Fornecedor).all()
-        
-        categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
-        fornecedores_json = [
-            {
-                "id": f.id,
-                "nome_fantasia": f.nome_fantasia,
-                "cnpj": f.cnpj,
-                "telefone": f.telefone,
-                "email": f.email,
-                "localidade": f.localidade,
-                "nome_contato": f.nome_contato
-            }
-            for f in fornecedores_do_banco
-        ]
-    except Exception as e:
-        print(f"⚠️ Alerta: Erro ao ler dados para o Dashboard: {e}")
-
-    return templates.TemplateResponse(
-        request=request,
-        name="admin/dashboard.html",  
-        context={
-            "total_produtos": total_produtos,
-            "total_categorias": total_categorias,
-            "total_fornecedores": total_fornecedores,
-            "produtos": produtos_do_banco,
-            "categories": categorias_do_banco,      
-            "categorias": categorias_do_banco,
-            "fornecedores": fornecedores_do_banco,
-            "categorias_json": categorias_json,
-            "fornecedores_json": fornecedores_json
-        }
-    )
-
-
-@app.get("/dashboard/visaogeral", response_class=HTMLResponse)
-async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(get_db)):
+    """
+    Rota principal do painel. Carrega o template de Visão Geral diretamente
+    e alimenta todos os cards dinâmicos com dados reais do banco de dados.
+    """
     total_produtos = 0
     total_categorias = 0
     total_fornecedores = 0
@@ -222,6 +172,7 @@ async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(ge
             vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
             total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
             
+            # Pega as 5 últimas vendas para alimentar a tabela de atividade/vendas recentes
             vendas_recentes = vendas_do_banco[:5]
             for v in vendas_recentes:
                 prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
@@ -238,17 +189,26 @@ async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(ge
     except Exception as e:
         print(f"⚠️ Alerta: Erro ao carregar Visão Geral: {e}")
 
+    # Formatação do faturamento para o padrão de moeda brasileiro
+    faturamento_pt_br = f"{total_vendas_valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
     return templates.TemplateResponse(
         request=request,
-        name="admin/visaogeral.html",
+        name="admin/visaogeral.html",  # Agora a rota mãe chama diretamente a visão geral!
         context={
             "total_produtos": total_produtos,
             "total_categorias": total_categorias,
             "total_fornecedores": total_fornecedores,
-            "faturamento_total": total_vendas_valor,
+            "faturamento_total": faturamento_pt_br,
             "vendas_recentes": vendas_formatadas
         }
     )
+
+
+@app.get("/dashboard/visaogeral")
+async def redirecionar_visaogeral():
+    """Redireciona para evitar caminhos duplicados desnecessários."""
+    return RedirectResponse(url="/dashboard")
 
 
 @app.get("/dashboard/produtos", response_class=HTMLResponse)
@@ -361,7 +321,7 @@ async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (GERENCIAMENTO DE ARQUIVOS CORRIGIDO)
+# API REST (ENDPOINTS CRUD ACESSADOS VIA AJAX/FETCH - PREFIXO /ADMIN)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/admin/assets/imagens")
@@ -521,7 +481,7 @@ async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
     return {"status": "deletado"}
 
 
-# --- API REST COMPLETA PARA VENDAS ---
+# --- CRUD VENDAS ---
 
 @app.post("/admin/vendas")
 async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
