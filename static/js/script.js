@@ -57,7 +57,6 @@ if (document.querySelector(".hero")) {
 }
 
 /* ─── ANIMAÇÕES INSTITUCIONAIS / HOME (GSAP) ──────────────── */
-// Só anima se estiver na página pública que contém o container original de cards
 if (document.querySelector(".cards-institucionais-container")) {
   gsap.from(".cards-institucionais-container .card", {
     opacity: 0,
@@ -256,16 +255,41 @@ document.addEventListener("DOMContentLoaded", () => {
         currentDateElement.textContent = d.toLocaleDateString('pt-BR', opts);
     }
 
-    // 2. Dispara a renderização local de produtos
+    // 2. Mapeia os Cliques nos Cards de Acesso Rápido da Visão Geral
+    configurarCliquesAcessoRapido();
+
+    // 3. Dispara a renderização local de produtos se a div existir
     carregarProdutosDoBackend();
 });
+
+// Captura os cliques na seção de acesso rápido e redireciona de forma correta
+function configurarCliquesAcessoRapido() {
+    // Procura links de acesso rápido baseados nas classes mapeadas do HTML
+    document.querySelectorAll('.quick-link, .quick-link-title').forEach(elemento => {
+        elemento.addEventListener('click', (e) => {
+            // Se o elemento em si for um link com href definido, o navegador já resolve nativamente.
+            // Essa função serve para tratar elementos internos de texto clicados caso necessário.
+            const titulo = elemento.textContent || elemento.innerText;
+            
+            if (titulo.includes('Produtos')) {
+                window.location.href = "/dashboard/produtos";
+            } else if (titulo.includes('Catálogos')) {
+                window.location.href = "/dashboard/categorias";
+            } else if (titulo.includes('Fornecedores')) {
+                window.location.href = "/dashboard/fornecedores";
+            } else if (titulo.includes('Vendas')) {
+                window.location.href = "/dashboard/vendas";
+            }
+        });
+    });
+}
 
 // Renderiza a grade de produtos baseada no bloco de dados injetado pelo Jinja2
 function carregarProdutosDoBackend() {
     const divDados = document.getElementById('dados-produtos-backend');
     const grade = document.getElementById('prod-grade');
     
-    if (!divDados || !grade) return; // Evita rodar no site institucional externo
+    if (!divDados || !grade) return; 
 
     try {
         const produtos = JSON.parse(divDados.getAttribute('data-produtos') || "[]");
@@ -426,7 +450,7 @@ async function abrirGaleriaGlobal(escopo) {
     document.getElementById('modal-galeria-midia').classList.add('active');
 
     try {
-        const response = await fetch('/admin/assets/imagens'); // Rota GET permitida no backend
+        const response = await fetch('/admin/assets/imagens'); 
         const dados = await response.json();
 
         grid.innerHTML = "";
