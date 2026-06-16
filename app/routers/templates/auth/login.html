@@ -1,4 +1,140 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght=300;400;500;600;700&family=Bebas+Neue&display=swap');
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}" />
+  <title>Login Admin – AAPM</title>
+</head>
+<body>
 
-{% block content %}
-{% endblock %}
+  <div class="login-page-wrapper">
+
+    <header>
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white"/>
+            <rect x="11" y="1" width="6" height="6" rx="1.5" fill="white" opacity=".55"/>
+            <rect x="1" y="11" width="6" height="6" rx="1.5" fill="white" opacity=".55"/>
+            <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white"/>
+          </svg>
+        </div>
+        <span>AAPM</span>
+      </a>
+      <span class="header-location">PAINEL ADMIN</span>
+    </header>
+
+    <div class="bg"></div>
+    <div class="bg-grid"></div>
+
+    <main>
+      <div class="login-wrapper">
+
+        <div class="login-left">
+          <p class="eyebrow">SENAI BRÁS — SP</p>
+          <h1>PAINEL<br>ADMIN</h1>
+          <p class="login-desc">Acesso restrito à equipe da AAPM. Insira suas credenciais para continuar.</p>
+
+          <div class="divider"></div>
+
+          <ul class="login-bullets">
+            <li>
+              <span class="bullet-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7L9 18l-5-5"/></svg>
+              </span>
+              Gestão de produtos e serviços
+            </li>
+            <li>
+              <span class="bullet-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7L9 18l-5-5"/></svg>
+              </span>
+              Controle de agendamentos
+            </li>
+            <li>
+              <span class="bullet-icon">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 7L9 18l-5-5"/></svg>
+              </span>
+              Relatórios e dashboard
+            </li>
+          </ul>
+        </div>
+
+        <div class="login-right">
+          <div class="card-login">
+            <p class="card-eyebrow">ACESSO ADMIN</p>
+            <h2>Bem-vindo de volta</h2>
+            <p class="card-sub">Entre com suas credenciais para acessar o painel.</p>
+
+            <form action="/auth/login" method="POST" class="form">
+              
+              <div class="input-group" id="group-email">
+                <label for="email">E-mail</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/>
+                  </svg>
+                  <input type="email" id="email" name="email" placeholder="admin@aapm.com.br" autocomplete="email" required />
+                </div>
+                <span class="input-error" id="error-email">Insira um e-mail válido.</span>
+              </div>
+
+              <div class="input-group" id="group-senha">
+                <label for="senha">Senha</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input type="password" id="senha" name="senha" placeholder="••••••••" autocomplete="current-password" required />
+                  
+                  <button type="button" class="toggle-senha" id="toggle-senha" aria-label="Mostrar senha">
+                    <svg id="icon-eye" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg id="icon-eye-off" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  </button>
+                </div>
+                <span class="input-error" id="error-senha">Insira sua senha.</span>
+              </div>
+
+              <button type="button" class="btn-login" id="btn-login">
+                <span id="btn-text">ENTRAR NO PAINEL</span>
+                <span id="btn-loader" style="display:none">
+                  <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                  </svg>
+                </span>
+                <svg id="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </button>
+
+              <div class="form-footer">
+                <a href="#" class="link-esqueci">Esqueci minha senha</a>
+                <a href="/" class="link-voltar">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                  Voltar ao site
+                </a>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script src="{{ url_for('static', path='js/script.js') }}" defer></script>
+</body>
+</html>

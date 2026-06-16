@@ -1,407 +1,181 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM - SENAI Brás</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Bebas+Neue&display=swap');
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}" />
+  <title>AAPM – SENAI Brás</title>
 </head>
 <body>
 
-    <div class="fundo-fixo" style="pointer-events: none; z-index: 1;">
-        <div class="sky"></div>
-        
-        <div class="camada-montanhas-fundo">
-            <svg width="100%" height="100%" viewBox="0 0 1400 340" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="0,340 0,180 100,100 200,160 340,70 480,140 620,50 760,130 900,60 1050,120 1200,55 1350,100 1400,80 1400,340" fill="#2a5080"/>
-                <polygon points="0,340 0,210 80,160 200,190 340,120 470,165 620,100 780,160 920,105 1060,155 1210,95 1360,140 1400,120 1400,340" fill="#1e3e6e"/>
+<div id="smooth-wrapper">
+  <div id="smooth-content">
+
+    <!-- CABEÇALHO -->
+    <header>
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white"/>
+            <rect x="11" y="1" width="6" height="6" rx="1.5" fill="white" opacity=".55"/>
+            <rect x="1" y="11" width="6" height="6" rx="1.5" fill="white" opacity=".55"/>
+            <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white"/>
+          </svg>
+        </div>
+        <span>AAPM</span>
+      </div>
+      <span class="header-location">SENAI BRÁS &mdash; SP</span>
+      <a href="/login" class="header-login" style="margin-left: auto; padding: 8px 16px; border: 1px solid white; border-radius: 4px; text-decoration: none; color: white; font-size: 14px; font-weight: 500;">PAINEL ADMIN</a>
+    </header>
+
+    <main>
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="hero-bg" data-speed=".6"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-grid"></div>
+
+        <div class="hero-esquerda">
+          <p class="eyebrow">SENAI</p>
+          <h1>AAPM</h1>
+        </div>
+
+        <div class="hero-direita">
+          <p>Acesse o site da AAPM e descubra nossos produtos com praticidade e rapidez.</p>
+          <a href="/visualizacao" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            COMPRE E AGENDE
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
+          </a>
         </div>
-        <div class="camada-montanhas-frente">
-            <svg width="100%" height="100%" viewBox="0 0 1400 260" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="0,260 0,140 130,50 280,120 430,30 600,100 760,20 930,90 1080,25 1250,80 1400,40 1400,260" fill="#163060"/>
-                <polygon points="0,260 0,175 110,110 260,150 410,80 580,130 740,65 900,120 1060,70 1220,110 1400,75 1400,260" fill="#0f2247"/>
-            </svg>
-        </div>
-        <div class="camada-arvores">
-            <svg width="100%" height="100%" viewBox="0 0 1400 100" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="0" width="1400" height="100" fill="#0a1830"/>
-                <polygon points="20,100   35,58   50,100"  fill="#0d2240"/>
-                <polygon points="12,100   35,38   58,100"  fill="#0d2240"/>
-                <polygon points="70,100   86,55   102,100" fill="#0d2240"/>
-                <polygon points="62,100   86,35   110,100" fill="#0d2240"/>
-                <polygon points="125,100 140,60 155,100" fill="#0d2240"/>
-                <polygon points="118,100 140,40 162,100" fill="#0d2240"/>
-                <polygon points="185,100 198,62 211,100" fill="#0d2240"/>
-                <polygon points="178,100 198,42 218,100" fill="#0d2240"/>
-                <polygon points="240,100 253,58 266,100" fill="#0d2240"/>
-                <polygon points="233,100 253,38 273,100" fill="#0d2240"/>
-                <polygon points="295,100 308,65 321,100" fill="#0d2240"/>
-                <polygon points="288,100 308,45 328,100" fill="#0d2240"/>
-                <polygon points="1080,100 1095,58 1110,100" fill="#0d2240"/>
-                <polygon points="1073,100 1095,38 1117,100" fill="#0d2240"/>
-                <polygon points="1135,100 1150,55 1165,100" fill="#0d2240"/>
-                <polygon points="1128,100 1150,35 1172,100" fill="#0d2240"/>
-                <polygon points="1195,100 1210,60 1225,100" fill="#0d2240"/>
-                <polygon points="1188,100 1210,40 1232,100" fill="#0d2240"/>
-                <polygon points="1255,100 1270,58 1285,100" fill="#0d2240"/>
-                <polygon points="1248,100 1270,38 1292,100" fill="#0d2240"/>
-                <polygon points="1315,100 1330,62 1345,100" fill="#0d2240"/>
-                <polygon points="1308,100 1330,42 1352,100" fill="#0d2240"/>
-                <polygon points="1368,100 1382,65 1396,100" fill="#0d2240"/>
-                <polygon points="1361,100 1382,45 1400,100" fill="#0a1830"/>
-            </svg>
-        </div>
-    </div>
+      </section>
 
-    <div class="palco-zoom" style="position: relative; z-index: 5;">
-        <div class="universo-3d" id="universo3D">
-
-            <div class="camada-universo" id="universo-home">
-                <div class="zona-clique zona-esquerda" onclick="viajarPara('admin')" title="Área administrativa">
-                    <span class="seta-suave">&#9664; Painel Admin</span>
-                </div>
-                <div class="zona-clique zona-direita" onclick="viajarPara('publico')" title="Ver catálogo">
-                    <span class="seta-suave">Catálogo &#9654;</span>
-                </div>
-
-                <div class="badge-senai">
-                    <div class="badge-titulo">SENAI<br>BRÁS-SP</div>
-                    <div class="badge-sub">FRANCISCO MATARAZZO · RUA CORREIA DE ANDRADE 232</div>
-                    <div class="badge-rua">TÊXTIL E MODA</div>
-                </div>
-
-                <div class="conteudo-centro">
-                    <span class="label-senai">SENAI</span>
-                    <div class="logo-aapm-3d">AAPM</div>
-                    <p class="descricao-aapm">
-                        Acesse o site da AAPM e descubra nossos produtos com praticidade e rapidez.<br>
-                        <strong>Compre e agende com a AAPM</strong>
-                    </p>
-                </div>
-                <span class="rodape-aapm">AAPM</span>
+      <!-- PRODUTOS -->
+      <div class="bg-dark-section">
+        <section class="secao-produtos">
+          <div class="titulo-secao">
+            <h2>NOSSOS PRODUTOS</h2>
+            <a href="/visualizacao" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+              VER TODOS
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
+          </div>
+          <div class="cards">
+            <div class="card">
+              <div class="card-bg card-bg-1"></div>
+              <div class="card-info">
+                <h3>Manutenção</h3>
+                <p>SERVIÇOS DISPONÍVEIS</p>
+              </div>
             </div>
-
-            <div class="camada-universo" id="universo-admin">
-                <span class="btn-voltar" onclick="voltarAoInicio()">&#8592; Voltar</span>
-                <p class="frase-topo-admin">&#9888; Acesso restrito — apenas administradores</p>
-                <div class="card-glass-login">
-                    <h3>Login</h3>
-                    <form method="POST">
-                        <div class="input-grupo">
-                            <input type="email" name="username" placeholder="E-mail" required autocomplete="email">
-                        </div>
-                        <div class="input-grupo">
-                            <input type="password" name="password" placeholder="Senha" required autocomplete="current-password">
-                        </div>
-                        <label class="lembrar-wrapper">
-                            <input type="checkbox" id="lembrar"> Lembrar de mim
-                        </label>
-                        <button type="submit" class="btn-entrar">Acessar</button>
-                    </form>
-                </div>
+            <div class="card">
+              <div class="card-bg card-bg-2"></div>
+              <div class="card-info">
+                <h3>Usinagem</h3>
+                <p>SERVIÇOS DISPONÍVEIS</p>
+              </div>
             </div>
-
-            <div class="camada-universo" id="universo-publico">
-                
-                <nav class="pub-navbar">
-                    <div class="pub-navbar-logo">
-                        <div class="pub-navbar-logo-icone">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                <polyline points="9 22 9 12 15 12 15 22"/>
-                            </svg>
-                        </div>
-                        <span class="pub-navbar-titulo">DASHBOARD</span>
-                    </div>
-
-                    <ul class="pub-navbar-links">
-                        <li><a href="#sec-catalogo" class="pub-nav-link pub-ativo">Catálogos</a></li>
-                        <li><a href="#sec-horarios" class="pub-nav-link">Horários</a></li>
-                        <li><a href="#sec-servicos" class="pub-nav-link">Serviços disponíveis</a></li>
-                        <li><a href="#sec-duvidas"  class="pub-nav-link">Dúvidas</a></li>
-                    </ul>
-
-                    <a class="pub-navbar-sair" onclick="voltarAoInicio(); return false;" href="#">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16 17 21 12 16 7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                        Sair
-                    </a>
-                </nav>
-
-                <div class="pub-corpo" id="pub-corpo-scroll">
-
-                    <section class="pub-hero" id="sec-hero">
-                        <h2 class="pub-hero-titulo">BEM VINDO</h2>
-                        <p class="pub-hero-sub">Conheça nossos serviços e catálogos</p>
-                        <div class="pub-scroll-hint" onclick="var el = document.getElementById('sec-catalogo'); if(el) el.scrollIntoView({behavior:'smooth'})">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="6 9 12 15 18 9"/>
-                            </svg>
-                        </div>
-                    </section>
-
-                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-catalogo">
-                        <div class="pub-secao-inner">
-                            <div class="pub-secao-header">
-                                <span class="pub-secao-eyebrow">Produtos</span>
-                                <h3 class="pub-secao-titulo">Catálogos</h3>
-                                <p class="pub-secao-desc">Confira todos os itens disponíveis na AAPM.</p>
-                            </div>
-                            <div class="pub-grade">
-                                {% for produto in produtos %}
-                                <div class="pub-card">
-                                    <div class="pub-card-img">
-                                        {% if produto.imagem_url %}
-                                        <img src="{{ produto.imagem_url }}" alt="{{ produto.nome }}">
-                                        {% else %}
-                                        <span class="pub-card-emoji">🛍️</span>
-                                        {% endif %}
-                                    </div>
-                                    <div class="pub-card-body">
-                                        <div class="pub-card-nome">{{ produto.nome }}</div>
-                                        <div class="pub-card-tamanho">Tamanho: {{ produto.tamanho }}</div>
-                                        <div class="pub-card-preco">R$ {{ "%.2f"|format(produto.preco) }}</div>
-                                        <span class="pub-card-status {% if produto.disponivel %}pub-status-ok{% else %}pub-status-off{% endif %}">
-                                            {{ 'Disponível' if produto.disponivel else 'Indisponível' }}
-                                        </span>
-                                    </div>
-                                </div>
-                                {% else %}
-                                <div class="pub-card">
-                                    <div class="pub-card-img"><span class="pub-card-emoji">👕</span></div>
-                                    <div class="pub-card-body">
-                                        <div class="pub-card-nome">Camiseta SENAI</div>
-                                        <div class="pub-card-tamanho">Tamanho: G</div>
-                                        <div class="pub-card-preco">R$ 49,90</div>
-                                        <span class="pub-card-status pub-status-ok">Disponível</span>
-                                    </div>
-                                </div>
-                                <div class="pub-card">
-                                    <div class="pub-card-img"><span class="pub-card-emoji">📚</span></div>
-                                    <div class="pub-card-body">
-                                        <div class="pub-card-nome">Apostila Têxtil</div>
-                                        <div class="pub-card-tamanho">Tamanho: Único</div>
-                                        <div class="pub-card-preco">R$ 29,90</div>
-                                        <span class="pub-card-status pub-status-ok">Disponível</span>
-                                    </div>
-                                </div>
-                                <div class="pub-card">
-                                    <div class="pub-card-img"><span class="pub-card-emoji">🎽</span></div>
-                                    <div class="pub-card-body">
-                                        <div class="pub-card-nome">Uniforme Completo</div>
-                                        <div class="pub-card-tamanho">Tamanho: M</div>
-                                        <div class="pub-card-preco">R$ 89,90</div>
-                                        <span class="pub-card-status pub-status-off">Indisponível</span>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="pub-divisor"></div>
-
-                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-horarios">
-                        <div class="pub-secao-inner">
-                            <div class="pub-secao-header">
-                                <span class="pub-secao-eyebrow">Atendimento</span>
-                                <h3 class="pub-secao-titulo">Horários</h3>
-                                <p class="pub-secao-desc">Nossos horários de funcionamento presencial.</p>
-                            </div>
-                            <div class="pub-horarios-grid">
-                                <div class="pub-horario-card">
-                                    <div class="pub-horario-icone">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                        </svg>
-                                    </div>
-                                    <div class="pub-horario-info">
-                                        <span class="pub-horario-dia">Segunda a Sexta</span>
-                                        <span class="pub-horario-hora">08:00 — 17:00</span>
-                                    </div>
-                                    <span class="pub-horario-badge pub-badge-aberto">Funcionando</span>
-                                </div>
-                                <div class="pub-horario-card">
-                                    <div class="pub-horario-icone">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                        </svg>
-                                    </div>
-                                    <div class="pub-horario-info">
-                                        <span class="pub-horario-dia">Sábado</span>
-                                        <span class="pub-horario-hora">08:00 — 12:00</span>
-                                    </div>
-                                    <span class="pub-horario-badge pub-badge-parcial">Meio período</span>
-                                </div>
-                                <div class="pub-horario-card">
-                                    <div class="pub-horario-icone">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                        </svg>
-                                    </div>
-                                    <div class="pub-horario-info">
-                                        <span class="pub-horario-dia">Domingo</span>
-                                        <span class="pub-horario-hora">Fechado</span>
-                                    </div>
-                                    <span class="pub-horario-badge pub-badge-fechado">Fechado</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="pub-divisor"></div>
-
-                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-servicos">
-                        <div class="pub-secao-inner">
-                            <div class="pub-secao-header">
-                                <span class="pub-secao-eyebrow">O que oferecemos</span>
-                                <h3 class="pub-secao-titulo">Serviços disponíveis</h3>
-                                <p class="pub-secao-desc">Tudo que a AAPM pode fazer por você.</p>
-                            </div>
-                            <div class="pub-servicos-grid">
-                                <div class="pub-servico-card">
-                                    <div class="pub-servico-icone">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
-                                            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                                            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
-                                        </svg>
-                                    </div>
-                                    <h4 class="pub-servico-titulo">Agendamentos</h4>
-                                    <p class="pub-servico-desc">Agende horários para retirada de materiais e uniformes com antecedência.</p>
-                                </div>
-                                <div class="pub-servico-card">
-                                    <div class="pub-servico-icone">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                                            <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
-                                        </svg>
-                                    </div>
-                                    <h4 class="pub-servico-titulo">Retirada de Uniformes</h4>
-                                    <p class="pub-servico-desc">Retire seu uniforme escolar diretamente na secretaria da AAPM.</p>
-                                </div>
-                                <div class="pub-servico-card">
-                                    <div class="pub-servico-icone">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                            <polyline points="14 2 14 8 20 8"/>
-                                            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                                        </svg>
-                                    </div>
-                                    <h4 class="pub-servico-titulo">Materiais Didáticos</h4>
-                                    <p class="pub-servico-desc">Apostilas, kits e materiais do curso disponíveis para retirada.</p>
-                                </div>
-                                <div class="pub-servico-card">
-                                    <div class="pub-servico-icone">
-                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                            <circle cx="12" cy="7" r="4"/>
-                                        </svg>
-                                    </div>
-                                    <h4 class="pub-servico-titulo">Atendimento Pessoal</h4>
-                                    <p class="pub-servico-desc">Nossa equipe está disponível para tirar dúvidas e auxiliar no que precisar.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <div class="pub-divisor"></div>
-
-                    <section class="pub-secao-conteudo pub-secao-animada" id="sec-duvidas">
-                        <div class="pub-secao-inner pub-secao-inner-estreito">
-                            <div class="pub-secao-header">
-                                <span class="pub-secao-eyebrow">Suporte</span>
-                                <h3 class="pub-secao-titulo">Dúvidas frequentes</h3>
-                                <p class="pub-secao-desc">Respostas para as perguntas mais comuns.</p>
-                            </div>
-                            <div class="pub-faq">
-                                <details class="pub-faq-item">
-                                    <summary class="pub-faq-pergunta">Como faço meu pedido?</summary>
-                                    <p class="pub-faq-resposta">Selecione o produto no catálogo e compareça presencialmente à secretaria da AAPM dentro do horário de atendimento.</p>
-                                </details>
-                                <details class="pub-faq-item">
-                                    <summary class="pub-faq-pergunta">Quais as formas de pagamento?</summary>
-                                    <p class="pub-faq-resposta">Aceitamos dinheiro, cartões de débito e crédito, e Pix. O pagamento é realizado no ato da retirada.</p>
-                                </details>
-                                <details class="pub-faq-item">
-                                    <summary class="pub-faq-pergunta">Preciso agendar para retirar meu uniforme?</summary>
-                                    <p class="pub-faq-resposta">Não é obrigatório, mas recomendamos o agendamento para evitar filas e garantir que o produto esteja reservado.</p>
-                                </details>
-                                <details class="pub-faq-item">
-                                    <summary class="pub-faq-pergunta">Posso devolver ou trocar um produto?</summary>
-                                    <p class="pub-faq-resposta">Sim, trocas são aceitas em até 7 dias corridos após a retirada, desde que o produto esteja sem uso e com a etiqueta.</p>
-                                </details>
-                                <details class="pub-faq-item">
-                                    <summary class="pub-faq-pergunta">Como entro em contato com a AAPM?</summary>
-                                    <p class="pub-faq-resposta">Você pode comparecer presencialmente na secretaria ou entrar em contato pelo e-mail da escola durante o horário de atendimento.</p>
-                                </details>
-                            </div>
-                        </div>
-                    </section>
-
-                    <footer class="pub-rodape">
-                        <span>AAPM · SENAI Brás · Francisco Matarazzo</span>
-                    </footer>
-
-                </div>
+            <div class="card">
+              <div class="card-bg card-bg-3"></div>
+              <div class="card-info">
+                <h3>Automação</h3>
+                <p>SERVIÇOS DISPONÍVEIS</p>
+              </div>
             </div>
+          </div>
+        </section>
 
+        <!-- SOBRE / NÚMEROS -->
+        <section class="secao-sobre">
+          <div class="sobre-logos">
+            <span class="tag">SENAI</span>
+            <span class="tag">BRÁS</span>
+            <span class="tag">SP</span>
+          </div>
+          <div class="sobre-texto">
+            <div class="sobre-item">
+              <p class="sobre-numero">+200</p>
+              <p class="sobre-desc">alunos formados anualmente em cursos técnicos industriais de alta demanda.</p>
+            </div>
+            <div class="sobre-item">
+              <p class="sobre-numero">15+</p>
+              <p class="sobre-desc">anos de excelência em formação profissional e serviços industriais no coração de SP.</p>
+            </div>
+            <div class="sobre-item">
+              <p class="sobre-numero">100%</p>
+              <p class="sobre-desc">dos serviços realizados por alunos supervisionados por instrutores especializados.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- AGENDE -->
+      <section class="secao-agende">
+        <h2>PRONTO PARA AGENDAR SEU SERVIÇO?</h2>
+        <a href="/visualizacao" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+          AGENDE AGORA COM A AAPM
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-conteudo">
+        <div class="footer-logo">
+          <p class="footer-eyebrow">THE EXPERIENCE</p>
+          <h2>AAPM</h2>
         </div>
-    </div>
+        <div class="footer-secoes">
+          <div class="footer-col">
+            <h3>REDES SOCIAIS</h3>
+            <ul>
+              <li>Instagram</li>
+              <li>LinkedIn</li>
+              <li>Facebook</li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h3>UNIDADE</h3>
+            <p>SENAI Brás<br>São Paulo — SP</p>
+          </div>
+          <div class="footer-col">
+            <h3>INSTITUCIONAL</h3>
+            <ul>
+              <li><a href="/visualizacao" style="color: inherit; text-decoration: none;">Contato</a></li>
+              <li><a href="/visualizacao" style="color: inherit; text-decoration: none;">Sobre</a></li>
+              <li><a href="/login" style="color: inherit; text-decoration: none;">Painel Admin</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-logos-bar">
+        <span>SENAI</span>
+        <span>AAPM</span>
+      </div>
+      <div class="texto-infinito">
+        <h3>AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp;</h3>
+        <h3 aria-hidden="true">AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp; AAPM &nbsp;&nbsp;</h3>
+      </div>
+    </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            /* Scroll suave ao clicar nos links internos da navbar */
-            document.querySelectorAll('.pub-nav-link').forEach(function (link) {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    var alvo = document.querySelector(this.getAttribute('href'));
-                    if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
-                    this.classList.add('pub-ativo');
-                });
-            });
+  </div>
+</div>
 
-            /* Intersection Observer — Revela seções com animação CSS ao entrar na tela */
-            var observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) entry.target.classList.add('pub-visivel');
-                });
-            }, { threshold: 0.10 });
-
-            document.querySelectorAll('.pub-secao-animada').forEach(function (el) {
-                observer.observe(el);
-            });
-
-            /* Sincronização Dinâmica: Marca link ativo na navbar conforme scroll interno */
-            var corpo = document.getElementById('pub-corpo-scroll');
-            if (corpo) {
-                corpo.addEventListener('scroll', function () {
-                    document.querySelectorAll('.pub-nav-link').forEach(function (link) {
-                        var alvo = document.querySelector(link.getAttribute('href'));
-                        if (!alvo) return;
-                        var topo = alvo.offsetTop - corpo.scrollTop - 80;
-                        var fim  = topo + alvo.offsetHeight;
-                        if (topo <= 0 && fim > 0) {
-                            document.querySelectorAll('.pub-nav-link').forEach(function (l) { l.classList.remove('pub-ativo'); });
-                            link.classList.add('pub-ativo');
-                        }
-                    });
-                }, { passive: true });
-            }
-        });
-    </script>
-
-    {% block content %}{% endblock %}
-
-    <script src="{{ url_for('static', path='js/script.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/ScrollSmoother.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/SplitText.min.js"></script>
+<script src="{{ url_for('static', path='js/script.js') }}"></script>
 </body>
 </html>

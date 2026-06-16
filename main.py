@@ -1,9 +1,9 @@
 import os
-from typing import Optional, List
+from typing import Optional
 from fastapi import FastAPI, Request, Depends, Form, HTTPException, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from pydantic import BaseModel
@@ -25,11 +25,41 @@ app = FastAPI()
 # Contexto para checar a senha criptografada em BCrypt vinda do seed.py
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# Aponta para onde a pasta templates REALMENTE está
-templates = Jinja2Templates(directory="app/routers/templates")
+# ─────────────────────────────────────────────────────────────────────────────
+# CONFIGURAÇÃO DE CAMINHOS CORRIGIDA (MAIN NA RAIZ PRINCIPAL DO PROJETO)
+# ─────────────────────────────────────────────────────────────────────────────
 
-# Monta a pasta static da raiz corretamente no FastAPI
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Pega o caminho absoluto de onde o main.py está rodando (/PROJETOSOFTWARE-AAPM)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Aponta para a pasta templates que está dentro de app/routers/templates
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "app", "routers", "templates"))
+
+# Aponta para a pasta static que está diretamente na raiz junto com o main.py
+caminho_static_correto = os.path.join(BASE_DIR, "static")
+app.mount("/static", StaticFiles(directory=caminho_static_correto), name="static")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HANDLERS DE EXCEÇÃO PERSONALIZADOS (ERRO 404 - NOT FOUND)
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.exception_handler(404)
+async def custom_404_handler(request: Request, exc: Exception):
+    if request.url.path.startswith("/admin"):
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "status": "erro",
+                "mensagem": f"O recurso ou endpoint '{request.url.path}' não foi encontrado no sistema."
+            }
+        )
+    
+    return templates.TemplateResponse(
+        request=request,
+        name="public/404.html",
+        status_code=status.HTTP_404_NOT_FOUND
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -68,7 +98,12 @@ class VendaSchema(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def pagina_inicial(request: Request, db: Session = Depends(get_db)):
-    produtos_do_banco = db.query(Produto).all()
+    try:
+        produtos_do_banco = db.query(Produto).all()
+    except Exception as e:
+        print(f"❌ Erro ao buscar produtos no banco: {e}")
+        produtos_do_banco = []
+        
     return templates.TemplateResponse(
         request=request, 
         name="base.html",
@@ -83,7 +118,10 @@ async def pagina_login(request: Request):
 
 @app.get("/visualizacao", response_class=HTMLResponse)
 async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
-    produtos_do_banco = db.query(Produto).all()
+    try:
+        produtos_do_banco = db.query(Produto).all()
+    except Exception:
+        produtos_do_banco = []
     return templates.TemplateResponse(
         request=request, 
         name="public/visualizacao.html", 
@@ -93,18 +131,16 @@ async def pagina_visualizacao(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/auth/login")
 async def processar_login(
-    username: str = Form(...), 
-    password: str = Form(...), 
+    email: str = Form(...), 
+    senha: str = Form(...), 
     db: Session = Depends(get_db)
 ):
-    usuario = db.query(Usuario).filter(Usuario.email == username).first()
-    
-    if usuario and pwd_context.verify(password, usuario.senha):
-        return {
-            "status": "sucesso", 
-            "nome": usuario.nome, 
-            "role": usuario.role
-        }
+    try:
+        usuario = db.query(Usuario).filter(Usuario.email == email).first()
+        if usuario and pwd_context.verify(senha, usuario.senha):
+            return JSONResponse(content={"status": "sucesso", "redirecionar": "/dashboard"})
+    except Exception as e:
+        print(f"❌ Erro na autenticação: {e}")
         
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED, 
@@ -118,28 +154,40 @@ async def processar_login(
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
-    total_produtos = db.query(Produto).count()
-    total_categorias = db.query(Categoria).count()
-    total_fornecedores = db.query(Fornecedor).count()
-    
-    produtos_do_banco = db.query(Produto).all()
-    categorias_do_banco = db.query(Categoria).all()
-    fornecedores_do_banco = db.query(Fornecedor).all()
-    
-    categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
-    fornecedores_json = [
-        {
-            "id": f.id,
-            "nome_fantasia": f.nome_fantasia,
-            "cnpj": f.cnpj,
-            "telefone": f.telefone,
-            "email": f.email,
-            "localidade": f.localidade,
-            "nome_contato": f.nome_contato
-        }
-        for f in fornecedores_do_banco
-    ]
-    
+    total_produtos = 0
+    total_categorias = 0
+    total_fornecedores = 0
+    produtos_do_banco = []
+    categorias_do_banco = []
+    fornecedores_do_banco = []
+    categorias_json = []
+    fornecedores_json = []
+
+    try:
+        total_produtos = db.query(Produto).count()
+        total_categorias = db.query(Categoria).count()
+        total_fornecedores = db.query(Fornecedor).count()
+        
+        produtos_do_banco = db.query(Produto).all()
+        categorias_do_banco = db.query(Categoria).all()
+        fornecedores_do_banco = db.query(Fornecedor).all()
+        
+        categorias_json = [{"id": c.id, "nome": c.nome} for c in categorias_do_banco]
+        fornecedores_json = [
+            {
+                "id": f.id,
+                "nome_fantasia": f.nome_fantasia,
+                "cnpj": f.cnpj,
+                "telefone": f.telefone,
+                "email": f.email,
+                "localidade": f.localidade,
+                "nome_contato": f.nome_contato
+            }
+            for f in fornecedores_do_banco
+        ]
+    except Exception as e:
+        print(f"⚠️ Alerta: Erro ao ler dados para o Dashboard: {e}")
+
     return templates.TemplateResponse(
         request=request,
         name="admin/dashboard.html",  
@@ -148,7 +196,8 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
             "total_categorias": total_categorias,
             "total_fornecedores": total_fornecedores,
             "produtos": produtos_do_banco,
-            "categories": categorias_do_banco,
+            "categories": categorias_do_banco,      
+            "categorias": categorias_do_banco,
             "fornecedores": fornecedores_do_banco,
             "categorias_json": categorias_json,
             "fornecedores_json": fornecedores_json
@@ -158,37 +207,37 @@ async def pagina_dashboard(request: Request, db: Session = Depends(get_db)):
 
 @app.get("/dashboard/visaogeral", response_class=HTMLResponse)
 async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(get_db)):
-    # 1. Buscar contadores dinâmicos do Banco de Dados
-    total_produtos = db.query(Produto).count()
-    total_categorias = db.query(Categoria).count()
-    total_fornecedores = db.query(Fornecedor).count()
-    
-    # 2. Inicializar variáveis de vendas seguras caso o Model exista
+    total_produtos = 0
+    total_categorias = 0
+    total_fornecedores = 0
     vendas_formatadas = []
     total_vendas_valor = 0.0
-    
-    if Venda:
-        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
-        
-        # Calcular o faturamento total somando o preco_total real de cada venda
-        total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
-        
-        # Pegar as 5 vendas mais recentes estruturadas para o HTML
-        vendas_recentes = vendas_do_banco[:5]
-        for v in vendas_recentes:
-            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
-            nome_produto = prod.nome if prod else "Produto Indisponível"
-            
-            vendas_formatadas.append({
-                "id": v.id,
-                "comprador": v.comprador,
-                "produto_nome": nome_produto,
-                "quantidade": v.quantidade,
-                "preco_total": v.preco_total,
-                "data_venda": v.data_venda
-            })
 
-    # 3. Retornar os dados usando a palavra-chave 'context=' explicitamente (isso corrige o TypeError)
+    try:
+        total_produtos = db.query(Produto).count()
+        total_categorias = db.query(Categoria).count()
+        total_fornecedores = db.query(Fornecedor).count()
+        
+        if Venda:
+            vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
+            total_vendas_valor = sum(venda.preco_total for venda in vendas_do_banco)
+            
+            vendas_recentes = vendas_do_banco[:5]
+            for v in vendas_recentes:
+                prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
+                nome_produto = prod.nome if prod else "Produto Indisponível"
+                
+                vendas_formatadas.append({
+                    "id": v.id,
+                    "comprador": v.comprador,
+                    "produto_nome": nome_produto,
+                    "quantidade": v.quantidade,
+                    "preco_total": v.preco_total,
+                    "data_venda": v.data_venda
+                })
+    except Exception as e:
+        print(f"⚠️ Alerta: Erro ao carregar Visão Geral: {e}")
+
     return templates.TemplateResponse(
         request=request,
         name="admin/visaogeral.html",
@@ -201,11 +250,17 @@ async def pagina_dashboard_visaogeral(request: Request, db: Session = Depends(ge
         }
     )
 
+
 @app.get("/dashboard/produtos", response_class=HTMLResponse)
 async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_db)):
-    produtos_do_banco = db.query(Produto).all()
-    categorias_do_banco = db.query(Categoria).all()  
-    
+    produtos_do_banco = []
+    categorias_do_banco = []
+    try:
+        produtos_do_banco = db.query(Produto).all()
+        categorias_do_banco = db.query(Categoria).all()  
+    except Exception:
+        pass
+
     return templates.TemplateResponse(
         request=request,
         name="admin/produtos.html",
@@ -218,14 +273,20 @@ async def pagina_dashboard_produtos(request: Request, db: Session = Depends(get_
 
 @app.get("/dashboard/categorias", response_class=HTMLResponse)
 async def pagina_dashboard_categorias(request: Request, db: Session = Depends(get_db)):
-    categorias_do_banco = db.query(Categoria).all()
-    categorias_serializadas = [{"id": cat.id, "nome": cat.nome} for cat in categorias_do_banco]
-    
+    categorias_do_banco = []
+    categorias_serializadas = []
+    try:
+        categorias_do_banco = db.query(Categoria).all()
+        categorias_serializadas = [{"id": cat.id, "nome": cat.nome} for cat in categorias_do_banco]
+    except Exception:
+        pass
+
     return templates.TemplateResponse(
         request=request,
         name="admin/categorias.html",
         context={
             "categories": categorias_do_banco,
+            "categorias": categorias_do_banco,
             "categorias_json": categorias_serializadas
         }
     )
@@ -233,20 +294,24 @@ async def pagina_dashboard_categorias(request: Request, db: Session = Depends(ge
 
 @app.get("/dashboard/fornecedores", response_class=HTMLResponse)
 async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(get_db)):
-    fornecedores_do_banco = db.query(Fornecedor).all()
-    
-    fornecedores_serializados = [
-        {
-            "id": f.id,
-            "nome_fantasia": f.nome_fantasia,
-            "cnpj": f.cnpj,
-            "telefone": f.telefone,
-            "email": f.email,
-            "localidade": f.localidade,
-            "nome_contato": f.nome_contato
-        }
-        for f in fornecedores_do_banco
-    ]
+    fornecedores_do_banco = []
+    fornecedores_serializados = []
+    try:
+        fornecedores_do_banco = db.query(Fornecedor).all()
+        fornecedores_serializados = [
+            {
+                "id": f.id,
+                "nome_fantasia": f.nome_fantasia,
+                "cnpj": f.cnpj,
+                "telefone": f.telefone,
+                "email": f.email,
+                "localidade": f.localidade,
+                "nome_contato": f.nome_contato
+            }
+            for f in fornecedores_do_banco
+        ]
+    except Exception:
+        pass
     
     return templates.TemplateResponse(
         request=request, 
@@ -258,33 +323,31 @@ async def pagina_dashboard_fornecedores(request: Request, db: Session = Depends(
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# VIEW E CRUD DE VENDAS ATUALIZADOS COMPLETOS
-# ─────────────────────────────────────────────────────────────────────────────
-
 @app.get("/dashboard/vendas", response_class=HTMLResponse)
 async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db)):
-    produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
+    produtos_do_banco = []
     vendas_formatadas = []
     faturamento_calculado = 0.0
     
-    if Venda:
-        vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
-        
-        for v in vendas_do_banco:
-            prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
-            nome_produto = prod.nome if prod else "Produto Indisponível"
-            
-            faturamento_calculado += v.preco_total
-            
-            vendas_formatadas.append({
-                "id": v.id,
-                "comprador": v.comprador,
-                "produto_nome": nome_produto,
-                "quantidade": v.quantidade,
-                "preco_total": v.preco_total,
-                "data_venda": v.data_venda
-            })
+    try:
+        produtos_do_banco = db.query(Produto).filter(Produto.disponivel == True).all()
+        if Venda:
+            vendas_do_banco = db.query(Venda).order_by(Venda.id.desc()).all()
+            for v in vendas_do_banco:
+                prod = db.query(Produto).filter(Produto.id == v.produto_id).first()
+                nome_produto = prod.nome if prod else "Produto Indisponível"
+                faturamento_calculado += v.preco_total
+                
+                vendas_formatadas.append({
+                    "id": v.id,
+                    "comprador": v.comprador,
+                    "produto_nome": nome_produto,
+                    "quantidade": v.quantidade,
+                    "preco_total": v.preco_total,
+                    "data_venda": v.data_venda
+                })
+    except Exception:
+        pass
     
     return templates.TemplateResponse(
         request=request, 
@@ -298,12 +361,12 @@ async def pagina_dashboard_vendas(request: Request, db: Session = Depends(get_db
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# API REST (CRUD PRODUTOS, CATEGORIAS, FORNECEDORES & VENDAS)
+# API REST (GERENCIAMENTO DE ARQUIVOS CORRIGIDO)
 # ─────────────────────────────────────────────────────────────────────────────
 
 @app.get("/admin/assets/imagens")
 async def listar_imagens_galeria():
-    caminho_pasta = os.path.join("static", "assets")
+    caminho_pasta = os.path.join(caminho_static_correto, "assets")
     if not os.path.exists(caminho_pasta):
         os.makedirs(caminho_pasta)
         return {"imagens": []}
@@ -318,7 +381,6 @@ async def listar_imagens_galeria():
             if arq.lower().endswith(extensoes_permitidas)
         ]
         return {"imagens": sorted(imagens)}
-        
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao ler pasta de mídias: {str(e)}")
 
@@ -463,6 +525,9 @@ async def deletar_fornecedor(fornecedor_id: int, db: Session = Depends(get_db)):
 
 @app.post("/admin/vendas")
 async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
+    if not Venda:
+        raise HTTPException(status_code=501, detail="Módulo de vendas não está ativo no sistema.")
+
     produto = db.query(Produto).filter(Produto.id == dados.produto_id).first()
     if not produto:
         raise HTTPException(status_code=404, detail="Produto vendido não encontrado no sistema.")
@@ -482,6 +547,9 @@ async def registrar_venda(dados: VendaSchema, db: Session = Depends(get_db)):
 
 @app.delete("/admin/vendas/{venda_id}")
 async def deletar_venda(venda_id: int, db: Session = Depends(get_db)):
+    if not Venda:
+        raise HTTPException(status_code=501, detail="Módulo de vendas não está ativo no sistema.")
+
     venda = db.query(Venda).filter(Venda.id == venda_id).first()
     if not venda:
         raise HTTPException(status_code=404, detail="Venda não encontrada.")
@@ -493,6 +561,9 @@ async def deletar_venda(venda_id: int, db: Session = Depends(get_db)):
 
 @app.get("/admin/vendas/{venda_id}/extrato")
 async def gerar_extrato_venda(venda_id: int, db: Session = Depends(get_db)):
+    if not Venda:
+        raise HTTPException(status_code=501, detail="Módulo de vendas não está ativo no sistema.")
+
     venda = db.query(Venda).filter(Venda.id == venda_id).first()
     if not venda:
         raise HTTPException(status_code=404, detail="Venda não encontrada no banco.")

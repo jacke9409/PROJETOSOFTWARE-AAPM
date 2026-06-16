@@ -3,14 +3,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-
-# 1. Forçamos a string de conexão correta com a senha 'root' que você alterou no Workbench
-DATABASE_URL = "mysql+pymysql://root:root@localhost:3307/aapm"
+# Linha 9:
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:@127.0.0.1:3306/aapm"
 
 # Configura o motor de conexão para o MySQL
 engine = create_engine(
-    DATABASE_URL, 
-    pool_pre_ping=True  # Verifica se a conexão está ativa antes de usá-la
+    SQLALCHEMY_DATABASE_URL,  # <--- Mude de DATABASE_URL para SQLALCHEMY_DATABASE_URL
+    pool_pre_ping=True
 )
 
 # Cria a fábrica de sessões com o banco

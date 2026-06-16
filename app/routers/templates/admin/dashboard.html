@@ -1,115 +1,224 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AAPM — Painel Administrativo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-</head>
-<body class="dashboard-body">
+{% extends 'admin/base_admin.html' %}
 
-    <div class="fundo-fixo">
-        <div class="sky"></div>
-        <div class="camada-nuvens"></div>
+{% block admin_content %}
+    <div class="page-header">
+      <div>
+        <p class="page-title-label">Painel Administrativo</p>
+        <h2 class="page-title">VISÃO GERAL</h2>
+        <p class="page-subtitle">Resumo das operações da AAPM</p>
+      </div>
+      <div class="header-date" id="current-date"></div>
     </div>
 
-    <div class="painel-admin-wrapper">
-
-        <!-- HEADER -->
-        <header class="dashboard-header-admin">
-            <div class="header-titulos">
-                <div class="header-logo-grupo">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="header-logo-icon"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    <span class="header-marca">AAPM</span>
-                    <span class="header-separador">/</span>
-                    <span class="header-secao">Administrativo</span>
-                </div>
-                <p class="header-subtitulo">SENAI Brás — Controle Interno</p>
-            </div>
-            <div class="header-usuario">
-                <div class="avatar-admin">AD</div>
-                <div class="header-usuario-info">
-                    <span class="header-usuario-nome">Administrador</span>
-                    <span class="header-usuario-status">Online ●</span>
-                </div>
-            </div>
-        </header>
-
-        <div class="dashboard-corpo-admin">
-
-            <!-- SIDEBAR -->
-            <aside class="dashboard-sidebar-admin">
-                <nav>
-                    <p class="sidebar-label-admin">Navegação</p>
-                    <ul class="sidebar-menu-admin">
-                        <li>
-    <a href="/dashboard/visaogeral" id="menu-inicio">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Visão Geral
-    </a>
-</li>
-                        <li>
-                            <a href="/dashboard/produtos" id="menu-produtos">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                                Produtos
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/dashboard/categorias" id="menu-categorias">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                                Categorias
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/dashboard/fornecedores" id="menu-fornecedores">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                Fornecedores
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/dashboard/vendas" id="menu-vendas">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                                Vendas
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-
-                <div class="sidebar-footer-admin">
-                    <a href="/" id="btn-sair-admin" class="btn-sair-admin">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Sair do Painel
-                    </a>
-                </div>
-            </aside>
-
-            <!-- CONTEÚDO PRINCIPAL -->
-            <main class="admin-conteudo-principal custom-scroll">
-                {% block admin_content %}{% endblock %}
-            </main>
-
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V10"/></svg>
         </div>
+        <div class="stat-value">248</div>
+        <div class="stat-label">Produtos</div>
+        <div class="stat-change up">↑ 12 este mês</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+        </div>
+        <div class="stat-value">14</div>
+        <div class="stat-label">Catálogos</div>
+        <div class="stat-change up">↑ 3 novos</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <div class="stat-value">37</div>
+        <div class="stat-label">Fornecedores</div>
+        <div class="stat-change down">↓ 2 inativos</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        </div>
+        <div class="stat-value">1.432</div>
+        <div class="stat-label">Vendas</div>
+        <div class="stat-change up">↑ 8% vs mês ant.</div>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const path = window.location.pathname;
-            const mapa = {
-                "/dashboard/produtos":     "menu-produtos",
-                "/dashboard/categorias":   "menu-categorias",
-                "/dashboard/fornecedores": "menu-fornecedores",
-                "/dashboard/vendas":       "menu-vendas",
-            };
-            const ativo = mapa[path] || "menu-inicio";
-            document.getElementById(ativo)?.classList.add("active");
-        });
-    </script>
-    <script src="{{ url_for('static', path='js/script.js') }}"></script>
-</body>
-</html>
+    <p class="section-label">Produtos recentes</p>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Últimos produtos cadastrados</span>
+          <span class="panel-action">Ver todos →</span>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Fornecedor</th>
+              <th>Estoque</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="product-name">Capacitor 100µF</div>
+                <div class="product-cat">Eletrônica</div>
+              </td>
+              <td style="color: var(--text-dim);">TechParts</td>
+              <td style="font-weight: 600;">320 un.</td>
+              <td><span class="badge badge-green">Disponível</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="product-name">Resistor 10kΩ</div>
+                <div class="product-cat">Eletrônica</div>
+              </td>
+              <td style="color: var(--text-dim);">CompStore</td>
+              <td style="font-weight: 600;">48 un.</td>
+              <td><span class="badge badge-amber">Estoque baixo</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="product-name">Arduino Uno R3</div>
+                <div class="product-cat">Microcontroladores</div>
+              </td>
+              <td style="color: var(--text-dim);">Makerlab</td>
+              <td style="font-weight: 600;">15 un.</td>
+              <td><span class="badge badge-red">Crítico</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="product-name">Fio de cobre 1mm</div>
+                <div class="product-cat">Materiais</div>
+              </td>
+              <td style="color: var(--text-dim);">MetalFio</td>
+              <td style="font-weight: 600;">500 m.</td>
+              <td><span class="badge badge-green">Disponível</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="product-name">Chave táctil 12mm</div>
+                <div class="product-cat">Componentes</div>
+              </td>
+              <td style="color: var(--text-dim);">TechParts</td>
+              <td style="font-weight: 600;">0 un.</td>
+              <td><span class="badge badge-red">Sem estoque</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Atividade recente</span>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text"><strong>Venda #1432</strong> finalizada com sucesso</div>
+              <div class="activity-time">Agora mesmo</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-amber"></div>
+            <div>
+              <div class="activity-text">Estoque de <strong>Resistor 10kΩ</strong> abaixo do mínimo</div>
+              <div class="activity-time">15 min atrás</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text">Novo fornecedor <strong>Makerlab</strong> cadastrado</div>
+              <div class="activity-time">1h atrás</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-red"></div>
+            <div>
+              <div class="activity-text"><strong>Chave táctil 12mm</strong> zerou o estoque</div>
+              <div class="activity-time">3h atrás</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text">Catálogo <strong>Automação Industrial</strong> publicado</div>
+              <div class="activity-time">Ontem</div>
+            </div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div>
+              <div class="activity-text">248 produtos importados via planilha</div>
+              <div class="activity-time">Ontem</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top: 8px;">Acesso rápido</p>
+
+    <div class="bottom-grid">
+      <a class="quick-link" href="/admin/produtos">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 10V10"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Produtos</div>
+            <div class="quick-link-count">248 cadastrados</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/admin/categorias">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Catálogos</div>
+            <div class="quick-link-count">14 categorias ativas</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/admin/fornecedores">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Fornecedores</div>
+            <div class="quick-link-count">37 parceiros</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+
+      <a class="quick-link" href="/admin/vendas">
+        <div class="quick-link-info">
+          <div class="quick-link-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <div>
+            <div class="quick-link-title">Vendas</div>
+            <div class="quick-link-count">1.432 este mês</div>
+          </div>
+        </div>
+        <span class="quick-link-arrow">›</span>
+      </a>
+    </div>
+{% endblock %}

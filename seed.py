@@ -1,11 +1,18 @@
 import asyncio
 from passlib.context import CryptContext
-# 🔄 IMPORTAÇÃO CORRIGIDA: Puxando o Base, SessionLocal e engine direto do database
-from app.database import SessionLocal, engine, Base 
-# Ajuste o caminho abaixo se os seus arquivos de modelo tiverem nomes diferentes
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+# 🔄 IMPORTAÇÃO AJUSTADA: Puxando apenas o Base e os modelos do seu app
+from app.database import Base 
 from app.models.usuario import Usuario
 from app.models.categoria import Categoria
 from app.models.produto import Produto
+
+# ⚙️ FORÇANDO CONEXÃO DIRETA NA PORTA 3306 (Sem depender do database.py)
+DATABASE_URL = "mysql+pymysql://root:@127.0.0.1:3306/aapm"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
